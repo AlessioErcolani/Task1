@@ -1,7 +1,7 @@
 package task1;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.persistence.Embeddable;
 
@@ -13,10 +13,10 @@ public class PKReservation implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Date checkInDate;
+	private LocalDate checkInDate;
 	private Room room;
 	
-	public PKReservation (Date checkInDate, Room room) {
+	public PKReservation (LocalDate checkInDate, Room room) {
 		this.setCheckInDate(checkInDate);
 		this.setRoom(room);
 	}
@@ -29,11 +29,11 @@ public class PKReservation implements Serializable{
 		this.room = room;
 	}
 
-	public Date getCheckInDate() {
+	public LocalDate getCheckInDate() {
 		return checkInDate;
 	}
 
-	public void setCheckInDate(Date checkInDate) {
+	public void setCheckInDate(LocalDate checkInDate) {
 		this.checkInDate = checkInDate;
 	}
 

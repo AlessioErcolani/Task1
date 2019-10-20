@@ -1,5 +1,6 @@
 package task1;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import javax.persistence.*;
@@ -15,36 +16,52 @@ public class Reservation {
 	@Id
 	@ManyToOne
 	@JoinColumns({
-        @JoinColumn(name = "ID_hotel", 	referencedColumnName = "ID_hotel"),
+        @JoinColumn(name = "ID_hotel", 		referencedColumnName = "ID_hotel"),
         @JoinColumn(name = "ID_room",		referencedColumnName = "room_number")
     })	
 	private Room room;
 
 	@Id
-	private Date checkInDate;
-	private Date checkOutDate;
+	private LocalDate checkInDate;
+	private LocalDate checkOutDate;
 	
-	Reservation(){}
-	
-	public Date getCheckInDate() {
-		return checkInDate;
+	public Reservation(){
+		
 	}
-	public void setCheckInDate(Date checkInDate) {
+	
+	public Reservation(Room room, LocalDate checkInDate, LocalDate checkOutDate){
+		this.room = room;
 		this.checkInDate = checkInDate;
-	}
-	public Date getCheckOutDate() {
-		return checkOutDate;
-	}
-	public void setCheckOutDate(Date checkOutDate) {
 		this.checkOutDate = checkOutDate;
 	}
-
+	
+	public LocalDate getCheckInDate() {
+		return checkInDate;
+	}
+	public void setCheckInDate(LocalDate checkInDate) {
+		this.checkInDate = checkInDate;
+	}
+	public LocalDate getCheckOutDate() {
+		return checkOutDate;
+	}
+	public void setCheckOutDate(LocalDate checkOutDate) {
+		this.checkOutDate = checkOutDate;
+	}
+	
 	public Room getRoom() {
 		return room;
 	}
 
 	public void setRoom(Room room) {
 		this.room = room;
+	}
+	
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 }

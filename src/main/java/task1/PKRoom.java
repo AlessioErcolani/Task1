@@ -12,9 +12,12 @@ public class PKRoom implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private Hotel hotel;	
-	private Long roomNumber;
+	private int roomNumber;
 	
-	public PKRoom(Hotel hotel, Long roomNumber){
+	public PKRoom() {
+		
+	}
+	public PKRoom(Hotel hotel, int roomNumber){
 		this.setHotel(hotel);
 		this.setRoomNumber(roomNumber);
 	}
@@ -27,11 +30,11 @@ public class PKRoom implements Serializable {
 		this.hotel = hotel;
 	}
 
-	public Long getRoomNumber() {
+	public int getRoomNumber() {
 		return roomNumber;
 	}
 
-	public void setRoomNumber(Long roomNumber) {
+	public void setRoomNumber(int roomNumber) {
 		this.roomNumber = roomNumber;
 	}
 	

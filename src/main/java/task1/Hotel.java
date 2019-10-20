@@ -8,17 +8,27 @@ import javax.persistence.*;
 public class Hotel {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long ID_hotel;
+	private Long ID_hotel; 
 	private String city;
 	private String street;
-	private int number;
+	private int streetNumber;
 	
-	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Room> rooms = new ArrayList<Room>();
 	
 	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Receptionist> receptionists = new ArrayList<Receptionist>();
 
+	public Hotel() {
+		
+	}
+	
+	public Hotel(String city, String street, int streetNumber) {
+		this.city = city;
+		this.street = street;
+		this.streetNumber = streetNumber;
+	}
+	
 	public Long getID_hotel() {
 		return ID_hotel;
 	}
@@ -35,12 +45,12 @@ public class Hotel {
 		this.city = city;
 	}
 
-	public int getNumber() {
-		return number;
+	public int getStreetNumber() {
+		return streetNumber;
 	}
 
-	public void setNumber(int number) {
-		this.number = number;
+	public void setStreetNumber(int streetNumber) {
+		this.streetNumber = streetNumber;
 	}
 
 	public String getStreet() {
@@ -57,6 +67,23 @@ public class Hotel {
 
 	public void setReceptionists(List<Receptionist> receptionists) {
 		this.receptionists = receptionists;
+	}
+	
+	public List<Room> getRooms (){
+		return rooms;
+	}
+	
+	public void setRooms(List<Room> rooms) {
+		this.rooms = rooms; 
+	}
+	
+	public void addRoom(Room room) {
+		rooms.add(room);
+		room.setHotel(this);
+	}
+	
+	public String toString() {
+		return  ID_hotel + city + " " + " " + street + " " + streetNumber; 		
 	}
 	
 
