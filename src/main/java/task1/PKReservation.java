@@ -6,17 +6,14 @@ import java.time.LocalDate;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class PKReservation implements Serializable{
+public class PKReservation implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private LocalDate checkInDate;
 	private Room room;
-	
-	public PKReservation (LocalDate checkInDate, Room room) {
+
+	public PKReservation(LocalDate checkInDate, Room room) {
 		this.setCheckInDate(checkInDate);
 		this.setRoom(room);
 	}

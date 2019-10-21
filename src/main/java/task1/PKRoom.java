@@ -7,21 +7,19 @@ import javax.persistence.*;
 @Embeddable
 public class PKRoom implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	private Hotel hotel;	
+	private Hotel hotel;
 	private int roomNumber;
-	
+
 	public PKRoom() {
-		
+
 	}
-	public PKRoom(Hotel hotel, int roomNumber){
+
+	public PKRoom(Hotel hotel, int roomNumber) {
 		this.setHotel(hotel);
 		this.setRoomNumber(roomNumber);
 	}
-	
+
 	public Hotel getHotel() {
 		return hotel;
 	}
@@ -37,9 +35,5 @@ public class PKRoom implements Serializable {
 	public void setRoomNumber(int roomNumber) {
 		this.roomNumber = roomNumber;
 	}
-	
-	
-	
-	
-	
+
 }
