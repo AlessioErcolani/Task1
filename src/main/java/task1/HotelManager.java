@@ -124,7 +124,7 @@ public class HotelManager {
         
         	room.setHotel(reference);
         	reference.addRoom(room);
-        	entityManager.persist(reference);
+        	entityManager.persist(room);
         	entityManager.getTransaction().commit();
         	
         } catch (Exception ex) {
@@ -222,7 +222,7 @@ public class HotelManager {
          
     
        Room room = new Room(1, 2);       
-       manager.createRoom("Pissa", "Cenaia", 44, room);
+       manager.createRoom("Pisa", "Cenaia", 44, room);
         
         
         manager.exit();  	 
