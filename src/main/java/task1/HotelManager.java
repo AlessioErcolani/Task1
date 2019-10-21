@@ -125,6 +125,26 @@ public class HotelManager {
 			entityManager.close();
 		}
 	}
+	
+	public Customer authenticateCustomer(String username, String password) throws DatabaseManagerException {
+		Customer customer = null;
+		try {
+			entityManager = factory.createEntityManager();
+			entityManager.getTransaction().begin();
+			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class);
+			query.setParameter("username", username);
+			query.setParameter("password", password);
+			customer = query.getSingleResult();
+			entityManager.getTransaction().commit();
+		} catch (NoResultException nr) {
+			return null;
+		} catch (Exception ex) {			
+			 throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			entityManager.close();
+		}
+		return customer;
+	}
 
 	public static void main(String[] args) {
 
@@ -132,15 +152,25 @@ public class HotelManager {
 		manager.setup();
 
 		try {
-			// Customer customer = new Customer("cocorita","96", "Marco", "Del Gamba");
+			Customer customer = new Customer("cocorita", "96", "Marco", "Del Gamba");
 			//Customer customer = new Customer("cocorita", "svrizzi", "Alessio", "Ercolani");
 			try {
-				//manager.createCustomer(customer);
-				Customer customerRead = manager.readCustomer("cocorita");
-				if (customerRead == null)
+				manager.createCustomer(customer);
+				
+				System.out.println("Read Customer");
+				Customer readCustomer = manager.readCustomer("cocorita");
+				if (readCustomer == null)
 					System.out.println("Customer not found");
 				else
-					System.out.println("Id customer " + customerRead.getID());
+					System.out.println("Id customer " + readCustomer.getID());
+				
+				System.out.println("Authenticate Customer");
+				Customer authCustomer = manager.authenticateCustomer("cocorita", "96");
+				if (authCustomer == null)
+					System.out.println("Customer not found");
+				else
+					System.out.println("Id customer " + authCustomer.getID());
+				
 			} catch (UniqueConstraintException ue) {
 				System.out.println(ue.getMessage());
 			}

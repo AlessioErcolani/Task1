@@ -5,6 +5,9 @@ import javax.persistence.*;
 
 @Entity(name = "Customer")
 @Table(name = "customer")
+@NamedQuery(
+		name="Customer.findByUsernameAndPassword",
+		query="SELECT c FROM Customer c WHERE c.username = :username AND c.password = :password")
 public class Customer extends User {
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
