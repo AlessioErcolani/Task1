@@ -15,7 +15,10 @@ public class Customer extends User {
 	}
 	
 	public Customer() {
+<<<<<<< Upstream, based on origin/master
 		super(); //vbwibwib
+=======
+>>>>>>> 69846c4 trial customer
 		//super();
 	}
 	
