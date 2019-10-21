@@ -15,7 +15,7 @@ public class Customer extends User {
 	}
 	
 	public Customer() {
-		super();
+		// super(); commento di chiara
 	}
 	
 	public void addReservation(Reservation reservation) {
