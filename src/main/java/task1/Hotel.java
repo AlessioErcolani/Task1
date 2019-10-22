@@ -5,14 +5,16 @@ import javax.persistence.*;
 
 @Entity(name = "Hotel")
 @Table(name = "hotel")
+@NamedQuery(
+		name="Hotel.findByAddress",
+		query="SELECT h FROM Hotel h WHERE h.address = :address")
 public class Hotel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID_hotel")
 	private Long hotelId;
-	private String city;
-	private String street;
-	private int streetNumber;
+	@Column(unique = true)
+	private String address;
 
 	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Room> rooms = new ArrayList<Room>();
@@ -24,10 +26,8 @@ public class Hotel {
 
 	}
 
-	public Hotel(String city, String street, int streetNumber) {
-		this.city = city;
-		this.street = street;
-		this.streetNumber = streetNumber;
+	public Hotel(String address) {
+		this.address = address;
 	}
 
 	public Long getHotelId() {
@@ -37,31 +37,7 @@ public class Hotel {
 	public void setHotelId(Long hotelId) {
 		this.hotelId = hotelId;
 	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public int getStreetNumber() {
-		return streetNumber;
-	}
-
-	public void setStreetNumber(int streetNumber) {
-		this.streetNumber = streetNumber;
-	}
-
-	public String getStreet() {
-		return street;
-	}
-
-	public void setStreet(String street) {
-		this.street = street;
-	}
-
+	
 	public List<Receptionist> getReceptionists() {
 		return receptionists;
 	}
@@ -81,5 +57,13 @@ public class Hotel {
 	public void addRoom(Room room) {
 		rooms.add(room);
 		room.setHotel(this);
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 }

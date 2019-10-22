@@ -7,22 +7,37 @@ public class HotelManager {
 
 	private EntityManagerFactory factory;
 	private EntityManager entityManager;
-
-	public void setup() {
-		factory = Persistence.createEntityManagerFactory("hotel_chain");
+	
+	public HotelManager(String databaseSchema) {
+		factory = Persistence.createEntityManagerFactory(databaseSchema);
 	}
-
+	
 	public void exit() {
 		factory.close();
+	}
+	
+	private void setup() {
+		entityManager = factory.createEntityManager();
+		entityManager.getTransaction().begin();
+	}
+	
+	private void commit() {
+		entityManager.getTransaction().commit();
+	}
+	
+	private void persistObject(Object obj) {		
+		entityManager.persist(obj);		
+	}
+	
+	private void mergeObject(Object obj) {
+		entityManager.merge(obj);
 	}
 
 	public void createCustomer(Customer customer) throws UniqueConstraintException, DatabaseManagerException {
 		try {
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction().begin();
-			entityManager.persist(customer);
-			entityManager.getTransaction().commit();
-
+			setup();
+			persistObject(customer);
+			commit();
 		} catch (PersistenceException pe) { // ConstraintViolationException
 			Throwable t = pe.getCause();
 			while ((t != null) && !(t instanceof ConstraintViolationException)) {
@@ -38,20 +53,16 @@ public class HotelManager {
 			entityManager.close();
 		}
 	}
-
-	public Customer readCustomer(String username) throws DatabaseManagerException {
+	
+	public Customer authenticateCustomer(String username, String password) throws DatabaseManagerException {
 		Customer customer = null;
 		try {
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction().begin();
-			TypedQuery<Customer> query = entityManager.createQuery(
-										"SELECT c " + 
-										"FROM Customer c " + 
-										"WHERE c.username = :usernameToSearch",							
-										Customer.class);
-			query.setParameter("usernameToSearch", username);
+			setup();
+			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class);
+			query.setParameter("username", username);
+			query.setParameter("password", password);
 			customer = query.getSingleResult();
-			entityManager.getTransaction().commit();
+			commit();
 		} catch (NoResultException nr) {
 			return null;
 		} catch (Exception ex) {			
@@ -64,12 +75,9 @@ public class HotelManager {
 
 	public void createHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
-			
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction().begin();
-			entityManager.persist(hotel);
-			entityManager.getTransaction().commit();
-
+			setup();
+			persistObject(hotel);
+			commit();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -77,25 +85,14 @@ public class HotelManager {
 		}
 	}
 	
-	public Hotel readHotel(String city, String street, int streetNumber) throws DatabaseManagerException {
+	public Hotel readHotel(String address) throws DatabaseManagerException {
 		Hotel hotel = null;
-		try {
-			
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction().begin();
-			TypedQuery<Hotel> query = 	entityManager.createQuery(
-										"SELECT h " + 
-										"FROM Hotel h " + 
-										"WHERE h.city = :cityToSearch AND "
-										+ "h.street = :streetToSearch AND " + 
-										"h.streetNumber = :streetNumberToSearch",
-										Hotel.class);
-			query.setParameter("cityToSearch", city);
-			query.setParameter("streetToSearch", street);
-			query.setParameter("streetNumberToSearch", streetNumber);
+		try {			
+			setup();
+			TypedQuery<Hotel> query = entityManager.createNamedQuery("Hotel.findByAddress", Hotel.class);
+			query.setParameter("address", address);
 			hotel = query.getSingleResult();
-			entityManager.getTransaction().commit();
-			
+			commit();	
 		} catch (NoResultException nr) {
 			return null;
 		} catch (Exception ex) {
@@ -106,18 +103,17 @@ public class HotelManager {
 		return hotel;
 	}
 
-	public void createRoom(String city, String street, int streetNumber, Room room) throws DatabaseManagerException {
+	public void createRoom(String address, Room room) throws DatabaseManagerException {
 		try {
-			Hotel hotel = readHotel(city, street, streetNumber);
+			Hotel hotel = readHotel(address);
 			if (hotel == null) {
-				throw new DatabaseManagerException("Hotel not found");
+				throw new ForeignKeyException("Hotel not found");
 			}
 			
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction().begin();
+			setup();
 			room.setHotel(hotel);
-			entityManager.merge(room);
-			entityManager.getTransaction().commit();
+			mergeObject(room);
+			commit();
 
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -126,43 +122,17 @@ public class HotelManager {
 		}
 	}
 	
-	public Customer authenticateCustomer(String username, String password) throws DatabaseManagerException {
-		Customer customer = null;
-		try {
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction().begin();
-			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class);
-			query.setParameter("username", username);
-			query.setParameter("password", password);
-			customer = query.getSingleResult();
-			entityManager.getTransaction().commit();
-		} catch (NoResultException nr) {
-			return null;
-		} catch (Exception ex) {			
-			 throw new DatabaseManagerException(ex.getMessage());
-		} finally {
-			entityManager.close();
-		}
-		return customer;
-	}
+	
 
 	public static void main(String[] args) {
 
-		HotelManager manager = new HotelManager();
-		manager.setup();
-
+		HotelManager manager = new HotelManager("hotel_chain");
+		
 		try {
 			Customer customer = new Customer("cocorita", "96", "Marco", "Del Gamba");
 			//Customer customer = new Customer("cocorita", "svrizzi", "Alessio", "Ercolani");
 			try {
 				manager.createCustomer(customer);
-				
-				System.out.println("Read Customer");
-				Customer readCustomer = manager.readCustomer("cocorita");
-				if (readCustomer == null)
-					System.out.println("Customer not found");
-				else
-					System.out.println("Id customer " + readCustomer.getID());
 				
 				System.out.println("Authenticate Customer");
 				Customer authCustomer = manager.authenticateCustomer("cocorita", "96");
@@ -175,11 +145,11 @@ public class HotelManager {
 				System.out.println(ue.getMessage());
 			}
 
-			 //Hotel hotel = new Hotel("Pisa", "Cenaia", 44);
-			 //manager.createHotel(hotel);
-
-			 //Room room = new Room(1, 2);
-			 //manager.createRoom("Pisa", "Cenaia", 44, room);
+			 Hotel hotel = new Hotel("Pisa,Pratale,2");
+			 manager.createHotel(hotel);
+			
+			 Room room = new Room(1, 2);
+			 manager.createRoom("Pisa,Pratale,2", room);
 		} catch (DatabaseManagerException de) {
 			System.out.println(de.getMessage());
 		}
