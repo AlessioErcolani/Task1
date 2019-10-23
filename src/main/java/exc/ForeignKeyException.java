@@ -1,4 +1,4 @@
-package task1;
+package exc;
 
 public class ForeignKeyException extends DatabaseManagerException {
 

@@ -1,4 +1,4 @@
-package task1;
+package exc;
 
 public class ReceptionistAuthenticationFailure extends Exception {
 

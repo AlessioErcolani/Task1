@@ -6,6 +6,12 @@ import java.util.logging.Level;
 import javax.persistence.*;
 import org.hibernate.exception.ConstraintViolationException;
 
+import exc.CustomerAuthenticationFailure;
+import exc.CustomerUsernameAlreadyPresentException;
+import exc.DatabaseManagerException;
+import exc.ReceptionistAuthenticationFailure;
+import exc.ReceptionistUsernameAlreadyPresentException;
+
 public class HotelManager {
 
 	private EntityManagerFactory factory;
