@@ -6,6 +6,18 @@ import javax.persistence.*;
 @Entity(name = "Room")
 @Table(name = "room")
 @IdClass(PKRoom.class)
+@NamedQuery(
+		name="Room.getAvailableRoomsGivenDay",
+		query=""
+				+ "SELECT r "
+				+ "FROM Room r "
+				+ "WHERE r.hotel.hotelId = :hotelId AND r.available = true AND r.roomNumber NOT IN "
+				+ "("
+				+ "		SELECT res.room.roomNumber "
+				+ "		FROM Reservation res "
+				+ "		WHERE res.room.hotel.hotelId = :hotelId "
+				+ "			AND :day BETWEEN res.checkInDate AND res.checkOutDate"
+				+ ")")
 public class Room {
 	@Id
 	@ManyToOne

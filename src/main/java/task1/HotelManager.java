@@ -175,6 +175,29 @@ public class HotelManager {
 			entityManager.close();
 		}
 	}
+	
+	/**
+	 * Get a list of rooms that are available in a given day in a given hotel
+	 * @param hotel the Hotel of the room
+	 * @param day the local date of availability
+	 * @return a list of available rooms
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public List<Room> getAvailableRooms(Hotel hotel, LocalDate day) throws DatabaseManagerException {
+		try {
+			setup();
+			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getAvailableRoomsGivenDay", Room.class);
+			query.setParameter("hotelId", hotel.getHotelId());
+			query.setParameter("day", day);
+			List<Room> rooms = query.getResultList();
+			return rooms;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			entityManager.close();
+		}
+	}
 
 	/**
 	 * Checks for the authentication of a Customer through their username and password
@@ -274,7 +297,7 @@ public class HotelManager {
 			manager.addRoom(hotelBologna, new Room(101, 4));
 			manager.addRoom(hotelBologna, new Room(201, 3));
 			manager.addRoom(hotelBologna, new Room(301, 2));
-			manager.addRoom(hotelBologna, new Room(302, 2));
+			manager.addRoom(hotelBologna, new Room(302, 2, false));
 			
 			Room room401 = new Room(401, 5);
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
@@ -283,6 +306,24 @@ public class HotelManager {
 			LocalDate checkIn = LocalDate.parse("2019-11-15");
 			LocalDate checkOut = LocalDate.parse("2019-11-19");
 			manager.addReservation(room401, customer401, checkIn, checkOut);
+			
+			LocalDate occupiedDate = LocalDate.parse("2019-11-17");
+			System.out.println("\nCheck for available rooms on " + occupiedDate);
+			List<Room> rooms17Nov = manager.getAvailableRooms(hotelBologna, occupiedDate);
+			if (rooms17Nov.isEmpty())
+				System.out.println("No available rooms on " + occupiedDate);
+			else
+				for (Room r : rooms17Nov)
+					System.out.println(r);
+			
+			LocalDate freeDate = LocalDate.parse("2019-11-21");
+			System.out.println("\nCheck for available rooms on " + freeDate);
+			List<Room> rooms21Nov = manager.getAvailableRooms(hotelBologna, freeDate);
+			if (rooms21Nov.isEmpty())
+				System.out.println("No available rooms on " + freeDate);
+			else
+				for (Room r : rooms21Nov)
+					System.out.println(r);
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");
@@ -299,9 +340,10 @@ public class HotelManager {
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
 
 		HotelManager manager = new HotelManager("hotel_chain");
-		//populateDatabase(manager);
+		populateDatabase(manager);
 		
 		// TODO: move to JUnit test
+		System.out.println("\nCheck successful login");
 		try {
 			// valid credentials
 			Customer c = manager.authenticateCustomer("federico", "pwd");
@@ -311,14 +353,16 @@ public class HotelManager {
 		}
 		
 		// TODO: move to JUnit test
+		System.out.println("\nCheck login with invalid password");
 		try {
 			// valid username, invalid password
 			manager.authenticateCustomer("chiara", "wrong pwd");
 		} catch (CustomerAuthenticationFailure e) {
 			System.out.println("Authentication failed for " + e.getMessage());
 		}
-	
+		
 		// TODO: move to JUnit test
+		System.out.println("\nCheck login with invalid username");
 		try {
 			// invalid username
 			manager.authenticateCustomer("username that does not exists", "pwd");
@@ -327,6 +371,7 @@ public class HotelManager {
 		}
 		
 		// TODO: move to JUnit test
+		System.out.println("\nCheck successful login");
 		try {
 			// valid credentials
 			Receptionist r = manager.authenticateReceptionist("r1", "pwd");
@@ -336,6 +381,7 @@ public class HotelManager {
 		}
 		
 		// TODO: move to JUnit test
+		System.out.println("\nCheck login with invalid password");
 		try {
 			// valid username, invalid password
 			manager.authenticateReceptionist("r2", "wrong pwd");
@@ -344,6 +390,7 @@ public class HotelManager {
 		}
 		
 		// TODO: move to JUnit test
+		System.out.println("\nCheck login with invalid username");
 		try {
 			// invalid username
 			manager.authenticateReceptionist("username that does not exists", "pwd");
@@ -352,6 +399,7 @@ public class HotelManager {
 		}
 		
 		// TODO: move to JUnit test
+		System.out.println("\nGet upcoming reservation for an user");
 		try {
 			Customer customer401 = manager.authenticateCustomer("piergiorgio", "pwd");
 			List<Reservation> upcomingReservations = manager.getUpcomingReservation(customer401);
