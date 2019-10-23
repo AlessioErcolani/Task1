@@ -13,6 +13,10 @@ public class PKReservation implements Serializable {
 	private LocalDate checkInDate;
 	private Room room;
 
+	public PKReservation() {
+		
+	}
+	
 	public PKReservation(LocalDate checkInDate, Room room) {
 		this.setCheckInDate(checkInDate);
 		this.setRoom(room);

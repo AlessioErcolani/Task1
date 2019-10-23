@@ -1,5 +1,6 @@
 package task1;
 
+import java.time.LocalDate;
 import java.util.logging.Level;
 
 import javax.persistence.*;
@@ -39,8 +40,9 @@ public class HotelManager {
 	 * Inserts a Customer in the database
 	 * @param customer the Customer to add
 	 * @throws CustomerUsernameAlreadyPresentException if the username is already used
+	 * @throws DatabaseManagerException 
 	 */
-	public void addCustomer(Customer customer) throws CustomerUsernameAlreadyPresentException {
+	public void addCustomer(Customer customer) throws CustomerUsernameAlreadyPresentException, DatabaseManagerException {
 		try {
 			setup();
 			persistObject(customer);
@@ -53,6 +55,8 @@ public class HotelManager {
 			if (t instanceof ConstraintViolationException) {
 				throw new CustomerUsernameAlreadyPresentException(customer.getUsername());
 			}
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			entityManager.close();
 		}
@@ -99,7 +103,8 @@ public class HotelManager {
 	}
 	
 	/**
-	 * Inserts a room of the given hotel in the database
+	 * Inserts a room of the given hotel in the database.
+	 * Note that this method does set the hotel field of the Room Object.
 	 * @param hotel the Hotel of the room
 	 * @param room the Room to add
 	 * @throws DatabaseManagerException in case of errors
@@ -117,7 +122,29 @@ public class HotelManager {
 		}
 	}
 	
-	
+	/**
+	 * Inserts a reservation with the given parameters in the database.
+	 * @param room the Room to book
+	 * @param customer the Customer who ordered the Reservation
+	 * @param checkIn check-in date
+	 * @param checkOut check-out date
+	 * @return the Reservation object corresponding to the inserted record
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public Reservation addReservation(Room room, Customer customer, LocalDate checkIn, LocalDate checkOut) throws DatabaseManagerException {
+		try {
+			setup();
+			Reservation reservation = new Reservation(room, checkIn, checkOut);
+			reservation.setCustomer(customer);
+			mergeObject(reservation);
+			commit();
+			return reservation;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			entityManager.close();
+		}
+	}
 	
 	
 	public Customer authenticateCustomer(String username, String password) throws DatabaseManagerException {
@@ -190,7 +217,14 @@ public class HotelManager {
 			manager.addRoom(hotelBologna, new Room(201, 3));
 			manager.addRoom(hotelBologna, new Room(301, 2));
 			manager.addRoom(hotelBologna, new Room(302, 2));
-			manager.addRoom(hotelBologna, new Room(303, 4));
+			
+			Room room401 = new Room(401, 5);
+			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
+			manager.addRoom(hotelBologna, room401);
+			manager.addCustomer(customer401);
+			LocalDate checkIn = LocalDate.parse("2019-11-01");
+			LocalDate checkOut = LocalDate.parse("2019-11-05");
+			manager.addReservation(room401, customer401, checkIn, checkOut);
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer");
