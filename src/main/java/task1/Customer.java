@@ -27,6 +27,12 @@ public class Customer extends User {
 	}
 
 	@Override
+	public String toString() {
+		return "Customer [ID=" + this.getID() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", name=" + this.getName() + ", surname="
+				+ this.getSurname() + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

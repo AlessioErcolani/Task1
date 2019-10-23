@@ -81,6 +81,12 @@ public class Room {
 		result = prime * result + roomNumber;
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return "Room [hotel=" + hotel + ", roomNumber=" + roomNumber + ", roomCapacity=" + roomCapacity + ", available="
+				+ available + "]";
+	}
 
 	@Override
 	public boolean equals(Object obj) {

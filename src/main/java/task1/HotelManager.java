@@ -1,6 +1,7 @@
 package task1;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.persistence.*;
@@ -52,7 +53,6 @@ public class HotelManager {
 		try {
 			setup();
 			persistObject(customer);
-			commit();
 		} catch (PersistenceException pe) { // ConstraintViolationException
 			Throwable t = pe.getCause();
 			while ((t != null) && !(t instanceof ConstraintViolationException)) {
@@ -64,6 +64,7 @@ public class HotelManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
+			commit();
 			entityManager.close();
 		}
 	}
@@ -77,7 +78,6 @@ public class HotelManager {
 		try {
 			setup();
 			persistObject(receptionist);
-			commit();
 		} catch (PersistenceException pe) { // ConstraintViolationException
 			Throwable t = pe.getCause();
 			while ((t != null) && !(t instanceof ConstraintViolationException)) {
@@ -87,6 +87,7 @@ public class HotelManager {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
 		} finally {
+			commit();
 			entityManager.close();
 		}
 	}
@@ -100,10 +101,10 @@ public class HotelManager {
 		try {
 			setup();
 			persistObject(hotel);
-			commit();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
+			commit();
 			entityManager.close();
 		}
 	}
@@ -120,14 +121,14 @@ public class HotelManager {
 			setup();
 			room.setHotel(hotel);
 			mergeObject(room);
-			commit();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
+			commit();
 			entityManager.close();
 		}
 	}
-	
+		
 	/**
 	 * Inserts a reservation with the given parameters in the database.
 	 * @param room the Room to book
@@ -143,15 +144,38 @@ public class HotelManager {
 			Reservation reservation = new Reservation(room, checkIn, checkOut);
 			reservation.setCustomer(customer);
 			mergeObject(reservation);
-			commit();
 			return reservation;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
+			commit();
 			entityManager.close();
 		}
 	}
 	
+	/**
+	 * Get the list of reservations for a customer
+	 * @param customer
+	 * @return the list of reservations
+	 * @throws DatabaseManagerException
+	 */
+	public List<Reservation> getUpcomingReservation(Customer customer) throws DatabaseManagerException {
+		try {
+			setup();
+			List<Reservation> upcomingReservations = entityManager
+					.createNamedQuery("Reservation.getByCustomer", Reservation.class)
+					.setParameter("customerId", customer.getID())
+					.setParameter("checkInDate", LocalDate.now())
+					.getResultList();
+			return upcomingReservations;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			entityManager.close();
+		}
+	}
+
 	/**
 	 * Checks for the authentication of a Customer through their username and password
 	 * @param username customer's username
@@ -160,19 +184,20 @@ public class HotelManager {
 	 * @throws CustomerAuthenticationFailure if authentication fails
 	 */
 	public Customer authenticateCustomer(String username, String password) throws CustomerAuthenticationFailure {
+		Customer customer = null;
 		try {
 			setup();
 			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class);
 			query.setParameter("username", username);
 			query.setParameter("password", password);
-			Customer customer = query.getSingleResult();
-			commit();
-			return customer;
-		} catch (Exception ex) {			
+			customer = query.getSingleResult();	
+		} catch (Exception ex) {	
 			 throw new CustomerAuthenticationFailure(username);
 		} finally {
+			commit();
 			entityManager.close();
 		}
+		return customer;
 	}
 	
 	/**
@@ -189,11 +214,11 @@ public class HotelManager {
 			query.setParameter("username", username);
 			query.setParameter("password", password);
 			Receptionist receptionist = query.getSingleResult();
-			commit();
 			return receptionist;
 		} catch (Exception ex) {			
 			 throw new ReceptionistAuthenticationFailure(username);
 		} finally {
+			commit();
 			entityManager.close();
 		}
 	}
@@ -205,13 +230,13 @@ public class HotelManager {
 			setup();
 			TypedQuery<Hotel> query = entityManager.createNamedQuery("Hotel.findByAddress", Hotel.class);
 			query.setParameter("address", address);
-			hotel = query.getSingleResult();
-			commit();	
+			hotel = query.getSingleResult();	
 		} catch (NoResultException nr) {
 			return null;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
+			commit();
 			entityManager.close();
 		}
 		return hotel;
@@ -271,10 +296,10 @@ public class HotelManager {
 	
 	public static void main(String[] args) {
 		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
 
 		HotelManager manager = new HotelManager("hotel_chain");
-		populateDatabase(manager);
+		//populateDatabase(manager);
 		
 		// TODO: move to JUnit test
 		try {
@@ -292,7 +317,7 @@ public class HotelManager {
 		} catch (CustomerAuthenticationFailure e) {
 			System.out.println("Authentication failed for " + e.getMessage());
 		}
-		
+	
 		// TODO: move to JUnit test
 		try {
 			// invalid username
@@ -326,6 +351,16 @@ public class HotelManager {
 			System.out.println("Authentication failed for " + e.getMessage());
 		}
 		
+		// TODO: move to JUnit test
+		try {
+			Customer customer401 = manager.authenticateCustomer("piergiorgio", "pwd");
+			List<Reservation> upcomingReservations = manager.getUpcomingReservation(customer401);
+			for(Reservation reservation : upcomingReservations)
+				System.out.println(reservation.toString());
+		} catch (Exception ex) {
+			System.out.println("An error occur in getting all the reservations");
+		}
+				
 		manager.exit();
 	}
 }

@@ -79,6 +79,11 @@ public class Hotel {
 	}
 
 	@Override
+	public String toString() {
+		return "Hotel [hotelId=" + hotelId + ", address=" + address + "]";
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

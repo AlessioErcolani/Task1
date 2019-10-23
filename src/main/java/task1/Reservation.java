@@ -6,6 +6,9 @@ import javax.persistence.*;
 @Entity(name = "Reservation")
 @Table(name = "reservation")
 @IdClass(PKReservation.class)
+@NamedQuery(
+		name="Reservation.getByCustomer",
+		query="SELECT r FROM Reservation r WHERE r.customer.ID = :customerId AND r.checkInDate >= :checkInDate")
 public class Reservation {
 	@ManyToOne
 	@JoinColumn(name = "ID_costumer")
@@ -74,6 +77,12 @@ public class Reservation {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "Reservation [customer=" + customer + ", room=" + room + ", checkInDate=" + checkInDate
+				+ ", checkOutDate=" + checkOutDate + "]";
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
