@@ -70,4 +70,44 @@ public class Room {
 		return hotel;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (available ? 1231 : 1237);
+		result = prime * result + ((hotel == null) ? 0 : hotel.hashCode());
+		result = prime * result + ((reservations == null) ? 0 : reservations.hashCode());
+		result = prime * result + roomCapacity;
+		result = prime * result + roomNumber;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Room other = (Room) obj;
+		if (available != other.available)
+			return false;
+		if (hotel == null) {
+			if (other.hotel != null)
+				return false;
+		} else if (!hotel.equals(other.hotel))
+			return false;
+		if (reservations == null) {
+			if (other.reservations != null)
+				return false;
+		} else if (!reservations.equals(other.reservations))
+			return false;
+		if (roomCapacity != other.roomCapacity)
+			return false;
+		if (roomNumber != other.roomNumber)
+			return false;
+		return true;
+	}
+
 }

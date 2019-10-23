@@ -66,4 +66,47 @@ public class Hotel {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((address == null) ? 0 : address.hashCode());
+		result = prime * result + ((hotelId == null) ? 0 : hotelId.hashCode());
+		result = prime * result + ((receptionists == null) ? 0 : receptionists.hashCode());
+		result = prime * result + ((rooms == null) ? 0 : rooms.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Hotel other = (Hotel) obj;
+		if (address == null) {
+			if (other.address != null)
+				return false;
+		} else if (!address.equals(other.address))
+			return false;
+		if (hotelId == null) {
+			if (other.hotelId != null)
+				return false;
+		} else if (!hotelId.equals(other.hotelId))
+			return false;
+		if (receptionists == null) {
+			if (other.receptionists != null)
+				return false;
+		} else if (!receptionists.equals(other.receptionists))
+			return false;
+		if (rooms == null) {
+			if (other.rooms != null)
+				return false;
+		} else if (!rooms.equals(other.rooms))
+			return false;
+		return true;
+	}
 }
