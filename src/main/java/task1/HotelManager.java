@@ -170,11 +170,11 @@ public class HotelManager {
 	}
 	
 	/**
-	 * Checks for the authentication of a Customer through their username and password
-	 * @param username customer's username
-	 * @param password customer's password
-	 * @return the athenticated Customer
-	 * @throws CustomerAuthenticationFailure if authentication fails
+	 * Checks for the authentication of a Receptionist through their username and password
+	 * @param username receptionist's username
+	 * @param password receptionist's password
+	 * @return the authenticated Receptionist
+	 * @throws ReceptionistAuthenticationFailure if authentication fails
 	 */
 	public Receptionist authenticateReceptionist(String username, String password) throws ReceptionistAuthenticationFailure {
 		try {
