@@ -13,7 +13,14 @@ public abstract class User {
 	private String name;
 	private String surname;
 
-	User() {
+	public User() {
+		
+	}
+
+	@Override
+	public String toString() {
+		return "User [ID=" + ID + ", username=" + username + ", password=" + password + ", name=" + name + ", surname="
+				+ surname + "]";
 	}
 
 	public User(String username, String password, String name, String surname) {

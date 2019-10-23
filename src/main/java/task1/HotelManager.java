@@ -146,26 +146,53 @@ public class HotelManager {
 		}
 	}
 	
-	
-	public Customer authenticateCustomer(String username, String password) throws DatabaseManagerException {
-		Customer customer = null;
+	/**
+	 * Checks for the authentication of a Customer through their username and password
+	 * @param username customer's username
+	 * @param password customer's password
+	 * @return the athenticated Customer
+	 * @throws CustomerAuthenticationFailure if authentication fails
+	 */
+	public Customer authenticateCustomer(String username, String password) throws CustomerAuthenticationFailure {
 		try {
 			setup();
 			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class);
 			query.setParameter("username", username);
 			query.setParameter("password", password);
-			customer = query.getSingleResult();
+			Customer customer = query.getSingleResult();
 			commit();
-		} catch (NoResultException nr) {
-			return null;
+			return customer;
 		} catch (Exception ex) {			
-			 throw new DatabaseManagerException(ex.getMessage());
+			 throw new CustomerAuthenticationFailure(username);
 		} finally {
 			entityManager.close();
 		}
-		return customer;
+	}
+	
+	/**
+	 * Checks for the authentication of a Customer through their username and password
+	 * @param username customer's username
+	 * @param password customer's password
+	 * @return the athenticated Customer
+	 * @throws CustomerAuthenticationFailure if authentication fails
+	 */
+	public Receptionist authenticateReceptionist(String username, String password) throws ReceptionistAuthenticationFailure {
+		try {
+			setup();
+			TypedQuery<Receptionist> query = entityManager.createNamedQuery("Receptionist.findByUsernameAndPassword", Receptionist.class);
+			query.setParameter("username", username);
+			query.setParameter("password", password);
+			Receptionist receptionist = query.getSingleResult();
+			commit();
+			return receptionist;
+		} catch (Exception ex) {			
+			 throw new ReceptionistAuthenticationFailure(username);
+		} finally {
+			entityManager.close();
+		}
 	}
 
+	
 	public Hotel readHotel(String address) throws DatabaseManagerException {
 		Hotel hotel = null;
 		try {			
@@ -227,9 +254,9 @@ public class HotelManager {
 			manager.addReservation(room401, customer401, checkIn, checkOut);
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
-			System.out.println(ex.getMessage() + " already present (customer");
+			System.out.println(ex.getMessage() + " already present (customer)");
 		} catch (ReceptionistUsernameAlreadyPresentException ex) {
-			System.out.println(ex.getMessage() + " already present (receptionist");
+			System.out.println(ex.getMessage() + " already present (receptionist)");
 		} catch (Exception e) {
 			System.err.println("Something went wrong");
 			e.printStackTrace();
@@ -242,6 +269,57 @@ public class HotelManager {
 
 		HotelManager manager = new HotelManager("hotel_chain");
 		populateDatabase(manager);
+		
+		// TODO: move to JUnit test
+		try {
+			// valid credentials
+			Customer c = manager.authenticateCustomer("federico", "pwd");
+			System.out.println("Hi, " + c);
+		} catch (CustomerAuthenticationFailure e) {
+			System.out.println("Successful authentication for " + e.getMessage());
+		}
+		
+		// TODO: move to JUnit test
+		try {
+			// valid username, invalid password
+			manager.authenticateCustomer("chiara", "wrong pwd");
+		} catch (CustomerAuthenticationFailure e) {
+			System.out.println("Authentication failed for " + e.getMessage());
+		}
+		
+		// TODO: move to JUnit test
+		try {
+			// invalid username
+			manager.authenticateCustomer("username that does not exists", "pwd");
+		} catch (CustomerAuthenticationFailure e) {
+			System.out.println("Authentication failed for " + e.getMessage());
+		}
+		
+		// TODO: move to JUnit test
+		try {
+			// valid credentials
+			Receptionist r = manager.authenticateReceptionist("r1", "pwd");
+			System.out.println("Hi, " + r);
+		} catch (ReceptionistAuthenticationFailure e) {
+			System.out.println("Successful authentication for " + e.getMessage());
+		}
+		
+		// TODO: move to JUnit test
+		try {
+			// valid username, invalid password
+			manager.authenticateReceptionist("r2", "wrong pwd");
+		} catch (ReceptionistAuthenticationFailure e) {
+			System.out.println("Authentication failed for " + e.getMessage());
+		}
+		
+		// TODO: move to JUnit test
+		try {
+			// invalid username
+			manager.authenticateReceptionist("username that does not exists", "pwd");
+		} catch (ReceptionistAuthenticationFailure e) {
+			System.out.println("Authentication failed for " + e.getMessage());
+		}
+		
 		manager.exit();
 	}
 }
