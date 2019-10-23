@@ -150,7 +150,7 @@ public class HotelManager {
 	 * Checks for the authentication of a Customer through their username and password
 	 * @param username customer's username
 	 * @param password customer's password
-	 * @return the athenticated Customer
+	 * @return the authenticated Customer
 	 * @throws CustomerAuthenticationFailure if authentication fails
 	 */
 	public Customer authenticateCustomer(String username, String password) throws CustomerAuthenticationFailure {
@@ -249,8 +249,8 @@ public class HotelManager {
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
 			manager.addRoom(hotelBologna, room401);
 			manager.addCustomer(customer401);
-			LocalDate checkIn = LocalDate.parse("2019-11-01");
-			LocalDate checkOut = LocalDate.parse("2019-11-05");
+			LocalDate checkIn = LocalDate.parse("2019-11-15");
+			LocalDate checkOut = LocalDate.parse("2019-11-19");
 			manager.addReservation(room401, customer401, checkIn, checkOut);
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
