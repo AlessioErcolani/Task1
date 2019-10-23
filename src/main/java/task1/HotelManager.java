@@ -43,6 +43,10 @@ public class HotelManager {
 		entityManager.merge(obj);
 	}
 
+	private void close() {
+		entityManager.close();
+	}
+	
 	/**
 	 * Inserts a Customer in the database
 	 * @param customer the Customer to add
@@ -65,7 +69,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 	
@@ -88,7 +92,7 @@ public class HotelManager {
 			}
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 	
@@ -105,7 +109,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 	
@@ -125,7 +129,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 		
@@ -149,7 +153,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 	
@@ -172,7 +176,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 	
@@ -195,7 +199,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 
@@ -218,7 +222,7 @@ public class HotelManager {
 			 throw new CustomerAuthenticationFailure(username);
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 		return customer;
 	}
@@ -242,7 +246,7 @@ public class HotelManager {
 			 throw new ReceptionistAuthenticationFailure(username);
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 	}
 
@@ -260,7 +264,7 @@ public class HotelManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
-			entityManager.close();
+			close();
 		}
 		return hotel;
 	}
