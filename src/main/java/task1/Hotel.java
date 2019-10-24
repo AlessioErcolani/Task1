@@ -73,8 +73,6 @@ public class Hotel {
 		int result = 1;
 		result = prime * result + ((address == null) ? 0 : address.hashCode());
 		result = prime * result + ((hotelId == null) ? 0 : hotelId.hashCode());
-		result = prime * result + ((receptionists == null) ? 0 : receptionists.hashCode());
-		result = prime * result + ((rooms == null) ? 0 : rooms.hashCode());
 		return result;
 	}
 
@@ -101,16 +99,6 @@ public class Hotel {
 			if (other.hotelId != null)
 				return false;
 		} else if (!hotelId.equals(other.hotelId))
-			return false;
-		if (receptionists == null) {
-			if (other.receptionists != null)
-				return false;
-		} else if (!receptionists.equals(other.receptionists))
-			return false;
-		if (rooms == null) {
-			if (other.rooms != null)
-				return false;
-		} else if (!rooms.equals(other.rooms))
 			return false;
 		return true;
 	}

@@ -1,6 +1,10 @@
 package task1;
 
+import java.util.Date;
+
 import javax.persistence.*;
+
+import exc.DatabaseManagerException;
 
 @Entity(name = "Receptionist")
 @Table(name = "receptionist")
@@ -18,8 +22,20 @@ public class Receptionist extends User {
 		this.hotel = hotel;
 	}
 
+	public Receptionist(String username) {
+		super(username);
+	}
+	
 	public Receptionist() {
 		super();
+	}
+	
+	public Reservation addReservation(Room room, Customer customer, Date checkInDate, Date checkOutDate) throws DatabaseManagerException {
+		return getHotelManager().addReservation(room, customer, checkInDate, checkOutDate);
+	}
+	
+	public void deleteReservation(Date checkInDate, Room room) throws DatabaseManagerException {
+		getHotelManager().deleteReservation(checkInDate, room);
 	}
 
 	@Override

@@ -13,6 +13,8 @@ public abstract class User {
 	private String name;
 	private String surname;
 
+	private static HotelManager hotelManager = new HotelManager("hotel_chain");
+	
 	public User() {
 		
 	}
@@ -28,6 +30,10 @@ public abstract class User {
 		this.password = password;
 		this.name = name;
 		this.surname = surname;
+	}
+	
+	public User(String username) {
+		this.username = username;
 	}
 
 	public Long getID() {
@@ -117,6 +123,14 @@ public abstract class User {
 		} else if (!username.equals(other.username))
 			return false;
 		return true;
+	}
+
+	public HotelManager getHotelManager() {
+		return hotelManager;
+	}
+
+	public static void setHotelManager(HotelManager hotelManager) {
+		User.hotelManager = hotelManager;
 	}
 
 }

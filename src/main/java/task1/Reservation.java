@@ -1,14 +1,18 @@
 package task1;
 
-import java.time.LocalDate;
+import java.util.Date;
+
 import javax.persistence.*;
 
 @Entity(name = "Reservation")
 @Table(name = "reservation")
 @IdClass(PKReservation.class)
 @NamedQuery(
+		name="Reservation.getByHoteAndRoomAndCheckInDate",
+		query="SELECT r FROM Reservation r WHERE r.room.hotel.hotelId = :hotelId AND r.room.roomNumber = :roomNumber AND r.checkInDate = :checkInDate")
+@NamedQuery(
 		name="Reservation.getByCustomer",
-		query="SELECT r FROM Reservation r WHERE r.customer.ID = :customerId AND r.checkInDate >= :checkInDate")
+		query="SELECT r FROM Reservation r WHERE r.customer.ID = :customerId AND r.checkInDate >= current_time")
 public class Reservation {
 	@ManyToOne
 	@JoinColumn(name = "ID_costumer")
@@ -21,32 +25,35 @@ public class Reservation {
 	private Room room;
 
 	@Id
-	private LocalDate checkInDate;
-	private LocalDate checkOutDate;
+	@Temporal(TemporalType.DATE)
+	private Date checkInDate;
+	
+	@Temporal(TemporalType.DATE)
+	private Date checkOutDate;
 
 	public Reservation() {
 
 	}
 
-	public Reservation(Room room, LocalDate checkInDate, LocalDate checkOutDate) {
+	public Reservation(Room room, Date checkInDate, Date checkOutDate) {
 		this.room = room;
 		this.checkInDate = checkInDate;
 		this.checkOutDate = checkOutDate;
 	}
 
-	public LocalDate getCheckInDate() {
+	public Date getCheckInDate() {
 		return checkInDate;
 	}
 
-	public void setCheckInDate(LocalDate checkInDate) {
+	public void setCheckInDate(Date checkInDate) {
 		this.checkInDate = checkInDate;
 	}
 
-	public LocalDate getCheckOutDate() {
+	public Date getCheckOutDate() {
 		return checkOutDate;
 	}
 
-	public void setCheckOutDate(LocalDate checkOutDate) {
+	public void setCheckOutDate(Date checkOutDate) {
 		this.checkOutDate = checkOutDate;
 	}
 
@@ -82,7 +89,7 @@ public class Reservation {
 		return "Reservation [customer=" + customer + ", room=" + room + ", checkInDate=" + checkInDate
 				+ ", checkOutDate=" + checkOutDate + "]";
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -92,27 +99,36 @@ public class Reservation {
 		if (getClass() != obj.getClass())
 			return false;
 		Reservation other = (Reservation) obj;
+		
 		if (checkInDate == null) {
 			if (other.checkInDate != null)
 				return false;
-		} else if (!checkInDate.equals(other.checkInDate))
+		} else if (!checkInDate.equals(other.checkInDate)) {
 			return false;
+		}
+
 		if (checkOutDate == null) {
 			if (other.checkOutDate != null)
 				return false;
-		} else if (!checkOutDate.equals(other.checkOutDate))
+		} else if (!checkOutDate.equals(other.checkOutDate)) {
 			return false;
+		}
+
 		if (customer == null) {
 			if (other.customer != null)
 				return false;
-		} else if (!customer.equals(other.customer))
+		} else if (!customer.equals(other.customer)) {
 			return false;
+		}
+		
 		if (room == null) {
 			if (other.room != null)
 				return false;
-		} else if (!room.equals(other.room))
+		} else if (!room.equals(other.room)) {
 			return false;
+		}
 		return true;
 	}
 
+	
 }

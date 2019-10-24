@@ -3,11 +3,16 @@ package task1;
 import java.util.*;
 import javax.persistence.*;
 
+import exc.DatabaseManagerException;
+
 @Entity(name = "Customer")
 @Table(name = "customer")
 @NamedQuery(
 		name="Customer.findByUsernameAndPassword",
 		query="SELECT c FROM Customer c WHERE c.username = :username AND c.password = :password")
+@NamedQuery(
+		name="Customer.findByUsername",
+		query="SELECT c FROM Customer c WHERE c.username = :username")
 public class Customer extends User {
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -15,6 +20,10 @@ public class Customer extends User {
 
 	public Customer(String username, String password, String name, String surname) {
 		super(username, password, name, surname);
+	}
+	
+	public Customer(String username) {
+		super(username);
 	}
 
 	public Customer() {
@@ -25,35 +34,14 @@ public class Customer extends User {
 		reservations.add(reservation);
 		reservation.setCustomer(this);
 	}
+	
+	public List<Reservation> getUpcomingReservations() throws DatabaseManagerException {
+		return getHotelManager().getUpcomingReservation(this);
+	}
 
 	@Override
 	public String toString() {
 		return "Customer [ID=" + this.getID() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", name=" + this.getName() + ", surname="
 				+ this.getSurname() + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((reservations == null) ? 0 : reservations.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Customer other = (Customer) obj;
-		if (reservations == null) {
-			if (other.reservations != null)
-				return false;
-		} else if (!reservations.equals(other.reservations))
-			return false;
-		return true;
 	}
 }

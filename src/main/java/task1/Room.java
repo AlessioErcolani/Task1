@@ -7,6 +7,9 @@ import javax.persistence.*;
 @Table(name = "room")
 @IdClass(PKRoom.class)
 @NamedQuery(
+		name="Room.findByHotelAndNumber",
+		query="SELECT r FROM Room r WHERE r.hotel.hotelId = :hotelId AND r.roomNumber = :roomNumber")
+@NamedQuery(
 		name="Room.getAvailableRoomsGivenDay",
 		query=""
 				+ "SELECT r "
@@ -83,21 +86,20 @@ public class Room {
 	}
 
 	@Override
+	public String toString() {
+		return "Room [hotel=" + hotel + ", roomNumber=" + roomNumber + ", roomCapacity=" + roomCapacity + ", available="
+				+ available + "]";
+	}
+	
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (available ? 1231 : 1237);
 		result = prime * result + ((hotel == null) ? 0 : hotel.hashCode());
-		result = prime * result + ((reservations == null) ? 0 : reservations.hashCode());
 		result = prime * result + roomCapacity;
 		result = prime * result + roomNumber;
 		return result;
-	}
-	
-	@Override
-	public String toString() {
-		return "Room [hotel=" + hotel + ", roomNumber=" + roomNumber + ", roomCapacity=" + roomCapacity + ", available="
-				+ available + "]";
 	}
 
 	@Override
@@ -116,16 +118,11 @@ public class Room {
 				return false;
 		} else if (!hotel.equals(other.hotel))
 			return false;
-		if (reservations == null) {
-			if (other.reservations != null)
-				return false;
-		} else if (!reservations.equals(other.reservations))
-			return false;
 		if (roomCapacity != other.roomCapacity)
 			return false;
 		if (roomNumber != other.roomNumber)
 			return false;
 		return true;
 	}
-
+	
 }

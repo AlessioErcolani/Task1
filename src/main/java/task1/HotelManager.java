@@ -1,6 +1,7 @@
 package task1;
 
-import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -142,13 +143,31 @@ public class HotelManager {
 	 * @return the Reservation object corresponding to the inserted record
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public Reservation addReservation(Room room, Customer customer, LocalDate checkIn, LocalDate checkOut) throws DatabaseManagerException {
+	public Reservation addReservation(Room room, Customer customer, Date checkIn, Date checkOut) throws DatabaseManagerException {
 		try {
 			setup();
 			Reservation reservation = new Reservation(room, checkIn, checkOut);
 			reservation.setCustomer(customer);
 			mergeObject(reservation);
 			return reservation;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	/**
+	 * Delete a reservation
+	 * @param reservation the Reservation to delete
+	 * @throws DatabaseManagerException
+	 */
+	public void deleteReservation(Date checkInDate, Room room) throws DatabaseManagerException {
+		try {
+			setup();			
+			Reservation r = entityManager.find(Reservation.class, new PKReservation(checkInDate, room));
+	        entityManager.remove(r);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -169,7 +188,6 @@ public class HotelManager {
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByCustomer", Reservation.class)
 					.setParameter("customerId", customer.getID())
-					.setParameter("checkInDate", LocalDate.now())
 					.getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
@@ -187,7 +205,7 @@ public class HotelManager {
 	 * @return a list of available rooms
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public List<Room> getAvailableRooms(Hotel hotel, LocalDate day) throws DatabaseManagerException {
+	public List<Room> getAvailableRooms(Hotel hotel, Date day) throws DatabaseManagerException {
 		try {
 			setup();
 			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getAvailableRoomsGivenDay", Room.class);
@@ -268,6 +286,63 @@ public class HotelManager {
 		}
 		return hotel;
 	}
+	
+	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException {
+		Room room = null;
+		try {			
+			setup();
+			TypedQuery<Room> query = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class);
+			query.setParameter("hotelId", hotelId);
+			query.setParameter("roomNumber", roomNumber);
+			room = query.getSingleResult();	
+		} catch (NoResultException nr) {
+			return null;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+		return room;
+	}
+	
+	public Customer readCustomer(String username) throws DatabaseManagerException {
+		Customer customer = null;
+		try {			
+			setup();
+			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsername", Customer.class);
+			query.setParameter("username", username);
+			customer = query.getSingleResult();	
+		} catch (NoResultException nr) {
+			return null;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+		return customer;
+	}
+	
+	public Reservation readReservation(long hotelId, int room, Date checkInDate) throws DatabaseManagerException {
+		Reservation reservation = null;
+		try {			
+			setup();
+			TypedQuery<Reservation> query = entityManager.createNamedQuery("Reservation.getByHoteAndRoomAndCheckInDate", Reservation.class);
+			query.setParameter("hotelId", hotelId);
+			query.setParameter("roomNumber", room);
+			query.setParameter("checkInDate", checkInDate);
+			reservation = query.getSingleResult();	
+		} catch (NoResultException nr) {
+			return null;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+		return reservation;
+	}
 
 	
 	public static void populateDatabase(HotelManager manager) {
@@ -307,20 +382,30 @@ public class HotelManager {
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
 			manager.addRoom(hotelBologna, room401);
 			manager.addCustomer(customer401);
-			LocalDate checkIn = LocalDate.parse("2019-11-15");
-			LocalDate checkOut = LocalDate.parse("2019-11-19");
+			
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(2019, 11 - 1, 15, 1, 0, 0);	
+			Date checkIn = calendar.getTime();
+			
+			calendar.set(2019, 11 - 1, 19, 1, 0, 0);	
+			Date checkOut = calendar.getTime();
+			
 			manager.addReservation(room401, customer401, checkIn, checkOut);
 			
-			LocalDate occupiedDate = LocalDate.parse("2019-11-17");
+			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
+			Date occupiedDate = calendar.getTime();
+			
 			System.out.println("\nCheck for available rooms on " + occupiedDate);
 			List<Room> rooms17Nov = manager.getAvailableRooms(hotelBologna, occupiedDate);
 			if (rooms17Nov.isEmpty())
-				System.out.println("No available rooms on " + occupiedDate);
+				System.out.println("No available rooms on " + occupiedDate.toString());
 			else
 				for (Room r : rooms17Nov)
 					System.out.println(r);
 			
-			LocalDate freeDate = LocalDate.parse("2019-11-21");
+			calendar.set(2019, 11 - 1, 21, 1, 0, 0);	
+			Date freeDate = calendar.getTime();
+
 			System.out.println("\nCheck for available rooms on " + freeDate);
 			List<Room> rooms21Nov = manager.getAvailableRooms(hotelBologna, freeDate);
 			if (rooms21Nov.isEmpty())
@@ -408,8 +493,9 @@ public class HotelManager {
 			Customer customer401 = manager.authenticateCustomer("piergiorgio", "pwd");
 			List<Reservation> upcomingReservations = manager.getUpcomingReservation(customer401);
 			for(Reservation reservation : upcomingReservations)
-				System.out.println(reservation.toString());
+				System.out.println(reservation);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			System.out.println("An error occur in getting all the reservations");
 		}
 				
