@@ -20,8 +20,12 @@ public class Application {
 		
 		while (cli.notEnd()) {
 			System.out.print(cli.getUsername() + "> ");
+			
 			String command = cli.readCommand();
 			cli.executeCommandLine(command);
+			
+			if (cli.hasNewUser())
+				cli = cli.switchTerminal();
 		}
 		
 		System.out.println("\nClosing application");
