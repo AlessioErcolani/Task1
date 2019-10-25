@@ -8,6 +8,9 @@ import javax.persistence.*;
 @NamedQuery(
 		name="Customer.findByUsernameAndPassword",
 		query="SELECT c FROM Customer c WHERE c.username = :username AND c.password = :password")
+@NamedQuery(
+		name="Customer.deleteCustomer",
+		query="DELETE FROM Customer c WHERE c.ID = :id")
 public class Customer extends User {
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -48,12 +51,16 @@ public class Customer extends User {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Customer other = (Customer) obj;
-		if (reservations == null) {
+		boolean result = super.equals((User)obj);
+		if (result == false)
+			return false;
+		//Customer other = (Customer)obj; 
+		/*if (reservations == null) {
 			if (other.reservations != null)
 				return false;
 		} else if (!reservations.equals(other.reservations))
 			return false;
+		return true;*/
 		return true;
 	}
 }

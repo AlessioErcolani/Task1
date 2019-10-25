@@ -7,11 +7,7 @@ import java.util.logging.Level;
 import javax.persistence.*;
 import org.hibernate.exception.ConstraintViolationException;
 
-import exc.CustomerAuthenticationFailure;
-import exc.CustomerUsernameAlreadyPresentException;
-import exc.DatabaseManagerException;
-import exc.ReceptionistAuthenticationFailure;
-import exc.ReceptionistUsernameAlreadyPresentException;
+import exc.*;
 
 public class HotelManager {
 
@@ -77,8 +73,9 @@ public class HotelManager {
 	 * Inserts a Receptionist in the database
 	 * @param receptionist the Receptionist to add
 	 * @throws ReceptionistUsernameAlreadyPresentException if the username is already used
+	 * @throws DatabaseManagerException 
 	 */
-	public void addReceptionist(Receptionist receptionist) throws ReceptionistUsernameAlreadyPresentException {
+	public void addReceptionist(Receptionist receptionist) throws ReceptionistUsernameAlreadyPresentException, DatabaseManagerException {
 		try {
 			setup();
 			persistObject(receptionist);
@@ -90,6 +87,9 @@ public class HotelManager {
 			if (t instanceof ConstraintViolationException) {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
+		}catch (Exception ex) {
+				System.out.println("SONO QUUII");
+				throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
 			close();
@@ -267,6 +267,55 @@ public class HotelManager {
 			close();
 		}
 		return hotel;
+	}
+	
+	/**
+	 * Delete a customer 
+	 * @param customer
+	 * @throws CustomerNotFound
+	 * @throws DatabaseManagerException
+	 */	
+	public void deleteCustomer(Customer customer) throws CustomerNotFound, DatabaseManagerException {
+		try {
+			setup();
+			int rowAffected = entityManager
+					.createNamedQuery("Customer.deleteCustomer")
+					.setParameter("id", customer.getID())
+					.executeUpdate();
+			if (rowAffected == 0) {
+				throw new CustomerNotFound();
+			}
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}		
+	}
+	
+	/**
+	 * Delete an hotel 
+	 * @param hotel
+	 * @throws HotelNotFound
+	 * @throws DatabaseManagerException
+	 */
+	
+	public void deleteHotel(Hotel hotel) throws HotelNotFound, DatabaseManagerException {
+		try {
+			setup();
+			int rowAffected = entityManager
+					.createNamedQuery("Hotel.deleteHotel")
+					.setParameter("hotelId", hotel.getHotelId())
+					.executeUpdate();
+			if (rowAffected == 0) {
+				throw new HotelNotFound();
+			}
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}		
 	}
 
 	

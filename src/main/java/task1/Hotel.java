@@ -8,6 +8,9 @@ import javax.persistence.*;
 @NamedQuery(
 		name="Hotel.findByAddress",
 		query="SELECT h FROM Hotel h WHERE h.address = :address")
+@NamedQuery(
+		name="Hotel.deleteHotel",
+		query="DELETE FROM Hotel h WHERE h.hotelId = :hotelId")
 public class Hotel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -102,7 +105,7 @@ public class Hotel {
 				return false;
 		} else if (!hotelId.equals(other.hotelId))
 			return false;
-		if (receptionists == null) {
+		/*if (receptionists == null) {
 			if (other.receptionists != null)
 				return false;
 		} else if (!receptionists.equals(other.receptionists))
@@ -111,7 +114,7 @@ public class Hotel {
 			if (other.rooms != null)
 				return false;
 		} else if (!rooms.equals(other.rooms))
-			return false;
+			return false;*/
 		return true;
 	}
 }
