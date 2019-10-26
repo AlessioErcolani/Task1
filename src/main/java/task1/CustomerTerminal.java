@@ -1,12 +1,17 @@
 package task1;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 public class CustomerTerminal extends Terminal {
 
-private Customer customer;
+	private Customer customer;
 	
 	private final static List<String> commands = Arrays.asList(
 			"show-rooms",
@@ -14,6 +19,23 @@ private Customer customer;
 			"logout"
 			);
 
+	private final static Map<String, Options> optionsMap;
+	
+	static {
+		Map<String, Options> map = new HashMap<>();
+		
+		// TODO: define options for show-rooms
+		map.put("show-rooms", new Options());
+		map.put("help", new Options());
+		map.put("logout", new Options());
+		
+		optionsMap = map;
+	}
+	
+	//------------------------------------------------------------------------\\
+	// Constructors                                                           \\
+	//------------------------------------------------------------------------\\
+	
 	public CustomerTerminal(Customer customer, Scanner scanner) {
 		super(scanner);
 		this.customer = customer;
@@ -22,6 +44,10 @@ private Customer customer;
 	public CustomerTerminal(Customer customer) {
 		this(customer, new Scanner(System.in));
 	}
+	
+	//------------------------------------------------------------------------\\
+	// @Override methods                                                      \\
+	//------------------------------------------------------------------------\\
 	
 	@Override
 	public String getUsername() {
@@ -34,13 +60,18 @@ private Customer customer;
 	}
 	
 	@Override
+	protected Map<String, Options> getOptionsMap() {
+		return optionsMap;
+	}
+	
+	@Override
 	protected void execute(String command, String[] options) {
 		switch (command) {
 		case "show-rooms":
 			//showRooms();
 			break;
 		case "help":
-			help();
+			help(options);
 			break;
 		case "logout":
 			logout();
@@ -48,9 +79,17 @@ private Customer customer;
 		}
 	}
 	
+	//------------------------------------------------------------------------\\
+	// Commands implementation                                                \\
+	//------------------------------------------------------------------------\\
+	
 	private void logout() {
 		this.newUser = true;
 		this.nextUser = null;
 	}
+	
+	//------------------------------------------------------------------------\\
+	// Options definition                                                     \\
+	//------------------------------------------------------------------------\\
 
 }

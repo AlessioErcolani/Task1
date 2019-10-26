@@ -14,9 +14,9 @@ public class Application {
 		Application.hotelDatabaseManager = new HotelManager("hotel_chain");
 		HotelManager.populateDatabase(hotelDatabaseManager);
 		
-		Terminal cli = new Terminal();
-		
 		System.out.println("\nType commands to use the application");
+		
+		Terminal cli = new Terminal();
 		
 		while (cli.notEnd()) {
 			System.out.print(cli.getUsername() + "> ");
