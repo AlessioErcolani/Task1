@@ -199,6 +199,29 @@ public class HotelManager {
 	}
 	
 	/**
+	 * Get the list of upcoming reservations for the given hotel
+	 * @param hotel
+	 * @return the list of reservations
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public List<Reservation> getUpcomingReservations(Hotel hotel, Date date) throws DatabaseManagerException {
+		try {
+			setup();
+			List<Reservation> upcomingReservations = entityManager
+					.createNamedQuery("Reservation.getByHotel", Reservation.class)
+					.setParameter("hotelId", hotel.getHotelId())
+					.setParameter("from", date, TemporalType.DATE)
+					.getResultList();
+			return upcomingReservations;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	/**
 	 * Get a list of rooms that are available in a given day in a given hotel
 	 * @param hotel the Hotel of the room
 	 * @param day the local date of availability
@@ -401,7 +424,7 @@ public class HotelManager {
 			manager.addCustomer(new Customer("alessio", "pwd", "Alessio", "Rossi"));
 			manager.addCustomer(new Customer("chiara", "pwd", "Chiara", "Azzurri"));
 			manager.addCustomer(new Customer("marco", "pwd", "Marco", "Bianchi"));
-			manager.addCustomer(new Customer("luca", "pwd", "Luca", "Arancioni"));
+			manager.addCustomer(new Customer("luca", "pwd", "Luca", "Marroni"));
 			manager.addCustomer(new Customer("sara", "pwd", "Sara", "Violi"));
 			
 			Hotel hotelRoma = new Hotel("Via Roma 26, Roma");
@@ -448,6 +471,8 @@ public class HotelManager {
 			calendar.set(2018, 11 - 1, 19, 1, 0, 0);	
 			checkOut = calendar.getTime();
 			
+			manager.addReservation(room401, customer401, checkIn, checkOut);
+			
 			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
 			Date occupiedDate = calendar.getTime();
 			
@@ -479,82 +504,5 @@ public class HotelManager {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String[] args) {
-		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
 
-		HotelManager manager = new HotelManager("hotel_chain");
-		populateDatabase(manager);
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck successful login");
-		try {
-			// valid credentials
-			Customer c = manager.authenticateCustomer("federico", "pwd");
-			System.out.println("Hi, " + c);
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Successful authentication for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid password");
-		try {
-			// valid username, invalid password
-			manager.authenticateCustomer("chiara", "wrong pwd");
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid username");
-		try {
-			// invalid username
-			manager.authenticateCustomer("username that does not exists", "pwd");
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck successful login");
-		try {
-			// valid credentials
-			Receptionist r = manager.authenticateReceptionist("r1", "pwd");
-			System.out.println("Hi, " + r);
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Successful authentication for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid password");
-		try {
-			// valid username, invalid password
-			manager.authenticateReceptionist("r2", "wrong pwd");
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid username");
-		try {
-			// invalid username
-			manager.authenticateReceptionist("username that does not exists", "pwd");
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nGet upcoming reservation for an user");
-		try {
-			Customer customer401 = manager.authenticateCustomer("piergiorgio", "pwd");
-			List<Reservation> upcomingReservations = manager.getUpcomingReservation(customer401);
-			for(Reservation reservation : upcomingReservations)
-				System.out.println(reservation);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.out.println("An error occur in getting all the reservations");
-		}
-				
-		manager.exit();
-	}
 }

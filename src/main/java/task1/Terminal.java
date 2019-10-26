@@ -1,6 +1,9 @@
 package task1;
 
+import java.time.Year;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,15 +236,61 @@ public class Terminal {
 		if (reservations == null)
 			return;
 
-		String format = "| %-4d | %-8d | %-25s | %-10s | %-10s |%n";
+		String format = "| %-4d | %-8d | %-25s | %-10s | %-10s | %-8s |%n";
 
-		System.out.format("+------+----------+---------------------------+------------+------------+%n");
-		System.out.format("| Room | Capacity | Hotel Address             | Check-In   | Check-Out  |%n");
-		System.out.format("+------+----------+---------------------------+------------+------------+%n");
+		System.out.format("+------+----------+---------------------------+------------+------------+----------+%n");
+		System.out.format("| Room | Capacity | Hotel Address             | Check-In   | Check-Out  | Customer |%n");
+		System.out.format("+------+----------+---------------------------+------------+------------+----------+%n");
 		for (Reservation r : reservations)
-			System.out.format(format, r.getRoom().getRoomNumber(), r.getRoom().getRoomCapacity(),
-					r.getRoom().getHotel().getAddress(), r.getCheckInDate().toString(), r.getCheckOutDate().toString());
-		System.out.format("+------+----------+---------------------------+------------+------------+%n");
+			System.out.format(format,
+					r.getRoom().getRoomNumber(),
+					r.getRoom().getRoomCapacity(),
+					r.getRoom().getHotel().getAddress(),
+					r.getCheckInDate().toString(),
+					r.getCheckOutDate().toString(),
+					r.getCustomer().getSurname());
+		System.out.format("+------+----------+---------------------------+------------+------------+----------+%n");
+	}
+	
+	//------------------------------------------------------------------------\\
+	// Utilities                                                              \\
+	//------------------------------------------------------------------------\\
+	
+	Date parseDate(String string) throws java.text.ParseException {
+		try {
+			String[] split = string.split("-");
+			
+			if (split.length != 3)
+				throw new Exception();
+
+			int year = Integer.parseInt(split[0]);
+			int month = Integer.parseInt(split[1]);
+			int day = Integer.parseInt(split[2]);
+			
+			if (year < 1000 || year > 3000)
+				throw new Exception();
+			if (month < 1 || month > 12)
+				throw new Exception();
+			if (day < 1 || day > 31)
+				throw new Exception();
+			
+			if (month == 2)
+				if (Year.isLeap(year) && day > 29)
+					throw new Exception();
+				else if (day > 28) 
+					throw new Exception();
+			if ((month == 11 || month == 4 || month == 6 || month == 9) && day > 30)
+				throw new Exception();
+			if (day > 31) 
+				throw new Exception();
+			
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(year, month-1, day, 1, 0, 0);
+			
+			return calendar.getTime();
+		} catch (Exception e) {
+			throw new java.text.ParseException("unable to parse", 0);
+		}
 	}
 	
 	//------------------------------------------------------------------------\\
