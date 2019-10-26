@@ -23,6 +23,7 @@ public class ReceptionistTerminal extends Terminal {
 			"show-hotels",
 			"show-rooms",
 			"show-reservations",
+			"delete-reservation",
 			"register",
 			"help",
 			"logout"
@@ -36,6 +37,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("show-hotels", new Options());
 		map.put("show-rooms", getOptionsForShowRooms());
 		map.put("show-reservations", getOptionsForShowReservations());
+		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("register", getOptionsForRegister());
 		map.put("help", new Options());
 		map.put("logout", new Options());
@@ -86,6 +88,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "show-reservations":
 			showReservations(options);
+			break;
+		case "delete-reservation":
+			deleteReservation(options);
 			break;
 		case "register":
 			register(options);
@@ -149,6 +154,30 @@ public class ReceptionistTerminal extends Terminal {
         } catch (Exception e) {
         	System.out.println("Something went wrong");
 		}
+	}
+	
+	private void deleteReservation(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("delete-reservation"), options);
+        	
+        	long hotelId = ((Number) cmd.getParsedOptionValue("hotel")).longValue();
+        	int roomNumber = ((Number) cmd.getParsedOptionValue("room")).intValue();
+        	Date checkIn = parseDate(cmd.getOptionValue("date"));
+        	
+        	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
+        	Application.hotelDatabaseManager.deleteReservation(checkIn, room);
+        	
+        	System.out.println("Reservation deleted successfully");
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("delete-reservation", getOptionsMap().get("delete-reservation"));
+        } catch (java.text.ParseException e) {
+        	System.out.println("Date format: yyyy-mm-dd");
+		} catch (Exception e) {
+			System.out.println("Unable to delete reservation");
+		}
+		
 	}
 	
 	private void register(String[] options) {
@@ -217,6 +246,25 @@ public class ReceptionistTerminal extends Terminal {
 		options.addOption(surname);
 		options.addOption(username);
 		options.addOption(password);
+		
+        return options;
+	}
+	
+	private static Options getOptionsForDeleteReservation() {
+		Options options = new Options();
+        
+		Option hotel = new Option("h", "hotel", true, "hotel identifier");
+		hotel.setRequired(true);
+		hotel.setType(Number.class);
+		Option room = new Option("r", "room", true, "room number");
+		room.setRequired(true);
+		room.setType(Number.class);
+		Option date = new Option("d", "date", true, "check-in date");
+		date.setRequired(true);
+		
+		options.addOption(hotel);
+		options.addOption(room);
+		options.addOption(date);
 		
         return options;
 	}
