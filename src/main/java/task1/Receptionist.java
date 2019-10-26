@@ -30,6 +30,14 @@ public class Receptionist extends User {
 		super();
 	}
 	
+	public Hotel getHotel() {
+		return hotel;
+	}
+
+	public void setHotel(Hotel hotel) {
+		this.hotel = hotel;
+	}
+	
 	public Reservation addReservation(Room room, Customer customer, Date checkInDate, Date checkOutDate) throws DatabaseManagerException {
 		return getHotelManager().addReservation(room, customer, checkInDate, checkOutDate);
 	}
@@ -62,4 +70,5 @@ public class Receptionist extends User {
 			return false;
 		return true;
 	}
+
 }

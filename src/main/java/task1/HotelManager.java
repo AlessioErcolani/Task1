@@ -88,8 +88,7 @@ public class HotelManager {
 			if (t instanceof ConstraintViolationException) {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
-		}catch (Exception ex) {
-				System.out.println("SONO QUUII");
+		} catch (Exception ex) {
 				throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
@@ -211,6 +210,30 @@ public class HotelManager {
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByCustomer", Reservation.class)
 					.setParameter("customerId", customer.getID())
+					.getResultList();
+			return upcomingReservations;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	/**
+	 * Get the list of upcoming reservations for the given hotel
+	 * @param hotel
+	 * @param date the minimum starting date for the check-in
+	 * @return the list of reservations
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public List<Reservation> getUpcomingReservations(Hotel hotel, Date date) throws DatabaseManagerException {
+		try {
+			setup();
+			List<Reservation> upcomingReservations = entityManager
+					.createNamedQuery("Reservation.getByHotel", Reservation.class)
+					.setParameter("hotelId", hotel.getHotelId())
+					.setParameter("from", date, TemporalType.DATE)
 					.getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
@@ -356,6 +379,21 @@ public class HotelManager {
 			close();
 		}
 	}
+	
+	public List<Hotel> getAllHotels() throws DatabaseManagerException {
+		try {
+			setup();
+			List<Hotel> hotels = entityManager
+					.createNamedQuery("Hotel.findAll", Hotel.class)
+					.getResultList();
+			return hotels;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
 
 	
 	public Hotel readHotel(String address) throws DatabaseManagerException {
@@ -490,7 +528,7 @@ public class HotelManager {
 			manager.addCustomer(new Customer("alessio", "pwd", "Alessio", "Rossi"));
 			manager.addCustomer(new Customer("chiara", "pwd", "Chiara", "Azzurri"));
 			manager.addCustomer(new Customer("marco", "pwd", "Marco", "Bianchi"));
-			manager.addCustomer(new Customer("luca", "pwd", "Luca", "Arancioni"));
+			manager.addCustomer(new Customer("luca", "pwd", "Luca", "Marroni"));
 			manager.addCustomer(new Customer("sara", "pwd", "Sara", "Violi"));
 			
 			Hotel hotelRoma = new Hotel("Via Roma 26, Roma");
@@ -528,7 +566,7 @@ public class HotelManager {
 			
 			calendar.set(2019, 11 - 1, 19, 1, 0, 0);	
 			Date checkOut = calendar.getTime();
-			
+
 			manager.addReservation(room401, customer401, checkIn, checkOut);		
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");

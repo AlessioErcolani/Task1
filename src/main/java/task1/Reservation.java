@@ -13,6 +13,9 @@ import javax.persistence.*;
 @NamedQuery(
 		name="Reservation.getByCustomer",
 		query="SELECT r FROM Reservation r WHERE r.customer.ID = :customerId AND r.checkInDate >= current_time")
+@NamedQuery(
+		name="Reservation.getByHotel",
+		query="SELECT r FROM Reservation r WHERE r.room.hotel.hotelId = :hotelId AND r.checkInDate >= :from")
 public class Reservation {
 	@ManyToOne
 	@JoinColumn(name = "ID_costumer")
