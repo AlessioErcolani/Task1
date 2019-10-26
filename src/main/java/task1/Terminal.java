@@ -163,6 +163,8 @@ public class Terminal {
             formatter.printHelp("login-r", getOptionsMap().get("login-r"));
         } catch (ReceptionistAuthenticationFailure e) {
         	System.out.println("Authentication failed for " + e.getMessage());
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
 		}
 	}
 	
@@ -179,6 +181,8 @@ public class Terminal {
             formatter.printHelp("login-r", getOptionsMap().get("login-r"));
         } catch (CustomerAuthenticationFailure e) {
         	System.out.println("Authentication failed for " + e.getMessage());
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
 		}
 	}
 	
@@ -211,14 +215,18 @@ public class Terminal {
 		if (rooms == null)
 			return;
 
-		String format = "| %-4d | %-8d | %-25s |%n";
+		String format = "| %-4d | %-8d | %-25s | %-4s |%n";
 
-		System.out.format("+------+----------+---------------------------+%n");
-		System.out.format("| Room | Capacity | Hotel Address             |%n");
-		System.out.format("+------+----------+---------------------------+%n");
+		System.out.format("+------+----------+---------------------------+------+%n");
+		System.out.format("| Room | Capacity | Hotel Address             | Free |%n");
+		System.out.format("+------+----------+---------------------------+------+%n");
 		for (Room r : rooms)
-			System.out.format(format, r.getRoomNumber(), r.getRoomCapacity(), r.getHotel().getAddress());
-		System.out.format("+------+----------+---------------------------+%n");
+			System.out.format(format,
+					r.getRoomNumber(),
+					r.getRoomCapacity(),
+					r.getHotel().getAddress(),
+					r.isAvailable() ? "yes" : "no");
+		System.out.format("+------+----------+---------------------------+------+%n");
 	}
 
 	protected void printReservations(List<Reservation> reservations) {

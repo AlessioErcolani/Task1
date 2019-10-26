@@ -6,15 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
+import exc.DatabaseManagerException;
 
 public class CustomerTerminal extends Terminal {
 
 	private Customer customer;
 	
 	private final static List<String> commands = Arrays.asList(
-			"show-rooms",
+			"show-reservations",
 			"help",
 			"logout"
 			);
@@ -24,8 +30,7 @@ public class CustomerTerminal extends Terminal {
 	static {
 		Map<String, Options> map = new HashMap<>();
 		
-		// TODO: define options for show-rooms
-		map.put("show-rooms", new Options());
+		map.put("show-reservations", getOptionsForShowReservations());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -67,8 +72,8 @@ public class CustomerTerminal extends Terminal {
 	@Override
 	protected void execute(String command, String[] options) {
 		switch (command) {
-		case "show-rooms":
-			//showRooms();
+		case "show-reservations":
+			showReservations(options);
 			break;
 		case "help":
 			help(options);
@@ -83,13 +88,49 @@ public class CustomerTerminal extends Terminal {
 	// Commands implementation                                                \\
 	//------------------------------------------------------------------------\\
 	
+	private void showReservations(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("show-reservations"), options);
+            
+            /*if (cmd.hasOption("all"))
+            	printReservations(customer.getReservations());
+            else if (cmd.hasOption("past"))
+            	printReservations(customer.getReservations());
+            else*/
+            	printReservations(customer.getUpcomingReservations());
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"));
+        } catch (Exception e) {
+        	System.out.println("Something went wrong");
+		}
+	}
+	
 	private void logout() {
-		this.newUser = true;
-		this.nextUser = null;
+		newUser = true;
+		nextUser = null;
 	}
 	
 	//------------------------------------------------------------------------\\
 	// Options definition                                                     \\
 	//------------------------------------------------------------------------\\
 
+	private static Options getOptionsForShowReservations() {
+		Options options = new Options();
+		
+		/*Option all = new Option("a", "all", false, "show all reservations");
+		Option past = new Option("p", "past", false, "show only past reservations");
+		
+		OptionGroup group = new OptionGroup();
+		group.addOption(all);
+		group.addOption(past);
+		group.setRequired(false);
+		
+		options.addOption(all);
+		options.addOption(past);
+		options.addOptionGroup(group);*/
+        
+        return options;
+	}
+	
 }

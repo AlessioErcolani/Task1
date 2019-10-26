@@ -442,6 +442,12 @@ public class HotelManager {
 			
 			manager.addReservation(room401, customer401, checkIn, checkOut);
 			
+			calendar.set(2018, 11 - 1, 15, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2018, 11 - 1, 19, 1, 0, 0);	
+			checkOut = calendar.getTime();
+			
 			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
 			Date occupiedDate = calendar.getTime();
 			
