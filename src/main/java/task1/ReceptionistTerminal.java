@@ -1,6 +1,5 @@
 package task1;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,6 +12,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import exc.CustomerUsernameAlreadyPresentException;
+import exc.DatabaseManagerException;
+
 public class ReceptionistTerminal extends Terminal {
 	
 	private Receptionist receptionist;
@@ -20,6 +22,7 @@ public class ReceptionistTerminal extends Terminal {
 	private final static List<String> commands = Arrays.asList(
 			"show-rooms",
 			"show-reservations",
+			"register",
 			"help",
 			"logout"
 			);
@@ -31,6 +34,7 @@ public class ReceptionistTerminal extends Terminal {
 		
 		map.put("show-rooms", getOptionsForShowRooms());
 		map.put("show-reservations", getOptionsForShowReservations());
+		map.put("register", getOptionsForRegister());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -45,7 +49,7 @@ public class ReceptionistTerminal extends Terminal {
 		super(scanner);
 		this.receptionist = receptionist;
 	}
-	
+
 	public ReceptionistTerminal(Receptionist receptionist) {
 		this(receptionist, new Scanner(System.in));
 	}
@@ -78,6 +82,9 @@ public class ReceptionistTerminal extends Terminal {
 		case "show-reservations":
 			showReservations(options);
 			break;
+		case "register":
+			register(options);
+			break;
 		case "help":
 			help(options);
 			break;
@@ -86,7 +93,7 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		}
 	}
-	
+
 	//------------------------------------------------------------------------\\
 	// Commands implementation                                                \\
 	//------------------------------------------------------------------------\\
@@ -130,6 +137,30 @@ public class ReceptionistTerminal extends Terminal {
 		}
 	}
 	
+	private void register(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("register"), options);
+        	
+        	String name = cmd.getOptionValue("name");
+        	String surname = cmd.getOptionValue("surname");
+        	String username = cmd.getOptionValue("username");
+        	String password = cmd.getOptionValue("password");
+        	
+        	Customer customer = new Customer(username, password, name, surname);
+            
+			Application.hotelDatabaseManager.addCustomer(customer);
+			System.out.println("Added new customer " + name + " " + surname);
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("register", getOptionsMap().get("register"));
+        } catch (CustomerUsernameAlreadyPresentException e) {
+        	System.out.println("Username '" + e.getMessage() + "' already in use");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
+		
+	}
+	
 	private void logout() {
 		newUser = true;
 		nextUser = null;
@@ -152,6 +183,26 @@ public class ReceptionistTerminal extends Terminal {
 		from.setRequired(false);
 		
 		options.addOption(from);
+		
+        return options;
+	}
+	
+	private static Options getOptionsForRegister() {
+		Options options = new Options();
+        
+		Option name = new Option("n", "name", true, "customer's name");
+		name.setRequired(true);
+		Option surname = new Option("s", "surname", true, "customer's surname");
+		surname.setRequired(true);
+		Option username = new Option("u", "username", true, "customer's username");
+		username.setRequired(true);
+		Option password = new Option("p", "password", true, "customer's password");
+		password.setRequired(true);
+		
+		options.addOption(name);
+		options.addOption(surname);
+		options.addOption(username);
+		options.addOption(password);
 		
         return options;
 	}
