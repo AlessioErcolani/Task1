@@ -185,8 +185,7 @@ public void testMenageReservation() {
 			upcomingReservations = customer.getUpcomingReservations();
 			result = upcomingReservations.contains(reservation);
 			assertFalse("Test deleted reservation", result);			
-		} catch (DatabaseManagerException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}	
 	}

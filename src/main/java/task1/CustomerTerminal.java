@@ -100,7 +100,7 @@ public class CustomerTerminal extends Terminal {
             	printReservations(customer.getUpcomingReservations());
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"));
+            formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"), true);
         } catch (Exception e) {
         	System.out.println("Something went wrong");
 		}

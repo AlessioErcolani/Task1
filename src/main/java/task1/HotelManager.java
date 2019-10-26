@@ -325,7 +325,7 @@ public class HotelManager {
 		return hotel;
 	}
 	
-	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException {
+	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {			
 			setup();
@@ -334,7 +334,7 @@ public class HotelManager {
 			query.setParameter("roomNumber", roomNumber);
 			room = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new RoomNotFoundException();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -344,7 +344,7 @@ public class HotelManager {
 		return room;
 	}
 	
-	public Customer readCustomer(String username) throws DatabaseManagerException {
+	public Customer readCustomer(String username) throws DatabaseManagerException, CustomerNotFoundException {
 		Customer customer = null;
 		try {			
 			setup();
@@ -352,7 +352,7 @@ public class HotelManager {
 			query.setParameter("username", username);
 			customer = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new CustomerNotFoundException(username);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -488,7 +488,7 @@ public class HotelManager {
 			
 			manager.addReservation(room401, customer401, checkIn, checkOut);
 			
-			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
+			/*calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
 			Date occupiedDate = calendar.getTime();
 			
 			System.out.println("\nCheck for available rooms on " + occupiedDate);
@@ -508,7 +508,7 @@ public class HotelManager {
 				System.out.println("No available rooms on " + freeDate);
 			else
 				for (Room r : rooms21Nov)
-					System.out.println(r);
+					System.out.println(r);*/
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");

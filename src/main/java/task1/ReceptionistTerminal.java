@@ -12,8 +12,10 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
 import exc.DatabaseManagerException;
+import exc.RoomNotFoundException;
 
 public class ReceptionistTerminal extends Terminal {
 	
@@ -22,6 +24,7 @@ public class ReceptionistTerminal extends Terminal {
 	private final static List<String> commands = Arrays.asList(
 			"show-hotels",
 			"show-rooms",
+			"add-reservation",
 			"show-reservations",
 			"delete-reservation",
 			"register",
@@ -36,6 +39,7 @@ public class ReceptionistTerminal extends Terminal {
 		
 		map.put("show-hotels", new Options());
 		map.put("show-rooms", getOptionsForShowRooms());
+		map.put("add-reservation", getOptionsForAddReservation());
 		map.put("show-reservations", getOptionsForShowReservations());
 		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("register", getOptionsForRegister());
@@ -86,6 +90,9 @@ public class ReceptionistTerminal extends Terminal {
 		case "show-rooms":
 			showRooms(options);
 			break;
+		case "add-reservation":
+			addReservation(options);
+			break;
 		case "show-reservations":
 			showReservations(options);
 			break;
@@ -121,15 +128,51 @@ public class ReceptionistTerminal extends Terminal {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("show-rooms"), options);
             
+        	// TODO: add and handle options
         	List<Room> rooms;
             rooms = Application.hotelDatabaseManager.getAvailableRooms(receptionist.getHotel(), new Date());
             
             printRooms(rooms);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("show-rooms", getOptionsMap().get("show-rooms"));
+            formatter.printHelp("show-rooms", getOptionsMap().get("show-rooms"), true);
         } catch (Exception e) {
 			System.out.println("Something went wrong");
+		}
+	}
+	
+	private void addReservation(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("add-reservation"), options);
+        	
+        	long hotelId = ((Number) cmd.getParsedOptionValue("hotel")).longValue();
+        	int roomNumber = ((Number) cmd.getParsedOptionValue("room")).intValue();
+        	String username = cmd.getOptionValue("customer");
+        	Date from = parseDate(cmd.getOptionValue("from"));
+        	Date to = parseDate(cmd.getOptionValue("to"));
+        	
+        	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
+        	Customer customer = Application.hotelDatabaseManager.readCustomer(username);
+        	
+        	// TODO: check if room is reservable
+        	
+        	// se dato due volte di fila smatta male, proviamo a vedere dopo il controllo
+        	// Application.hotelDatabaseManager.addReservation(room, customer, from, to);
+        	
+        	System.out.println("Reservation added successfully");
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("add-reservation", getOptionsMap().get("add-reservation"), true);
+        } catch (java.text.ParseException e) {
+        	System.out.println("Date format: yyyy-mm-dd");
+		} catch (RoomNotFoundException e) {
+			System.out.println("Room not found");
+		} catch (CustomerNotFoundException e) {
+			System.out.println("Customer '" + e.getMessage() + "' not found");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+			e.printStackTrace();
 		}
 	}
 	
@@ -148,7 +191,7 @@ public class ReceptionistTerminal extends Terminal {
 			printReservations(reservations);
         } catch (org.apache.commons.cli.ParseException e) {
         	System.out.println(e.getMessage());
-            formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"));
+            formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"), true);
         } catch (java.text.ParseException e) {
         	System.out.println("Date format: yyyy-mm-dd");
         } catch (Exception e) {
@@ -171,13 +214,14 @@ public class ReceptionistTerminal extends Terminal {
         	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
-            formatter.printHelp("delete-reservation", getOptionsMap().get("delete-reservation"));
+            formatter.printHelp("delete-reservation", getOptionsMap().get("delete-reservation"), true);
         } catch (java.text.ParseException e) {
         	System.out.println("Date format: yyyy-mm-dd");
+		} catch (RoomNotFoundException e) {
+			System.out.println("Room not found");
 		} catch (Exception e) {
-			System.out.println("Unable to delete reservation");
+			System.out.println("Something went wrong");
 		}
-		
 	}
 	
 	private void register(String[] options) {
@@ -195,7 +239,7 @@ public class ReceptionistTerminal extends Terminal {
 			System.out.println("Added new customer " + name + " " + surname);
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
-            formatter.printHelp("register", getOptionsMap().get("register"));
+            formatter.printHelp("register", getOptionsMap().get("register"), true);
         } catch (CustomerUsernameAlreadyPresentException e) {
         	System.out.println("Username '" + e.getMessage() + "' already in use");
 		} catch (Exception e) {
@@ -265,6 +309,31 @@ public class ReceptionistTerminal extends Terminal {
 		options.addOption(hotel);
 		options.addOption(room);
 		options.addOption(date);
+		
+        return options;
+	}
+	
+	private static Options getOptionsForAddReservation() {
+		Options options = new Options();
+        
+		Option hotel = new Option("h", "hotel", true, "hotel identifier");
+		hotel.setRequired(true);
+		hotel.setType(Number.class);
+		Option room = new Option("r", "room", true, "room number");
+		room.setRequired(true);
+		room.setType(Number.class);
+		Option customer = new Option("c", "customer", true, "customer's username");
+		customer.setRequired(true);
+		Option from = new Option("f", "from", true, "check-in date");
+		from.setRequired(true);
+		Option to = new Option("t", "to", true, "check-out date");
+		to.setRequired(true);
+		
+		options.addOption(hotel);
+		options.addOption(room);
+		options.addOption(customer);
+		options.addOption(from);
+		options.addOption(to);
 		
         return options;
 	}
