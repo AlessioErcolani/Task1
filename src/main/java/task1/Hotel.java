@@ -6,6 +6,9 @@ import javax.persistence.*;
 @Entity(name = "Hotel")
 @Table(name = "hotel")
 @NamedQuery(
+		name="Hotel.findAll",
+		query="SELECT h FROM Hotel h")
+@NamedQuery(
 		name="Hotel.findByAddress",
 		query="SELECT h FROM Hotel h WHERE h.address = :address")
 @NamedQuery(

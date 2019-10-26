@@ -214,6 +214,22 @@ public class Terminal {
 	// Print methods                                                          \\
 	//------------------------------------------------------------------------\\
 	
+	protected void printHotels(List<Hotel> hotels) {
+		if (hotels == null)
+			return;
+
+		String format = "| %-4d | %-25s |%n";
+
+		System.out.format("+------+---------------------------+%n");
+		System.out.format("| Id   | Hotel Address             |%n");
+		System.out.format("+------+---------------------------+%n");
+		for (Hotel h : hotels)
+			System.out.format(format,
+					h.getHotelId(),
+					h.getAddress());
+		System.out.format("+------+---------------------------+%n");
+	}
+	
 	protected void printRooms(List<Room> rooms) {
 		if (rooms == null)
 			return;

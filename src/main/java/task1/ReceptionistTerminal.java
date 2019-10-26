@@ -20,6 +20,7 @@ public class ReceptionistTerminal extends Terminal {
 	private Receptionist receptionist;
 	
 	private final static List<String> commands = Arrays.asList(
+			"show-hotels",
 			"show-rooms",
 			"show-reservations",
 			"register",
@@ -32,6 +33,7 @@ public class ReceptionistTerminal extends Terminal {
 	static {
 		Map<String, Options> map = new HashMap<>();
 		
+		map.put("show-hotels", new Options());
 		map.put("show-rooms", getOptionsForShowRooms());
 		map.put("show-reservations", getOptionsForShowReservations());
 		map.put("register", getOptionsForRegister());
@@ -76,6 +78,9 @@ public class ReceptionistTerminal extends Terminal {
 	@Override
 	protected void execute(String command, String[] options) {
 		switch (command) {
+		case "show-hotels":
+			showHotels();
+			break;
 		case "show-rooms":
 			showRooms(options);
 			break;
@@ -97,6 +102,15 @@ public class ReceptionistTerminal extends Terminal {
 	//------------------------------------------------------------------------\\
 	// Commands implementation                                                \\
 	//------------------------------------------------------------------------\\
+	
+	private void showHotels() {
+		try {
+			printHotels(Application.hotelDatabaseManager.getAllHotels());
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
+		
+	}
 	
 	private void showRooms(String[] options) {
 		try {

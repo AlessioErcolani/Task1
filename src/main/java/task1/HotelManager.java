@@ -88,8 +88,7 @@ public class HotelManager {
 			if (t instanceof ConstraintViolationException) {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
-		}catch (Exception ex) {
-				System.out.println("SONO QUUII");
+		} catch (Exception ex) {
 				throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
@@ -201,6 +200,7 @@ public class HotelManager {
 	/**
 	 * Get the list of upcoming reservations for the given hotel
 	 * @param hotel
+	 * @param date the minimum starting date for the check-in
 	 * @return the list of reservations
 	 * @throws DatabaseManagerException in case of errors
 	 */
@@ -285,6 +285,21 @@ public class HotelManager {
 			return receptionist;
 		} catch (Exception ex) {			
 			 throw new ReceptionistAuthenticationFailure(username);
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	public List<Hotel> getAllHotels() throws DatabaseManagerException {
+		try {
+			setup();
+			List<Hotel> hotels = entityManager
+					.createNamedQuery("Hotel.findAll", Hotel.class)
+					.getResultList();
+			return hotels;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
 			close();
