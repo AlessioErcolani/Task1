@@ -23,83 +23,84 @@ public class TestApplication {
 	
 	@Test
 	public void testAddAndReadCustomer() {
-		//test add new customer
-		String username = "username";
-		String password = "password";
-		Customer customer = new Customer(username, password, "name", "surname");
+		// test add new customer
+		Customer customer = new Customer("username", "pwd", "name", "surname");
 		try {
 			manager.addCustomer(customer);
 		} catch (CustomerUsernameAlreadyPresentException e) {
-			fail("new customer, error!");
+			fail("Test add new customer: failed because username already present.");
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new customer: failed.");
 		}
 		
-		//test add customer with an username already present
-		Customer customerCopy = new Customer(username, "pwd", "newName","newSurname");
+		// test add customer with an username already present
+		Customer customerCopy = new Customer("username", "newPwd", "newName","newSurname");
 		boolean exceptionCatched = false;
 		try {
 			manager.addCustomer(customerCopy);
 		} catch (CustomerUsernameAlreadyPresentException e) {
 			exceptionCatched = true;			
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new customer: failed. ");
 		}
-		assertTrue(exceptionCatched);
+		assertTrue("Test add existing customer.", exceptionCatched);
 		
-		//test read customer by username and password
+		// test read customer by username and password
 		Customer readCustomer = null;
 		try {
-			readCustomer = manager.authenticateCustomer(username, password);
+			readCustomer = manager.authenticateCustomer("username", "pwd");
 		} catch (CustomerAuthenticationFailure e) {
-			fail("username and password are correct, error!");
+			fail("Test authenticate customer: failed.");
 		}
-		assertEquals(customer, readCustomer);	
+		assertEquals("Test authenticate customer", customer, readCustomer);	
 		
-		//test delete a customer
+		// test delete a customer
+		exceptionCatched = false;
 		try {
 			manager.deleteCustomer(readCustomer);
 		} catch (CustomerNotFound e) {
-			fail("customer exists, error!");
+			exceptionCatched = true;
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			exceptionCatched = true;
 		}		
+		assertFalse("Test delete customer", exceptionCatched);
 	}
 	
 	@Test
-	public void addAndReadHotel() {
+	public void testAddAndReadHotel() {
 		String address = "Via Ferrara 45, Ferrara";
 		
-		//test add new hotel
+		// test add new hotel
 		Hotel hotel = new Hotel(address);
 		try {
 			manager.addHotel(hotel);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new hotel: failed.");
 		}
 		
-		//test read hotel		
+		// test read hotel		
 		Hotel readHotel = null;
 		try {
 			readHotel = manager.readHotel(address);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test read hotel: failed.");
 		}
-		assertEquals(readHotel, hotel);	
+		assertEquals("Test read hotel.", readHotel, hotel);	
 		
-		//test delete an hotel
+		// test delete an hotel
+		boolean exceptionCatched = false;
 		try {
 			manager.deleteHotel(readHotel);
 		} catch (HotelNotFound e) {
-			fail("hotel exists, error!");
+			exceptionCatched = true;
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			exceptionCatched = true;
 		}
+		assertFalse("Test delete hotel", exceptionCatched);
 	}
 	
-/*	@Test
-	public void testAddAndReadReceptionist() {
-		
+	@Test
+	public void testAddAndReadReceptionist() {	
 		//test add new receptionist
 		String address = "Via Ferrara 44, Ferrara";
 		Hotel hotel = new Hotel(address);
@@ -110,57 +111,61 @@ public class TestApplication {
 			fail(ex.getMessage());
 		}
 		
-		String username = "username";
-		String password = "password";
-		Receptionist receptionist = new Receptionist(username, password, "name", "surname", hotel);
+		Receptionist receptionist = new Receptionist("username", "pwd", "name", "surname", hotel);
 		try {
 			manager.addReceptionist(receptionist);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
-			fail("new receptionist, error!");
+			fail("Test add new receptionist: failed because username already present!");
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new receptionist: failed.");
 		}
 		
-		//test add receptionist with an username already present
-		Receptionist ReceptionistCopy = new Receptionist(username, "pwd", "newName","newSurname", hotel);
+		// test add receptionist with an username already present
+		Receptionist ReceptionistCopy = new Receptionist("username", "newPwd", "newName","newSurname", hotel);
 		boolean exceptionCatched = false;
 		try {
 			manager.addReceptionist(ReceptionistCopy);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
 			exceptionCatched = true;			
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new receptionist: failed. ");
 		}
-		assertTrue(exceptionCatched);
+		assertTrue("Test add existing receptionist.", exceptionCatched);
 		
-		//test read receptionist by username and password
+		// test read receptionist by username and password
 		Receptionist readReceptionist = null;
 		try {
-			readReceptionist = manager.authenticateReceptionist(username, password);
+			readReceptionist = manager.authenticateReceptionist("username", "pwd");
 		} catch (ReceptionistAuthenticationFailure e) {
-			fail("username and password are correct, error!");
+			fail("Test authenticate receptionist: failed.");
 		}
-		assertEquals(receptionist, readReceptionist);	
+		assertEquals("Test authenticate receptionist", receptionist, readReceptionist);		
 		
-		//test delete a customer
+		// test delete a receptionist
+		exceptionCatched = false;
 		try {
-			manager.deleteCustomer(readCustomer);
-		} catch (CustomerNotFound e) {
-			fail("customer exists, error!");
+			manager.deleteReceptionist(readReceptionist);
+		} catch (ReceptionistNotFound e) {
+			exceptionCatched = true;
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			exceptionCatched = true;
 		}		
-	}
+		assertFalse("Test delete receptionist", exceptionCatched);
 		
+		// test delete an hotel
+		exceptionCatched = false;
+		try {
+			manager.deleteHotel(hotel);
+		} catch (HotelNotFound e) {
+			exceptionCatched = true;
+		} catch (DatabaseManagerException e) {
+			exceptionCatched = true;
+		}
+		assertFalse("Test delete hotel", exceptionCatched);
 	}
 	
-	
-		
-	}*/
-	
-	// Test for add, update and delete reservation
 	@Test
-	public void testAddUpdateDeleteReservation() {		
+	public void testAddUpdateAndDeleteReservation() {		
 		try {
 			Customer customer = manager.readCustomer("piergiorgio");
 			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");
@@ -242,40 +247,4 @@ public class TestApplication {
 			e.printStackTrace();
 		}	
 	}
-
-	/*
-	//Test authentication
-	@Test
-	public void testAuthentication() {		
-		try {			
-			// test successful customer login
-			Customer customer = manager.authenticateCustomer("federico", "pwd");
-			assertFalse("Test: successful customer login", customer == null);
-			
-			// test unsuccessful customer login with invalid password
-			customer = manager.authenticateCustomer("chiara", "wrong pwd");
-			assertTrue("Test: unsuccessful customer login with wrong password", customer == null);
-			
-			// test unsuccessful customer login with invalid username
-			customer = manager.authenticateCustomer("username that does not exists", "pwd");
-			assertTrue("Test: unsuccessful customer login with wrong username", customer == null);
-			
-			// test successful receptionist login
-			Receptionist receptionist = manager.authenticateReceptionist("r1", "pwd");
-			assertFalse("Test: successful receptionist login", receptionist == null);
-			
-			// test unsuccessful receptionist login with invalid password
-			receptionist = manager.authenticateReceptionist("r2", "wrong pwd");
-			assertTrue("Test: unsuccessful receptionist login with wrong password", receptionist == null);
-			
-			// test unsuccessful receptionist login with invalid username
-			receptionist = manager.authenticateReceptionist("username that does not exists", "pwd");
-			assertTrue("Test: unsuccessful receptionist login with wrong username", receptionist == null);
-		} catch (CustomerAuthenticationFailure e) {
-			e.printStackTrace();
-		} catch (ReceptionistAuthenticationFailure e) {
-			e.printStackTrace();
-		}
-	}
-	*/
 }

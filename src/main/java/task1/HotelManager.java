@@ -394,7 +394,6 @@ public class HotelManager {
 			close();
 		}
 	}
-
 	
 	public Hotel readHotel(String address) throws DatabaseManagerException {
 		Hotel hotel = null;
@@ -496,12 +495,35 @@ public class HotelManager {
 	}
 	
 	/**
+	 * Delete a receptionist 
+	 * @param receptionist
+	 * @throws ReceptionistNotFound
+	 * @throws DatabaseManagerException
+	 */	
+	public void deleteReceptionist(Receptionist receptionist) throws ReceptionistNotFound, DatabaseManagerException {
+		try {
+			setup();
+			int rowAffected = entityManager
+					.createNamedQuery("Receptionist.deleteReceptionist")
+					.setParameter("id", receptionist.getID())
+					.executeUpdate();
+			if (rowAffected == 0) {
+				throw new ReceptionistNotFound();
+			}
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}		
+	}
+	
+	/**
 	 * Delete an hotel 
 	 * @param hotel
 	 * @throws HotelNotFound
 	 * @throws DatabaseManagerException
-	 */
-	
+	 */	
 	public void deleteHotel(Hotel hotel) throws HotelNotFound, DatabaseManagerException {
 		try {
 			setup();
@@ -521,7 +543,6 @@ public class HotelManager {
 
 	}
 
-	
 	public static void populateDatabase(HotelManager manager) {
 		try {
 			manager.addCustomer(new Customer("federico", "pwd", "Federico", "Verdi"));

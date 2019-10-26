@@ -8,5 +8,4 @@ public class ForeignKeyException extends DatabaseManagerException {
 	public ForeignKeyException(String msg) {
 		super(msg);
 	}
-
 }
