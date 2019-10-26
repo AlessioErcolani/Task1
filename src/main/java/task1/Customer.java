@@ -32,10 +32,15 @@ public class Customer extends User {
 	public Customer() {
 		super();
 	}
-
+	
 	public void addReservation(Reservation reservation) {
 		reservations.add(reservation);
 		reservation.setCustomer(this);
+	}
+	
+	public void removeReservation(Reservation reservation) {
+		reservations.remove(reservation);
+		reservation.setCustomer(null);
 	}
 	
 	public List<Reservation> getUpcomingReservations() throws DatabaseManagerException {

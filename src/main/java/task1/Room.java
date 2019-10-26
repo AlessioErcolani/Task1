@@ -21,6 +21,18 @@ import javax.persistence.*;
 				+ "		WHERE res.room.hotel.hotelId = :hotelId "
 				+ "			AND :day BETWEEN res.checkInDate AND res.checkOutDate"
 				+ ")")
+@NamedQuery(
+		name="Room.getUnavailableRoomsGivenDay",
+		query=""
+				+ "SELECT r "
+				+ "FROM Room r "
+				+ "WHERE r.hotel.hotelId = :hotelId AND r.available = false AND r.roomNumber NOT IN "
+				+ "("
+				+ "		SELECT res.room.roomNumber "
+				+ "		FROM Reservation res "
+				+ "		WHERE res.room.hotel.hotelId = :hotelId "
+				+ "			AND :day BETWEEN res.checkInDate AND res.checkOutDate"
+				+ ")")
 public class Room {
 	@Id
 	@ManyToOne
@@ -51,6 +63,16 @@ public class Room {
 		this.roomNumber = roomNumber;
 		this.roomCapacity = roomCapacity;
 		this.available = available;
+	}
+	
+	public void addReservation(Reservation reservation) {
+		reservations.add(reservation);
+		reservation.setRoom(this);
+	}
+	
+	public void removeReservation(Reservation reservation) {
+		reservations.remove(reservation);
+		reservation.setRoom(null);
 	}
 
 	public int getRoomCapacity() {

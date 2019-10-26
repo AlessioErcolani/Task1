@@ -159,6 +159,29 @@ public class HotelManager {
 	}
 	
 	/**
+	 * Update a reservation
+	 * @param oldCheckInDate is the check-in date of the reservation to update
+	 * @param oldRoom is the room of the reservation to update
+ 	 * @param newReservation is the new reservation
+	 * @return the updated reservation
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public void updateReservation(Reservation oldReservation, Reservation newReservation) throws DatabaseManagerException {
+		try {
+			setup();			
+			Room oldRoom = entityManager.find(Room.class, new PKRoom(oldReservation.getRoom().getHotel(), oldReservation.getRoom().getRoomNumber()));
+			oldRoom.removeReservation(oldReservation);	
+			Room newRoom = entityManager.find(Room.class, new PKRoom(newReservation.getRoom().getHotel(), newReservation.getRoom().getRoomNumber()));
+			newRoom.addReservation(newReservation);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	/**
 	 * Delete a reservation
 	 * @param reservation the Reservation to delete
 	 * @throws DatabaseManagerException
@@ -166,8 +189,8 @@ public class HotelManager {
 	public void deleteReservation(Date checkInDate, Room room) throws DatabaseManagerException {
 		try {
 			setup();			
-			Reservation r = entityManager.find(Reservation.class, new PKReservation(checkInDate, room));
-	        entityManager.remove(r);
+			Reservation reservation = entityManager.find(Reservation.class, new PKReservation(checkInDate, room));
+	        entityManager.remove(reservation);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -200,8 +223,8 @@ public class HotelManager {
 	
 	/**
 	 * Get a list of rooms that are available in a given day in a given hotel
-	 * @param hotel the Hotel of the room
-	 * @param day the local date of availability
+	 * @param hotel is the Hotel of the room
+	 * @param day is the local date of availability
 	 * @return a list of available rooms
 	 * @throws DatabaseManagerException in case of errors
 	 */
@@ -220,6 +243,72 @@ public class HotelManager {
 			close();
 		}
 	}
+	
+	/**
+	 * Get a list of rooms that are unavailable in a given day in a given hotel
+	 * @param hotel is the Hotel of the room
+	 * @param day is the local date of availability
+	 * @return a list of available rooms
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public List<Room> getUnavailableRooms(Hotel hotel, Date day) throws DatabaseManagerException {
+		try {
+			setup();
+			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getUnavailableRoomsGivenDay", Room.class);
+			query.setParameter("hotelId", hotel.getHotelId());
+			query.setParameter("day", day);
+			List<Room> rooms = query.getResultList();
+			return rooms;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	/**
+	 * Set a room in an hotel as available
+	 * @param hotel is the Hotel of the room
+	 * @param roomNumber  is the number of the room
+	 * @return the updated room
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public Room setRoomAvailable(Hotel hotel, int roomNumber) throws DatabaseManagerException {
+		try {
+			setup();
+			Room room = entityManager.find(Room.class, new PKRoom(hotel, roomNumber));		
+			room.setAvailable(true);
+			return room;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	/**
+	 * Set a room in an hotel as unavailable
+	 * @param hotel is the Hotel of the room
+	 * @param roomNumber is the number of the room
+	 * @return the updated room
+	 * @throws DatabaseManagerException in case of errors 
+	 */
+	public Room setRoomUnavailable(Hotel hotel, int roomNumber) throws DatabaseManagerException {
+		try {
+			setup();
+			Room room = entityManager.find(Room.class, new PKRoom(hotel, roomNumber));		
+			room.setAvailable(false);
+			return room;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 
 	/**
 	 * Checks for the authentication of a Customer through their username and password
@@ -440,30 +529,7 @@ public class HotelManager {
 			calendar.set(2019, 11 - 1, 19, 1, 0, 0);	
 			Date checkOut = calendar.getTime();
 			
-			manager.addReservation(room401, customer401, checkIn, checkOut);
-			
-			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
-			Date occupiedDate = calendar.getTime();
-			
-			System.out.println("\nCheck for available rooms on " + occupiedDate);
-			List<Room> rooms17Nov = manager.getAvailableRooms(hotelBologna, occupiedDate);
-			if (rooms17Nov.isEmpty())
-				System.out.println("No available rooms on " + occupiedDate.toString());
-			else
-				for (Room r : rooms17Nov)
-					System.out.println(r);
-			
-			calendar.set(2019, 11 - 1, 21, 1, 0, 0);	
-			Date freeDate = calendar.getTime();
-
-			System.out.println("\nCheck for available rooms on " + freeDate);
-			List<Room> rooms21Nov = manager.getAvailableRooms(hotelBologna, freeDate);
-			if (rooms21Nov.isEmpty())
-				System.out.println("No available rooms on " + freeDate);
-			else
-				for (Room r : rooms21Nov)
-					System.out.println(r);
-			
+			manager.addReservation(room401, customer401, checkIn, checkOut);		
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");
 		} catch (ReceptionistUsernameAlreadyPresentException ex) {
@@ -474,81 +540,10 @@ public class HotelManager {
 		}
 	}
 	
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) {		
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
 
 		HotelManager manager = new HotelManager("hotel_chain");
 		populateDatabase(manager);
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck successful login");
-		try {
-			// valid credentials
-			Customer c = manager.authenticateCustomer("federico", "pwd");
-			System.out.println("Hi, " + c);
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Successful authentication for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid password");
-		try {
-			// valid username, invalid password
-			manager.authenticateCustomer("chiara", "wrong pwd");
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid username");
-		try {
-			// invalid username
-			manager.authenticateCustomer("username that does not exists", "pwd");
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck successful login");
-		try {
-			// valid credentials
-			Receptionist r = manager.authenticateReceptionist("r1", "pwd");
-			System.out.println("Hi, " + r);
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Successful authentication for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid password");
-		try {
-			// valid username, invalid password
-			manager.authenticateReceptionist("r2", "wrong pwd");
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid username");
-		try {
-			// invalid username
-			manager.authenticateReceptionist("username that does not exists", "pwd");
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nGet upcoming reservation for an user");
-		try {
-			Customer customer401 = manager.authenticateCustomer("piergiorgio", "pwd");
-			List<Reservation> upcomingReservations = manager.getUpcomingReservation(customer401);
-			for(Reservation reservation : upcomingReservations)
-				System.out.println(reservation);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.out.println("An error occur in getting all the reservations");
-		}
-				
-		manager.exit();
 	}
 }
