@@ -209,7 +209,7 @@ public class TestApplication {
 
 	// Test for get available/unavailable rooms and set available/unvailable room
 	@Test
-	public void testManageRoom() {		
+	public void testGetAndSetAvailableAndUnavailableRoom() {		
 		try {	
 			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");
 			
@@ -243,6 +243,7 @@ public class TestApplication {
 		}	
 	}
 
+	/*
 	//Test authentication
 	@Test
 	public void testAuthentication() {		
@@ -276,4 +277,5 @@ public class TestApplication {
 			e.printStackTrace();
 		}
 	}
+	*/
 }

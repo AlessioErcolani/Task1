@@ -568,12 +568,11 @@ public class HotelManager {
 			Date checkOut = calendar.getTime();
 
 			manager.addReservation(room401, customer401, checkIn, checkOut);		
-		} catch (CustomerUsernameAlreadyPresentException ex) {
-			System.out.println(ex.getMessage() + " already present (customer)");
-		} catch (ReceptionistUsernameAlreadyPresentException ex) {
-			System.out.println(ex.getMessage() + " already present (receptionist)");
+		} catch (CustomerUsernameAlreadyPresentException e) {
+			e.printStackTrace();
+		} catch (ReceptionistUsernameAlreadyPresentException e) {
+			e.printStackTrace();;
 		} catch (Exception e) {
-			System.err.println("Something went wrong");
 			e.printStackTrace();
 		}
 	}
