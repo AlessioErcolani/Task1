@@ -211,12 +211,12 @@ public class TestApplication {
 			
 			// verify if the reservation was correctly deleted
 			assertFalse("Test: reservation deleted", upcomingReservations.contains(newReservation));	
-		} catch (DatabaseManagerException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}	
 	}
 
-	// Test for get available/unavailable rooms and set available/unvailable room
+	// Test for get available/unavailable rooms and set available/unavailable room
 	@Test
 	public void testGetReservableAndUnreservableSetAvailableAndUnavailableRoom() {		
 		try {				
@@ -225,7 +225,7 @@ public class TestApplication {
 			// room in the database booked in the period from 15-11-2019 (= checkInDate) to 19-11-2019 (= checkOutDate)
 			Room bookedRoom = manager.readRoom(hotel.getHotelId(), 401);
 			
-			// unvaiable room in the database
+			// unavailable room in the database
 			Room room = manager.readRoom(hotel.getHotelId(), 302);
 			
 			Calendar calendar = Calendar.getInstance();
@@ -333,8 +333,8 @@ public class TestApplication {
 			assertFalse(reservableRooms.contains(room));
 			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
 			assertTrue(unreservableRooms.contains(room));
-		} catch (DatabaseManagerException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		}	
+		}
 	}
 }

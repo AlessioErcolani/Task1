@@ -43,6 +43,13 @@ public class Reservation {
 		this.checkInDate = checkInDate;
 		this.checkOutDate = checkOutDate;
 	}
+	
+	public Reservation(Room room, Date checkInDate, Date checkOutDate, Customer customer) {
+		this.room = room;
+		this.checkInDate = checkInDate;
+		this.checkOutDate = checkOutDate;
+		this.customer = customer;
+	}
 
 	public Date getCheckInDate() {
 		return checkInDate;

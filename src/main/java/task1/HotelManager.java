@@ -418,7 +418,7 @@ public class HotelManager {
 		return hotel;
 	}
 	
-	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException {
+	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {			
 			setup();
@@ -427,7 +427,7 @@ public class HotelManager {
 			query.setParameter("roomNumber", roomNumber);
 			room = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new RoomNotFoundException();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -437,7 +437,7 @@ public class HotelManager {
 		return room;
 	}
 	
-	public Customer readCustomer(String username) throws DatabaseManagerException {
+	public Customer readCustomer(String username) throws DatabaseManagerException, CustomerNotFoundException {
 		Customer customer = null;
 		try {			
 			setup();
@@ -445,7 +445,7 @@ public class HotelManager {
 			query.setParameter("username", username);
 			customer = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new CustomerNotFoundException(username);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -455,7 +455,7 @@ public class HotelManager {
 		return customer;
 	}
 	
-	public Reservation readReservation(long hotelId, int room, Date checkInDate) throws DatabaseManagerException {
+	public Reservation readReservation(long hotelId, int room, Date checkInDate) throws DatabaseManagerException, ReservationNotFoundException {
 		Reservation reservation = null;
 		try {			
 			setup();
@@ -465,7 +465,7 @@ public class HotelManager {
 			query.setParameter("checkInDate", checkInDate);
 			reservation = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new ReservationNotFoundException();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -590,12 +590,21 @@ public class HotelManager {
 			
 			calendar.set(2019, 11 - 1, 19, 1, 0, 0);	
 			Date checkOut = calendar.getTime();
-
-			manager.addReservation(room401, customer401, checkIn, checkOut);		
-		} catch (CustomerUsernameAlreadyPresentException e) {
-			e.printStackTrace();
-		} catch (ReceptionistUsernameAlreadyPresentException e) {
-			e.printStackTrace();;
+			
+			manager.addReservation(room401, customer401, checkIn, checkOut);
+			
+			calendar.set(2018, 11 - 1, 15, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2018, 11 - 1, 19, 1, 0, 0);	
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(room401, customer401, checkIn, checkOut);
+			
+		} catch (CustomerUsernameAlreadyPresentException ex) {
+			System.out.println(ex.getMessage() + " already present (customer)");
+		} catch (ReceptionistUsernameAlreadyPresentException ex) {
+			System.out.println(ex.getMessage() + " already present (receptionist)");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

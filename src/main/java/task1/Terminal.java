@@ -163,7 +163,7 @@ public class Terminal {
             newUser = true;
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("login-r", getOptionsMap().get("login-r"));
+            formatter.printHelp("login-r", getOptionsMap().get("login-r"), true);
         } catch (ReceptionistAuthenticationFailure e) {
         	System.out.println("Authentication failed for " + e.getMessage());
 		} catch (Exception e) {
@@ -181,7 +181,7 @@ public class Terminal {
             newUser = true;
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("login-r", getOptionsMap().get("login-r"));
+            formatter.printHelp("login-r", getOptionsMap().get("login-r"), true);
         } catch (CustomerAuthenticationFailure e) {
         	System.out.println("Authentication failed for " + e.getMessage());
 		} catch (Exception e) {
@@ -203,7 +203,7 @@ public class Terminal {
 		} else {
 			for (String cmd : arguments)
 				if (getCommands().contains(cmd))
-					formatter.printHelp(cmd, getOptionsMap().get(cmd));
+					formatter.printHelp(cmd, getOptionsMap().get(cmd), true);
 				else
 					System.out.println("Unknown command " + cmd);
 		}
@@ -320,7 +320,7 @@ public class Terminal {
 		usernameOption.setRequired(true);
 		
 		Option passwordOption = new Option("p", "password", true, "password");
-		usernameOption.setRequired(true);
+		passwordOption.setRequired(true);
 
 		options.addOption(usernameOption);
         options.addOption(passwordOption);
