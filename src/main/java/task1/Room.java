@@ -10,7 +10,7 @@ import javax.persistence.*;
 		name="Room.findByHotelAndNumber",
 		query="SELECT r FROM Room r WHERE r.hotel.hotelId = :hotelId AND r.roomNumber = :roomNumber")
 @NamedQuery(
-		name="Room.getAvailableRoomsGivenDay",
+		name="Room.getReservableRoomsGivenPeriod", 
 		query=""
 				+ "SELECT r "
 				+ "FROM Room r "
@@ -19,19 +19,30 @@ import javax.persistence.*;
 				+ "		SELECT res.room.roomNumber "
 				+ "		FROM Reservation res "
 				+ "		WHERE res.room.hotel.hotelId = :hotelId "
-				+ "			AND :day BETWEEN res.checkInDate AND res.checkOutDate"
+				+ "			AND ((:startPeriod < res.checkInDate AND :endPeriod > res.checkOutDate) "
+				+ "			OR (:startPeriod < res.checkInDate AND :endPeriod > res.checkInDate) "
+				+ "			OR (:startPeriod < res.checkOutDate AND :endPeriod > res.checkOutDate) "
+				+ "			OR (:startPeriod > res.checkInDate AND :endPeriod < res.checkOutDate)) "
 				+ ")")
 @NamedQuery(
-		name="Room.getUnavailableRoomsGivenDay",
+		name="Room.getUnreservableRoomsGivenPeriod",
 		query=""
 				+ "SELECT r "
 				+ "FROM Room r "
-				+ "WHERE r.hotel.hotelId = :hotelId AND r.available = false AND r.roomNumber NOT IN "
-				+ "("
-				+ "		SELECT res.room.roomNumber "
-				+ "		FROM Reservation res "
-				+ "		WHERE res.room.hotel.hotelId = :hotelId "
-				+ "			AND :day BETWEEN res.checkInDate AND res.checkOutDate"
+				+ "WHERE r.hotel.hotelId = :hotelId AND "
+				+ "( "
+				+ "		(r.available = false) "
+				+ "		OR "
+				+ "		(r.roomNumber IN "
+				+ "			(SELECT res.room.roomNumber "
+				+ "			FROM Reservation res "
+				+ "			  	WHERE res.room.hotel.hotelId = :hotelId "
+				+ "					AND ((:startPeriod < res.checkInDate AND :endPeriod > res.checkOutDate) " 
+				+ "					OR (:startPeriod < res.checkInDate AND :endPeriod > res.checkInDate) "  
+				+ "					OR (:startPeriod < res.checkOutDate AND :endPeriod > res.checkOutDate) " 
+				+ "					OR (:startPeriod > res.checkInDate AND :endPeriod < res.checkOutDate)) "
+				+ " 		)"	
+				+ "		)"
 				+ ")")
 public class Room {
 	@Id
@@ -146,5 +157,4 @@ public class Room {
 			return false;
 		return true;
 	}
-	
 }

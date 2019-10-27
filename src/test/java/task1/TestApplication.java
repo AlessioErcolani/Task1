@@ -12,7 +12,7 @@ public class TestApplication {
 	
 	@BeforeClass
 	public static void setup() {
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		manager =  new HotelManager("hotel_chain");
 	}
 	
@@ -20,7 +20,7 @@ public class TestApplication {
 	public static void finish() {
 		manager.exit();
 	}
-	
+	/*
 	@Test
 	public void testAddAndReadCustomer() {
 		// test add new customer
@@ -163,7 +163,7 @@ public class TestApplication {
 		}
 		assertFalse("Test delete hotel", exceptionCatched);
 	}
-	
+	*/
 	@Test
 	public void testAddUpdateAndDeleteReservation() {		
 		try {
@@ -214,35 +214,121 @@ public class TestApplication {
 
 	// Test for get available/unavailable rooms and set available/unvailable room
 	@Test
-	public void testGetAndSetAvailableAndUnavailableRoom() {		
-		try {	
-			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");
+	public void testGetReservableAndUnreservableSetAvailableAndUnavailableRoom() {		
+		try {				
+			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");		
+			
+			// room in the database booked in the period from 15-11-2019 (= checkInDate) to 19-11-2019 (= checkOutDate)
+			Room bookedRoom = manager.readRoom(hotel.getHotelId(), 401);
+			
+			// unvaiable room in the database
+			Room room = manager.readRoom(hotel.getHotelId(), 302);
 			
 			Calendar calendar = Calendar.getInstance();
-			calendar.set(2019, 11 - 1, 15, 1, 0, 0);	
-			Date day = calendar.getTime();
 			
-			// get available rooms in an hotel for a given day
-			List<Room> availableRooms = manager.getAvailableRooms(hotel, day);
+			// test with both startPeriod and endPeriod in the interval [checkInDate, checkOutDate]
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period				
+			calendar.set(2019, 11 - 1, 16, 1, 0, 0);	
+			Date startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
+			Date endPeriod = calendar.getTime();		
+			List<Room> reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));
+			List<Room> unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// set an available room as not available
-			Room room = availableRooms.get(0);
-			room = manager.setRoomUnavailable(room.getHotel(), room.getRoomNumber());
+			// test with  checkInDate < startPeriod < checkOutDate  
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period		
+			calendar.set(2019, 11 - 1, 18, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 24, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));	
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// get unavailable rooms in the other for the day
-			List<Room> unavailableRooms = manager.getUnavailableRooms(hotel, day);
+			// test with  checkInDate < endPeriod < checkOutDate  
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period		
+			calendar.set(2019, 11 - 1, 11, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 16, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// verify if the room is correctly updated
-			assertTrue("Test: set room unavailable", unavailableRooms.contains(room));
+			// test with both startPeriod and endPeriod outside the interval [checkInDate, checkOutDate]
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period		
+			calendar.set(2019, 11 - 1, 14, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 20, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));	
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// set the unavailable room as available
+			// test with startPeriod < checkInDate and endPeriod < checkInDate
+			//  - bookedRoom must be in the list of reservable rooms for the period	
+			//  - room must not be in the list of reservable rooms for the period	
+			// 	- bookedRoom must not be in the list of unreservable rooms for the period	
+			//  - room must be in the list of unreservable rooms for the period	
+			calendar.set(2019, 11 - 1, 6, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 10, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(reservableRooms.contains(bookedRoom));	
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(unreservableRooms.contains(bookedRoom));	
+			assertTrue(unreservableRooms.contains(room));
+			
+			// test with startPeriod > checkOutDate and endPeriod > checkOutDate
+			//  - bookedRoom must be in the list of reservable rooms for the period	
+			//  - room must not be in the list of reservable rooms for the period	
+			// 	- bookedRoom must not be in the list of unreservable rooms for the period	
+			//  - room must be in the list of unreservable rooms for the period	
+			calendar.set(2019, 11 - 1, 21, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 23, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(reservableRooms.contains(bookedRoom));	
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
+			
+			// test after setting room available
+			//  - room must be in the list of reservable rooms for the period	
+			//  - room must not be in the list of unreservable rooms for the period	
 			room = manager.setRoomAvailable(room.getHotel(), room.getRoomNumber());
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(unreservableRooms.contains(room));
 			
-			// get available rooms for the day
-			availableRooms = manager.getAvailableRooms(hotel, day);
-			
-			// verify if the room is correctly updated
-			assertTrue("Test: set room available", availableRooms.contains(room));
+			// coming back to the original situation
+			room = manager.setRoomUnavailable(room.getHotel(), room.getRoomNumber());
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(room));
 		} catch (DatabaseManagerException e) {
 			e.printStackTrace();
 		}	

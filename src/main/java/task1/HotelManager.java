@@ -244,19 +244,22 @@ public class HotelManager {
 		}
 	}
 	
+	
 	/**
-	 * Get a list of rooms that are available in a given day in a given hotel
+	 * Get the list of rooms of an hotel that are reservable in a given period, i.e. they are available AND not occupied in the period
 	 * @param hotel is the Hotel of the room
-	 * @param day is the local date of availability
+	 * @param startPeriod is the start date of the period
+	 * @param endPeriod is the end date of the period
 	 * @return a list of available rooms
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public List<Room> getAvailableRooms(Hotel hotel, Date day) throws DatabaseManagerException {
+	public List<Room> getReservableRooms(Hotel hotel, Date startPeriod, Date endPeriod) throws DatabaseManagerException {
 		try {
 			setup();
-			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getAvailableRoomsGivenDay", Room.class);
+			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class);
 			query.setParameter("hotelId", hotel.getHotelId());
-			query.setParameter("day", day);
+			query.setParameter("startPeriod", startPeriod);
+			query.setParameter("endPeriod", endPeriod);
 			List<Room> rooms = query.getResultList();
 			return rooms;
 		} catch (Exception ex) {
@@ -268,18 +271,20 @@ public class HotelManager {
 	}
 	
 	/**
-	 * Get a list of rooms that are unavailable in a given day in a given hotel
+	 * Get the list of rooms of an hotel that are unreservable in a given period, i.e. they are unavailable OR occupied in the given period
 	 * @param hotel is the Hotel of the room
-	 * @param day is the local date of availability
+	 * @param startPeriod is the start date of the period
+	 * @param endPeriod is the end date of the period
 	 * @return a list of available rooms
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public List<Room> getUnavailableRooms(Hotel hotel, Date day) throws DatabaseManagerException {
+	public List<Room> getUnreservableRooms(Hotel hotel,Date startPeriod, Date endPeriod) throws DatabaseManagerException {
 		try {
 			setup();
-			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getUnavailableRoomsGivenDay", Room.class);
+			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getUnreservableRoomsGivenPeriod", Room.class);
 			query.setParameter("hotelId", hotel.getHotelId());
-			query.setParameter("day", day);
+			query.setParameter("startPeriod", startPeriod);
+			query.setParameter("endPeriod", endPeriod);
 			List<Room> rooms = query.getResultList();
 			return rooms;
 		} catch (Exception ex) {
@@ -332,7 +337,6 @@ public class HotelManager {
 		}
 	}
 	
-
 	/**
 	 * Checks for the authentication of a Customer through their username and password
 	 * @param username customer's username
