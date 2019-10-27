@@ -8,9 +8,6 @@ import javax.persistence.*;
 @NamedQuery(
 		name="Hotel.findByAddress",
 		query="SELECT h FROM Hotel h WHERE h.address = :address")
-@NamedQuery(
-		name="Hotel.deleteHotel",
-		query="DELETE FROM Hotel h WHERE h.hotelId = :hotelId")
 public class Hotel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

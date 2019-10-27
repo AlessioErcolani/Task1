@@ -11,9 +11,9 @@ public class TestApplication {
 	private static HotelManager manager;
 	
 	@BeforeClass
-	public static void setup() {
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
+	public static void setup() {		
 		manager =  new HotelManager("hotel_chain");
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 	}
 	
 	@AfterClass
@@ -59,8 +59,6 @@ public class TestApplication {
 		//test delete a customer
 		try {
 			manager.deleteCustomer(readCustomer);
-		} catch (CustomerNotFound e) {
-			fail("customer exists, error!");
 		} catch (DatabaseManagerException e) {
 			fail(e.getMessage());
 		}		
@@ -90,18 +88,16 @@ public class TestApplication {
 		//test delete an hotel
 		try {
 			manager.deleteHotel(readHotel);
-		} catch (HotelNotFound e) {
-			fail("hotel exists, error!");
 		} catch (DatabaseManagerException e) {
 			fail(e.getMessage());
 		}
 	}
 	
-/*	@Test
+	@Test
 	public void testAddAndReadReceptionist() {
-		
 		//test add new receptionist
 		String address = "Via Ferrara 44, Ferrara";
+		
 		Hotel hotel = new Hotel(address);
 		
 		try {
@@ -109,7 +105,7 @@ public class TestApplication {
 		} catch (DatabaseManagerException ex) {
 			fail(ex.getMessage());
 		}
-		
+			
 		String username = "username";
 		String password = "password";
 		Receptionist receptionist = new Receptionist(username, password, "name", "surname", hotel);
@@ -142,25 +138,25 @@ public class TestApplication {
 		}
 		assertEquals(receptionist, readReceptionist);	
 		
-		//test delete a customer
+		//test delete a customer		
 		try {
-			manager.deleteCustomer(readCustomer);
-		} catch (CustomerNotFound e) {
-			fail("customer exists, error!");
+		manager.deleteReceptionist(readReceptionist);		
 		} catch (DatabaseManagerException e) {
 			fail(e.getMessage());
-		}		
-	}
+		}	
 		
-	}
-	
-	
+		//test delete an hotel
+		// If an hotel is deleted first, all the correlated receptionists are deleted
+		try {
+			manager.deleteHotel(hotel);
+		} catch (DatabaseManagerException e) {
+			fail(e.getMessage());
+		}
 		
-	}*/
+	}	
+		
 @Test
 public void testMenageReservation() {		
-	java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
-	
 	try {
 		Receptionist receptionist = new Receptionist("r1");
 		Customer customer = receptionist.getHotelManager().readCustomer("piergiorgio");

@@ -89,7 +89,6 @@ public class HotelManager {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
 		}catch (Exception ex) {
-				System.out.println("SONO QUUII");
 				throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
@@ -350,16 +349,11 @@ public class HotelManager {
 	 * @throws CustomerNotFound
 	 * @throws DatabaseManagerException
 	 */	
-	public void deleteCustomer(Customer customer) throws CustomerNotFound, DatabaseManagerException {
+	public void deleteCustomer(Customer customer) throws DatabaseManagerException {
 		try {
 			setup();
-			int rowAffected = entityManager
-					.createNamedQuery("Customer.deleteCustomer")
-					.setParameter("id", customer.getID())
-					.executeUpdate();
-			if (rowAffected == 0) {
-				throw new CustomerNotFound();
-			}
+			Customer ref = entityManager.find(Customer.class, customer.getID());
+	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -375,23 +369,54 @@ public class HotelManager {
 	 * @throws DatabaseManagerException
 	 */
 	
-	public void deleteHotel(Hotel hotel) throws HotelNotFound, DatabaseManagerException {
+	public void deleteHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
 			setup();
-			int rowAffected = entityManager
-					.createNamedQuery("Hotel.deleteHotel")
-					.setParameter("hotelId", hotel.getHotelId())
-					.executeUpdate();
-			if (rowAffected == 0) {
-				throw new HotelNotFound();
-			}
+			Hotel ref = entityManager.find(Hotel.class, hotel.getHotelId());
+	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
 			close();
 		}	
-
+	}
+	
+	/**
+	 * Delete a receptionist
+	 * @param receptionist
+	 * @throws DatabaseManagerException
+	 */
+	
+	public void deleteReceptionist(Receptionist receptionist) throws DatabaseManagerException {
+		try {
+			setup();
+			Receptionist ref = entityManager.find(Receptionist.class, receptionist.getID());
+	        entityManager.remove(ref);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}		
+	}
+	
+	/**
+	 * Update a room
+	 * @param room
+	 * @throws DatabaseManagerException
+	 */
+	
+	public void updateRoom(Room room) throws DatabaseManagerException {
+		try {
+			setup();
+			mergeObject(room);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
 	}
 
 	
@@ -476,78 +501,12 @@ public class HotelManager {
 	
 	public static void main(String[] args) {
 		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF); //OFF
 
 		HotelManager manager = new HotelManager("hotel_chain");
 		populateDatabase(manager);
 		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck successful login");
-		try {
-			// valid credentials
-			Customer c = manager.authenticateCustomer("federico", "pwd");
-			System.out.println("Hi, " + c);
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Successful authentication for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid password");
-		try {
-			// valid username, invalid password
-			manager.authenticateCustomer("chiara", "wrong pwd");
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid username");
-		try {
-			// invalid username
-			manager.authenticateCustomer("username that does not exists", "pwd");
-		} catch (CustomerAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck successful login");
-		try {
-			// valid credentials
-			Receptionist r = manager.authenticateReceptionist("r1", "pwd");
-			System.out.println("Hi, " + r);
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Successful authentication for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid password");
-		try {
-			// valid username, invalid password
-			manager.authenticateReceptionist("r2", "wrong pwd");
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nCheck login with invalid username");
-		try {
-			// invalid username
-			manager.authenticateReceptionist("username that does not exists", "pwd");
-		} catch (ReceptionistAuthenticationFailure e) {
-			System.out.println("Authentication failed for " + e.getMessage());
-		}
-		
-		// TODO: move to JUnit test
-		System.out.println("\nGet upcoming reservation for an user");
-		try {
-			Customer customer401 = manager.authenticateCustomer("piergiorgio", "pwd");
-			List<Reservation> upcomingReservations = manager.getUpcomingReservation(customer401);
-			for(Reservation reservation : upcomingReservations)
-				System.out.println(reservation);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.out.println("An error occur in getting all the reservations");
-		}
+
 				
 		manager.exit();
 	}

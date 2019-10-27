@@ -13,9 +13,6 @@ import exc.DatabaseManagerException;
 @NamedQuery(
 		name="Customer.findByUsername",
 		query="SELECT c FROM Customer c WHERE c.username = :username")
-@NamedQuery(
-		name="Customer.deleteCustomer",
-		query="DELETE FROM Customer c WHERE c.ID = :id")
 public class Customer extends User {
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
