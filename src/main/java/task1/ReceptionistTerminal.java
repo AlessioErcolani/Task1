@@ -121,8 +121,8 @@ public class ReceptionistTerminal extends Terminal {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("show-rooms"), options);
             
-        	List<Room> rooms;
-            rooms = Application.hotelDatabaseManager.getAvailableRooms(receptionist.getHotel(), new Date());
+        	List<Room> rooms = null;
+            //rooms = Application.hotelDatabaseManager.getAvailableRooms(receptionist.getHotel(), new Date());
             
             printRooms(rooms);
         } catch (ParseException e) {

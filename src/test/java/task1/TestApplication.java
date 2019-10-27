@@ -11,9 +11,9 @@ public class TestApplication {
 	private static HotelManager manager;
 	
 	@BeforeClass
-	public static void setup() {		
+	public static void setup() {
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		manager =  new HotelManager("hotel_chain");
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 	}
 	
 	@AfterClass
@@ -21,80 +21,83 @@ public class TestApplication {
 		manager.exit();
 	}
 	
+	
 	@Test
 	public void testAddAndReadCustomer() {
-		//test add new customer
-		String username = "username";
-		String password = "password";
-		Customer customer = new Customer(username, password, "name", "surname");
+		// test add new customer
+		Customer customer = new Customer("username", "pwd", "name", "surname");
 		try {
 			manager.addCustomer(customer);
 		} catch (CustomerUsernameAlreadyPresentException e) {
-			fail("new customer, error!");
+			fail("Test add new customer: failed because username already present.");
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new customer: failed.");
 		}
 		
-		//test add customer with an username already present
-		Customer customerCopy = new Customer(username, "pwd", "newName","newSurname");
+		// test add customer with an username already present
+		Customer customerCopy = new Customer("username", "newPwd", "newName","newSurname");
 		boolean exceptionCatched = false;
 		try {
 			manager.addCustomer(customerCopy);
 		} catch (CustomerUsernameAlreadyPresentException e) {
 			exceptionCatched = true;			
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new customer: failed. ");
 		}
-		assertTrue(exceptionCatched);
+		assertTrue("Test add existing customer.", exceptionCatched);
 		
-		//test read customer by username and password
+		// test read customer by username and password
 		Customer readCustomer = null;
 		try {
-			readCustomer = manager.authenticateCustomer(username, password);
+			readCustomer = manager.authenticateCustomer("username", "pwd");
 		} catch (CustomerAuthenticationFailure e) {
-			fail("username and password are correct, error!");
+			fail("Test authenticate customer: failed.");
 		}
-		assertEquals(customer, readCustomer);	
+		assertEquals("Test authenticate customer", customer, readCustomer);	
 		
-		//test delete a customer
+		// test delete a customer
+		exceptionCatched = false;
 		try {
 			manager.deleteCustomer(readCustomer);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			exceptionCatched = true;
 		}		
+		assertFalse("Test delete customer", exceptionCatched);
 	}
 	
 	@Test
-	public void addAndReadHotel() {
+	public void testAddAndReadHotel() {
 		String address = "Via Ferrara 45, Ferrara";
 		
-		//test add new hotel
+		// test add new hotel
 		Hotel hotel = new Hotel(address);
 		try {
 			manager.addHotel(hotel);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new hotel: failed.");
 		}
 		
-		//test read hotel		
+		// test read hotel		
 		Hotel readHotel = null;
 		try {
 			readHotel = manager.readHotel(address);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test read hotel: failed.");
 		}
-		assertEquals(readHotel, hotel);	
+		assertEquals("Test read hotel.", readHotel, hotel);	
 		
-		//test delete an hotel
+		// test delete an hotel
+		boolean exceptionCatched = false;
 		try {
 			manager.deleteHotel(readHotel);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			exceptionCatched = true;
 		}
+		assertFalse("Test delete hotel", exceptionCatched);
 	}
 	
 	@Test
-	public void testAddAndReadReceptionist() {
+	public void testAddAndReadReceptionist() {	
 		//test add new receptionist
 		String address = "Via Ferrara 44, Ferrara";
 		
@@ -105,46 +108,46 @@ public class TestApplication {
 		} catch (DatabaseManagerException ex) {
 			fail(ex.getMessage());
 		}
-			
-		String username = "username";
-		String password = "password";
-		Receptionist receptionist = new Receptionist(username, password, "name", "surname", hotel);
+		
+		Receptionist receptionist = new Receptionist("username", "pwd", "name", "surname", hotel);
 		try {
 			manager.addReceptionist(receptionist);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
-			fail("new receptionist, error!");
+			fail("Test add new receptionist: failed because username already present!");
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new receptionist: failed.");
 		}
 		
-		//test add receptionist with an username already present
-		Receptionist ReceptionistCopy = new Receptionist(username, "pwd", "newName","newSurname", hotel);
+		// test add receptionist with an username already present
+		Receptionist ReceptionistCopy = new Receptionist("username", "newPwd", "newName","newSurname", hotel);
 		boolean exceptionCatched = false;
 		try {
 			manager.addReceptionist(ReceptionistCopy);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
 			exceptionCatched = true;			
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
+			fail("Test add new receptionist: failed. ");
 		}
-		assertTrue(exceptionCatched);
+		assertTrue("Test add existing receptionist.", exceptionCatched);
 		
-		//test read receptionist by username and password
+		// test read receptionist by username and password
 		Receptionist readReceptionist = null;
 		try {
-			readReceptionist = manager.authenticateReceptionist(username, password);
+			readReceptionist = manager.authenticateReceptionist("username", "pwd");
 		} catch (ReceptionistAuthenticationFailure e) {
-			fail("username and password are correct, error!");
+			fail("Test authenticate receptionist: failed.");
 		}
-		assertEquals(receptionist, readReceptionist);	
+		assertEquals("Test authenticate receptionist", receptionist, readReceptionist);		
 		
-		//test delete a customer		
+		// test delete a receptionist
+		exceptionCatched = false;
 		try {
-		manager.deleteReceptionist(readReceptionist);		
+			manager.deleteReceptionist(readReceptionist);
 		} catch (DatabaseManagerException e) {
-			fail(e.getMessage());
-		}	
-		
+			exceptionCatched = true;
+		}		
+		assertFalse("Test delete receptionist", exceptionCatched);
+
 		//test delete an hotel
 		// If an hotel is deleted first, all the correlated receptionists are deleted
 		try {
@@ -153,11 +156,20 @@ public class TestApplication {
 			fail(e.getMessage());
 		}
 		
+		// test delete an hotel
+		exceptionCatched = false;
+		try {
+			manager.deleteHotel(hotel);
+		} catch (DatabaseManagerException e) {
+			exceptionCatched = true;
+		}
+		assertFalse("Test delete hotel", exceptionCatched);
 	}
+
 	
 	// Test for add, update and delete reservation
 	@Test
-	public void testAddUpdateDeleteReservation() {		
+	public void testAddUpdateAndDeleteReservation() {		
 		try {
 			Customer customer = manager.readCustomer("piergiorgio");
 			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");
@@ -206,35 +218,121 @@ public class TestApplication {
 
 	// Test for get available/unavailable rooms and set available/unvailable room
 	@Test
-	public void testGetAndSetAvailableAndUnavailableRoom() {		
-		try {	
-			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");
+	public void testGetReservableAndUnreservableSetAvailableAndUnavailableRoom() {		
+		try {				
+			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");		
+			
+			// room in the database booked in the period from 15-11-2019 (= checkInDate) to 19-11-2019 (= checkOutDate)
+			Room bookedRoom = manager.readRoom(hotel.getHotelId(), 401);
+			
+			// unvaiable room in the database
+			Room room = manager.readRoom(hotel.getHotelId(), 302);
 			
 			Calendar calendar = Calendar.getInstance();
-			calendar.set(2019, 11 - 1, 15, 1, 0, 0);	
-			Date day = calendar.getTime();
 			
-			// get available rooms in an hotel for a given day
-			List<Room> availableRooms = manager.getAvailableRooms(hotel, day);
+			// test with both startPeriod and endPeriod in the interval [checkInDate, checkOutDate]
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period				
+			calendar.set(2019, 11 - 1, 16, 1, 0, 0);	
+			Date startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 17, 1, 0, 0);	
+			Date endPeriod = calendar.getTime();		
+			List<Room> reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));
+			List<Room> unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// set an available room as not available
-			Room room = availableRooms.get(0);
-			room = manager.setRoomUnavailable(room.getHotel(), room.getRoomNumber());
+			// test with  checkInDate < startPeriod < checkOutDate  
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period		
+			calendar.set(2019, 11 - 1, 18, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 24, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));	
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// get unavailable rooms in the other for the day
-			List<Room> unavailableRooms = manager.getUnavailableRooms(hotel, day);
+			// test with  checkInDate < endPeriod < checkOutDate  
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period		
+			calendar.set(2019, 11 - 1, 11, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 16, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// verify if the room is correctly updated
-			assertTrue("Test: set room unavailable", unavailableRooms.contains(room));
+			// test with both startPeriod and endPeriod outside the interval [checkInDate, checkOutDate]
+			//  - bookedRoom and room must not be in the list of reservable rooms for the period		
+			// 	- bookedRoom and room must be in the list of unreservable rooms for the period		
+			calendar.set(2019, 11 - 1, 14, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 20, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(bookedRoom));
+			assertFalse(reservableRooms.contains(room));	
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
 			
-			// set the unavailable room as available
+			// test with startPeriod < checkInDate and endPeriod < checkInDate
+			//  - bookedRoom must be in the list of reservable rooms for the period	
+			//  - room must not be in the list of reservable rooms for the period	
+			// 	- bookedRoom must not be in the list of unreservable rooms for the period	
+			//  - room must be in the list of unreservable rooms for the period	
+			calendar.set(2019, 11 - 1, 6, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 10, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(reservableRooms.contains(bookedRoom));	
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(unreservableRooms.contains(bookedRoom));	
+			assertTrue(unreservableRooms.contains(room));
+			
+			// test with startPeriod > checkOutDate and endPeriod > checkOutDate
+			//  - bookedRoom must be in the list of reservable rooms for the period	
+			//  - room must not be in the list of reservable rooms for the period	
+			// 	- bookedRoom must not be in the list of unreservable rooms for the period	
+			//  - room must be in the list of unreservable rooms for the period	
+			calendar.set(2019, 11 - 1, 21, 1, 0, 0);	
+			startPeriod = calendar.getTime();		
+			calendar.set(2019, 11 - 1, 23, 1, 0, 0);	
+			endPeriod = calendar.getTime();		
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(reservableRooms.contains(bookedRoom));	
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(unreservableRooms.contains(bookedRoom));
+			assertTrue(unreservableRooms.contains(room));
+			
+			// test after setting room available
+			//  - room must be in the list of reservable rooms for the period	
+			//  - room must not be in the list of unreservable rooms for the period	
 			room = manager.setRoomAvailable(room.getHotel(), room.getRoomNumber());
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(unreservableRooms.contains(room));
 			
-			// get available rooms for the day
-			availableRooms = manager.getAvailableRooms(hotel, day);
-			
-			// verify if the room is correctly updated
-			assertTrue("Test: set room available", availableRooms.contains(room));
+			// coming back to the original situation
+			room = manager.setRoomUnavailable(room.getHotel(), room.getRoomNumber());
+			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			assertFalse(reservableRooms.contains(room));
+			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			assertTrue(unreservableRooms.contains(room));
 		} catch (DatabaseManagerException e) {
 			e.printStackTrace();
 		}	
