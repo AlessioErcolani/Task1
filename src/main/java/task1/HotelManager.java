@@ -362,7 +362,7 @@ public class HotelManager {
 		return customer;
 	}
 	
-	public Reservation readReservation(long hotelId, int room, Date checkInDate) throws DatabaseManagerException {
+	public Reservation readReservation(long hotelId, int room, Date checkInDate) throws DatabaseManagerException, ReservationNotFoundException {
 		Reservation reservation = null;
 		try {			
 			setup();
@@ -372,7 +372,7 @@ public class HotelManager {
 			query.setParameter("checkInDate", checkInDate);
 			reservation = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new ReservationNotFoundException();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
