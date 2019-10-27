@@ -108,7 +108,7 @@ public class ReceptionistTerminal extends Terminal {
 		case "delete-reservation":
 			deleteReservation(options);
 			break;
-		case "set room":
+		case "set-room":
 			setRoom(options);
 			break;
 		case "register":
@@ -497,10 +497,10 @@ public class ReceptionistTerminal extends Terminal {
 		options.addOption(hotel);
 		options.addOption(room);
 		
-		Option available = new Option("a", "available", true, "set the room as available");
-		available.setRequired(true);
-		Option notAvailable = new Option("n", "notavailable", true, "set the room as not available");
-		notAvailable.setRequired(true);
+		Option available = new Option("a", "available", false, "set the room as available");
+		available.setRequired(false);
+		Option notAvailable = new Option("n", "notavailable", false, "set the room as not available");
+		notAvailable.setRequired(false);
 		
 		OptionGroup group = new OptionGroup();
 		group.addOption(available);
