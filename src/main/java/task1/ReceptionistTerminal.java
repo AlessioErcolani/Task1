@@ -30,6 +30,7 @@ public class ReceptionistTerminal extends Terminal {
 			"show-reservations",
 			"update-reservation",
 			"delete-reservation",
+			"set-room",
 			"register",
 			"help",
 			"logout"
@@ -46,6 +47,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("update-reservation", getOptionsForUpdateReservation());
 		map.put("show-reservations", getOptionsForShowReservations());
 		map.put("delete-reservation", getOptionsForDeleteReservation());
+		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
 		map.put("help", new Options());
 		map.put("logout", new Options());
@@ -105,6 +107,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "delete-reservation":
 			deleteReservation(options);
+			break;
+		case "set room":
+			setRoom(options);
 			break;
 		case "register":
 			register(options);
@@ -291,6 +296,38 @@ public class ReceptionistTerminal extends Terminal {
 		}
 	}
 	
+	private void setRoom(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("set-room"), options);
+        	
+        	long hotelId = ((Number) cmd.getParsedOptionValue("hotel")).longValue();
+        	int roomNumber = ((Number) cmd.getParsedOptionValue("room")).intValue();
+        	
+        	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
+        	
+        	boolean available = true;
+        	
+        	if (cmd.hasOption("available"))
+        		available = true;
+        	else if (cmd.hasOption("notavailable"))
+        		available = false;
+        	
+        	// TODO: invoke method to update room
+        	
+        	// TODO: print the reservation
+        	System.out.println("Room updated successfully");
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("set-room", getOptionsMap().get("set-room"), true);
+        } catch (RoomNotFoundException e) {
+			System.out.println("Room not found");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
+		
+	}
+	
 	private void register(String[] options) {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("register"), options);
@@ -445,5 +482,33 @@ public class ReceptionistTerminal extends Terminal {
 		options.addOptionGroup(newValuesGroup);
 
         return options;
+	}
+	
+	private static Options getOptionsForSetRoom() {
+		Options options = new Options();
+		
+		Option hotel = new Option("h", "hotel", true, "hotel identifier");
+		hotel.setRequired(true);
+		hotel.setType(Number.class);
+		Option room = new Option("r", "room", true, "room number");
+		room.setRequired(true);
+		room.setType(Number.class);
+		
+		options.addOption(hotel);
+		options.addOption(room);
+		
+		Option available = new Option("a", "available", true, "set the room as available");
+		available.setRequired(true);
+		Option notAvailable = new Option("n", "notavailable", true, "set the room as not available");
+		notAvailable.setRequired(true);
+		
+		OptionGroup group = new OptionGroup();
+		group.addOption(available);
+		group.addOption(notAvailable);
+		group.setRequired(true);
+		
+		options.addOptionGroup(group);
+		
+		return options;
 	}
 }
