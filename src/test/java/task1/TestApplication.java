@@ -11,9 +11,9 @@ public class TestApplication {
 	private static HotelManager manager;
 	
 	@BeforeClass
-	public static void setup() {
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
+	public static void setup() {		
 		manager =  new HotelManager("hotel_chain");
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 	}
 	
 	@AfterClass
@@ -59,8 +59,6 @@ public class TestApplication {
 		//test delete a customer
 		try {
 			manager.deleteCustomer(readCustomer);
-		} catch (CustomerNotFound e) {
-			fail("customer exists, error!");
 		} catch (DatabaseManagerException e) {
 			fail(e.getMessage());
 		}		
@@ -90,18 +88,16 @@ public class TestApplication {
 		//test delete an hotel
 		try {
 			manager.deleteHotel(readHotel);
-		} catch (HotelNotFound e) {
-			fail("hotel exists, error!");
 		} catch (DatabaseManagerException e) {
 			fail(e.getMessage());
 		}
 	}
 	
-/*	@Test
+	@Test
 	public void testAddAndReadReceptionist() {
-		
 		//test add new receptionist
 		String address = "Via Ferrara 44, Ferrara";
+		
 		Hotel hotel = new Hotel(address);
 		
 		try {
@@ -109,7 +105,7 @@ public class TestApplication {
 		} catch (DatabaseManagerException ex) {
 			fail(ex.getMessage());
 		}
-		
+			
 		String username = "username";
 		String password = "password";
 		Receptionist receptionist = new Receptionist(username, password, "name", "surname", hotel);
@@ -142,21 +138,22 @@ public class TestApplication {
 		}
 		assertEquals(receptionist, readReceptionist);	
 		
-		//test delete a customer
+		//test delete a customer		
 		try {
-			manager.deleteCustomer(readCustomer);
-		} catch (CustomerNotFound e) {
-			fail("customer exists, error!");
+		manager.deleteReceptionist(readReceptionist);		
 		} catch (DatabaseManagerException e) {
 			fail(e.getMessage());
-		}		
-	}
+		}	
+		
+		//test delete an hotel
+		// If an hotel is deleted first, all the correlated receptionists are deleted
+		try {
+			manager.deleteHotel(hotel);
+		} catch (DatabaseManagerException e) {
+			fail(e.getMessage());
+		}
 		
 	}
-	
-	
-		
-	}*/
 	
 	// Test for add, update and delete reservation
 	@Test
@@ -165,7 +162,7 @@ public class TestApplication {
 			Customer customer = manager.readCustomer("piergiorgio");
 			Hotel hotel = manager.readHotel("Via Bologna 28, Bologna");
 			Room room = manager.readRoom(hotel.getHotelId(), 101);	
-			
+		
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(2020, 11 - 1, 6, 1, 0, 0);			
 			Date checkInDate = calendar.getTime();
@@ -242,40 +239,4 @@ public class TestApplication {
 			e.printStackTrace();
 		}	
 	}
-
-	/*
-	//Test authentication
-	@Test
-	public void testAuthentication() {		
-		try {			
-			// test successful customer login
-			Customer customer = manager.authenticateCustomer("federico", "pwd");
-			assertFalse("Test: successful customer login", customer == null);
-			
-			// test unsuccessful customer login with invalid password
-			customer = manager.authenticateCustomer("chiara", "wrong pwd");
-			assertTrue("Test: unsuccessful customer login with wrong password", customer == null);
-			
-			// test unsuccessful customer login with invalid username
-			customer = manager.authenticateCustomer("username that does not exists", "pwd");
-			assertTrue("Test: unsuccessful customer login with wrong username", customer == null);
-			
-			// test successful receptionist login
-			Receptionist receptionist = manager.authenticateReceptionist("r1", "pwd");
-			assertFalse("Test: successful receptionist login", receptionist == null);
-			
-			// test unsuccessful receptionist login with invalid password
-			receptionist = manager.authenticateReceptionist("r2", "wrong pwd");
-			assertTrue("Test: unsuccessful receptionist login with wrong password", receptionist == null);
-			
-			// test unsuccessful receptionist login with invalid username
-			receptionist = manager.authenticateReceptionist("username that does not exists", "pwd");
-			assertTrue("Test: unsuccessful receptionist login with wrong username", receptionist == null);
-		} catch (CustomerAuthenticationFailure e) {
-			e.printStackTrace();
-		} catch (ReceptionistAuthenticationFailure e) {
-			e.printStackTrace();
-		}
-	}
-	*/
 }

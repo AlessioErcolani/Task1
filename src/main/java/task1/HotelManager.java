@@ -88,6 +88,7 @@ public class HotelManager {
 			if (t instanceof ConstraintViolationException) {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
+
 		} catch (Exception ex) {
 				throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -477,16 +478,11 @@ public class HotelManager {
 	 * @throws CustomerNotFound
 	 * @throws DatabaseManagerException
 	 */	
-	public void deleteCustomer(Customer customer) throws CustomerNotFound, DatabaseManagerException {
+	public void deleteCustomer(Customer customer) throws DatabaseManagerException {
 		try {
 			setup();
-			int rowAffected = entityManager
-					.createNamedQuery("Customer.deleteCustomer")
-					.setParameter("id", customer.getID())
-					.executeUpdate();
-			if (rowAffected == 0) {
-				throw new CustomerNotFound();
-			}
+			Customer ref = entityManager.find(Customer.class, customer.getID());
+	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -502,23 +498,54 @@ public class HotelManager {
 	 * @throws DatabaseManagerException
 	 */
 	
-	public void deleteHotel(Hotel hotel) throws HotelNotFound, DatabaseManagerException {
+	public void deleteHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
 			setup();
-			int rowAffected = entityManager
-					.createNamedQuery("Hotel.deleteHotel")
-					.setParameter("hotelId", hotel.getHotelId())
-					.executeUpdate();
-			if (rowAffected == 0) {
-				throw new HotelNotFound();
-			}
+			Hotel ref = entityManager.find(Hotel.class, hotel.getHotelId());
+	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
 			close();
 		}	
-
+	}
+	
+	/**
+	 * Delete a receptionist
+	 * @param receptionist
+	 * @throws DatabaseManagerException
+	 */
+	
+	public void deleteReceptionist(Receptionist receptionist) throws DatabaseManagerException {
+		try {
+			setup();
+			Receptionist ref = entityManager.find(Receptionist.class, receptionist.getID());
+	        entityManager.remove(ref);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}		
+	}
+	
+	/**
+	 * Update a room
+	 * @param room
+	 * @throws DatabaseManagerException
+	 */
+	
+	public void updateRoom(Room room) throws DatabaseManagerException {
+		try {
+			setup();
+			mergeObject(room);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
 	}
 
 	
@@ -579,8 +606,9 @@ public class HotelManager {
 	
 	public static void main(String[] args) {		
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
-
+		
 		HotelManager manager = new HotelManager("hotel_chain");
-		populateDatabase(manager);
+		populateDatabase(manager);				
+		manager.exit();
 	}
 }
