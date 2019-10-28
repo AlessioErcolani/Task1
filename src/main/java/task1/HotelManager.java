@@ -418,7 +418,7 @@ public class HotelManager {
 		return hotel;
 	}
 	
-	/*public Hotel getHotel(long id) throws DatabaseManagerException {
+	public Hotel getHotel(Long id) throws HotelNotFoundException, DatabaseManagerException {
 		Hotel hotel = null;
 		
 		try {
@@ -427,15 +427,15 @@ public class HotelManager {
 			if (hotel == null)
 				throw new HotelNotFoundException();
 			return hotel;
-		} catch (Exception ex) {
-			if (hotel == null)
-				throw ex;
-			throw new DatabaseManagerException(ex.getMessage());
+		} catch (HotelNotFoundException e) {
+			throw new HotelNotFoundException(id.toString());
+		} catch (Exception e) {
+			throw new DatabaseManagerException(e.getMessage());
 		} finally {
 			commit();
 			close();
 		}
-	}*/
+	}
 	
 	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;

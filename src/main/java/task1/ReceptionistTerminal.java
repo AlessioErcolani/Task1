@@ -17,6 +17,7 @@ import org.apache.commons.cli.ParseException;
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
 import exc.DatabaseManagerException;
+import exc.HotelNotFoundException;
 import exc.ReservationNotFoundException;
 import exc.RoomAlreadyBookedException;
 import exc.RoomNotFoundException;
@@ -141,17 +142,60 @@ public class ReceptionistTerminal extends Terminal {
 	private void showRooms(String[] options) {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("show-rooms"), options);
+        	
+        	long hotelId = cmd.hasOption("hotel") ?
+        			((Number) cmd.getParsedOptionValue("hotel")).longValue() :
+        			receptionist.getHotel().getHotelId();
+        	
+			/*Date from = parseDate(cmd.getOptionValue("from"));
+			if (cmd.hasOption("from"))
+        		from = parseDate(cmd.getOptionValue("from"));
+        	else
+        		from = new Date();
+        	Date to;
+        	if (cmd.hasOption("to"))
+        		to = parseDate(cmd.getOptionValue("to"));
+        	else
+        		to = parseDate(cmd.getOptionValue("from"));*/
+        			
+        	Date from;
+        	Date to;
+        	
+        	if (cmd.hasOption("from") && cmd.hasOption("to")) {
+        		from = parseDate(cmd.getOptionValue("from"));
+        		to = parseDate(cmd.getOptionValue("to"));
+        	} else if (cmd.hasOption("from") && !cmd.hasOption("to")) {
+        		from = parseDate(cmd.getOptionValue("from"));
+        		to = parseDate(cmd.getOptionValue("from"));
+        	} else if (!cmd.hasOption("from") && cmd.hasOption("to")) {
+        		from = new Date();
+        		to = parseDate(cmd.getOptionValue("to"));
+        	} else {
+        		from = new Date();
+        		to = new Date();
+        	}
+        	
+        	if (to.before(from))
+        		throw new ParseException("Check-out date must be greater than or equal to check-in date");
             
-        	// TODO: add and handle options
+        	Hotel hotel = Application.hotelDatabaseManager.getHotel(hotelId);
+        	
         	List<Room> rooms = null;
-        	// pass two dates, check checkout >= checkin
-            //rooms = Application.hotelDatabaseManager.getReservableRooms(receptionist.getHotel(), new Date());
+        	
+        	if (cmd.hasOption("notbookable"))
+        		rooms = Application.hotelDatabaseManager.getUnreservableRooms(hotel, from, to);
+        	else
+        		rooms = Application.hotelDatabaseManager.getReservableRooms(hotel, from, to);
             
             printRooms(rooms);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             formatter.printHelp("show-rooms", getOptionsMap().get("show-rooms"), true);
-        } catch (Exception e) {
+        } catch (java.text.ParseException e) {
+			System.out.println("Date format: yyyy-mm-dd");
+		} catch (HotelNotFoundException e) {
+			System.out.println("Hotel " + e.getMessage() + " not found");
+		} catch (DatabaseManagerException e) {
 			System.out.println("Something went wrong");
 		}
 	}
@@ -370,6 +414,34 @@ public class ReceptionistTerminal extends Terminal {
 	private static Options getOptionsForShowRooms() {
 		Options options = new Options();
         
+		Option hotel = new Option("h", "hotel", true, "hotel identifier");
+		hotel.setRequired(false);
+		hotel.setType(Number.class);
+		
+		Option bookable = new Option("b", "bookable", false, "show rooms that can be booked (default)");
+		bookable.setRequired(false);
+		Option notBookable = new Option("n", "notbookable", false, "show rooms that cannot be booked");
+		notBookable.setRequired(false);
+		
+		OptionGroup groupBookable = new OptionGroup();
+		groupBookable.addOption(bookable);
+		groupBookable.addOption(notBookable);
+		groupBookable.setRequired(false);
+		
+		Option from = new Option("f", "from", true, "check-in date (yyyy-mm-dd)");
+		from.setRequired(false);
+		Option to = new Option("t", "to", true, "check-out date: if not specified is equal to the check-in date");
+		to.setRequired(false);
+		
+		OptionGroup groupDates = new OptionGroup();
+		groupDates.addOption(from);
+		groupDates.addOption(to);
+		groupDates.setRequired(false);
+		
+		options.addOption(hotel);
+		options.addOptionGroup(groupBookable);
+		options.addOptionGroup(groupDates);
+		
         return options;
 	}
 	
