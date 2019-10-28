@@ -243,7 +243,7 @@ public class Terminal {
 			System.out.format(format,
 					r.getRoomNumber(),
 					r.getRoomCapacity(),
-					r.getHotel().getAddress(),
+					r.getHotel().getHotelId() + " " + r.getHotel().getAddress(),
 					r.isAvailable() ? "yes" : "no");
 		System.out.format("+------+----------+---------------------------+------+%n");
 	}
@@ -261,7 +261,7 @@ public class Terminal {
 			System.out.format(format,
 					r.getRoom().getRoomNumber(),
 					r.getRoom().getRoomCapacity(),
-					r.getRoom().getHotel().getAddress(),
+					r.getRoom().getHotel().getHotelId() + " " + r.getRoom().getHotel().getAddress(),
 					r.getCheckInDate().toString(),
 					r.getCheckOutDate().toString(),
 					r.getCustomer().getSurname());

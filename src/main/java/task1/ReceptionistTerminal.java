@@ -1,5 +1,6 @@
 package task1;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
 import exc.DatabaseManagerException;
 import exc.ReservationNotFoundException;
+import exc.RoomAlreadyBookedException;
 import exc.RoomNotFoundException;
 
 public class ReceptionistTerminal extends Terminal {
@@ -174,14 +176,15 @@ public class ReceptionistTerminal extends Terminal {
         	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
         	Customer customer = Application.hotelDatabaseManager.readCustomer(username);
         	
-        	// TODO: check if room is reservable
+        	// check if room is reservable
+        	List<Room> reservableRooms = Application.hotelDatabaseManager.getReservableRooms(room.getHotel(), from, to);
+        	if (!reservableRooms.contains(room))
+        		throw new RoomAlreadyBookedException();
         	
-        	// se dato due volte di fila smatta male, proviamo a vedere dopo il controllo
-        	// Application.hotelDatabaseManager.addReservation(room, customer, from, to);
+        	Reservation reservation = Application.hotelDatabaseManager.addReservation(room, customer, from, to);
         	
-        	// TODO: print the reservation
         	System.out.println("Reservation added successfully");
-        	
+        	printReservations(Arrays.asList(reservation));
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("add-reservation", getOptionsMap().get("add-reservation"), true);
@@ -191,6 +194,8 @@ public class ReceptionistTerminal extends Terminal {
 			System.out.println("Room not found");
 		} catch (CustomerNotFoundException e) {
 			System.out.println("Customer '" + e.getMessage() + "' not found");
+		} catch (RoomAlreadyBookedException e) {
+			System.out.println("The specified room is already booked in that period");
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}

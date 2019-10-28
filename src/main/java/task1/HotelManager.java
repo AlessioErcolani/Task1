@@ -418,6 +418,25 @@ public class HotelManager {
 		return hotel;
 	}
 	
+	/*public Hotel getHotel(long id) throws DatabaseManagerException {
+		Hotel hotel = null;
+		
+		try {
+			setup();
+			hotel = entityManager.find(Hotel.class, id);
+			if (hotel == null)
+				throw new HotelNotFoundException();
+			return hotel;
+		} catch (Exception ex) {
+			if (hotel == null)
+				throw ex;
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}*/
+	
 	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {			
