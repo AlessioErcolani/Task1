@@ -171,12 +171,17 @@ public class HotelManager {
 			setup();			
 			Room oldRoom = entityManager.find(Room.class, new PKRoom(oldReservation.getRoom().getHotel(), oldReservation.getRoom().getRoomNumber()));
 			oldRoom.removeReservation(oldReservation);
+			entityManager.flush();
 			Room newRoom = entityManager.find(Room.class, new PKRoom(newReservation.getRoom().getHotel(), newReservation.getRoom().getRoomNumber()));
 			newRoom.addReservation(newReservation);
-		} catch (Exception ex) {
+		} catch (Exception ex) {		
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			try {
+				commit();
+			} catch (RollbackException ex) {
+				throw new DatabaseManagerException(ex.getMessage());
+			}
 			close();
 		}
 	}

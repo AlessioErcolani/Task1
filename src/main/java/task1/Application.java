@@ -8,7 +8,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+		//java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		
 		System.out.println("Populating database...");
 		Application.hotelDatabaseManager = new HotelManager("hotel_chain");
@@ -31,19 +31,21 @@ public class Application {
 				"exit"
 		};*/
 		
-		/*Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
+		Terminal.testCommandLines = new String[] {
+				"login -r -u r2 -p pwd",
 				"show-reservations",
 				"add-reservation -c pippo -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
-				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
+				"show-reservations",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -f 2019-11-12 -t 2019-11-15",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-12 -c chiara",
 				"show-reservations",
 				"logout",
 				"exit"
-		};*/
+		};
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login -r -u r2 -p pwd",
 				"show-rooms",
 				"show-rooms --bookable",
@@ -59,7 +61,7 @@ public class Application {
 				"show-rooms --all -h 4",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login-r -u r2 -p pwd",
