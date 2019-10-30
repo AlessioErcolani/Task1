@@ -30,6 +30,7 @@ public class Application {
 		Terminal.testCommandLines = new String[] {
 				"login-r -u r2 -p pwd",
 				"show-reservations",
+				"add-reservation -c pippo -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"show-reservations",
