@@ -146,17 +146,6 @@ public class ReceptionistTerminal extends Terminal {
         	long hotelId = cmd.hasOption("hotel") ?
         			((Number) cmd.getParsedOptionValue("hotel")).longValue() :
         			receptionist.getHotel().getHotelId();
-        	
-			/*Date from = parseDate(cmd.getOptionValue("from"));
-			if (cmd.hasOption("from"))
-        		from = parseDate(cmd.getOptionValue("from"));
-        	else
-        		from = new Date();
-        	Date to;
-        	if (cmd.hasOption("to"))
-        		to = parseDate(cmd.getOptionValue("to"));
-        	else
-        		to = parseDate(cmd.getOptionValue("from"));*/
         			
         	Date from;
         	Date to;
@@ -251,24 +240,33 @@ public class ReceptionistTerminal extends Terminal {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("show-reservations"), options);
         	
-        	//TODO: add and handle hotel option
+        	long hotelId = cmd.hasOption("hotel") ?
+        			((Number) cmd.getParsedOptionValue("hotel")).longValue() :
+        			receptionist.getHotel().getHotelId();
         	
-            List<Reservation> reservations;
             Date date;
         	if (cmd.hasOption("from"))
         		date = parseDate(cmd.getOptionValue("from"));
     		else
     			date = new Date();
-            reservations = Application.hotelDatabaseManager.getUpcomingReservations(receptionist.getHotel(), date);
+        	
+        	Hotel hotel = Application.hotelDatabaseManager.getHotel(hotelId);
+        	
+        	List<Reservation> reservations;
+            reservations = Application.hotelDatabaseManager.getUpcomingReservations(hotel, date);
             
+            System.out.println("Reservations from " + dateToString(date) + " in hotel '" + hotel.getAddress() + "'");
 			printReservations(reservations);
+			
         } catch (org.apache.commons.cli.ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"), true);
         } catch (java.text.ParseException e) {
         	System.out.println("Date format: yyyy-mm-dd");
-        } catch (Exception e) {
-        	System.out.println("Something went wrong");
+        } catch (HotelNotFoundException e) {
+			System.out.println("Hotel not found");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
 		}
 	}
 	
@@ -449,10 +447,15 @@ public class ReceptionistTerminal extends Terminal {
 	
 	private static Options getOptionsForShowReservations() {
 		Options options = new Options();
+		
+		Option hotel = new Option("h", "hotel", true, "hotel identifier");
+		hotel.setRequired(false);
+		hotel.setType(Number.class);
         
 		Option from = new Option("f", "from", true, "the minimun date (yyyy-mm-dd) for the check-in field");
 		from.setRequired(false);
 		
+		options.addOption(hotel);
 		options.addOption(from);
 		
         return options;
