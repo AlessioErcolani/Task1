@@ -255,18 +255,18 @@ public class Terminal {
 		if (rooms == null)
 			return;
 
-		String format = "| %-4d | %-8d | %-26s | %-4s |%n";
+		String format = "| %-4d | %-8d | %-26s | %-9s |%n";
 
-		System.out.format("+------+----------+----------------------------+------+%n");
-		System.out.format("| Room | Capacity | Hotel                      | Free |%n");
-		System.out.format("+------+----------+----------------------------+------+%n");
+		System.out.format("+------+----------+----------------------------+-----------+%n");
+		System.out.format("| Room | Capacity | Hotel                      | Available |%n");
+		System.out.format("+------+----------+----------------------------+-----------+%n");
 		for (Room r : rooms)
 			System.out.format(format,
 					r.getRoomNumber(),
 					r.getRoomCapacity(),
 					r.getHotel().getHotelId() + ") " + r.getHotel().getAddress(),
 					r.isAvailable() ? "yes" : "no");
-		System.out.format("+------+----------+----------------------------+------+%n");
+		System.out.format("+------+----------+----------------------------+-----------+%n");
 	}
 
 	protected void printReservations(List<Reservation> reservations) {
