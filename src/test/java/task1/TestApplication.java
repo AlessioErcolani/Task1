@@ -200,9 +200,12 @@ public class TestApplication {
 			Date newCheckOutDate = calendar.getTime();
 			Room newRoom = manager.readRoom(hotel.getHotelId(), 301);
 			Customer newCustomer = manager.readCustomer("sara");	
-			Reservation newReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate);
-			newReservation.setCustomer(newCustomer);
+			Reservation newReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate, newCustomer);
 			manager.updateReservation(reservation, newReservation);	
+			
+			Customer newnewCustomer = manager.readCustomer("marco");
+			Reservation newnewReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate, newnewCustomer);
+			manager.updateReservation(reservation, newnewReservation);	
 			
 			// delete the reservation
 			manager.deleteReservation(newCheckInDate, newRoom);

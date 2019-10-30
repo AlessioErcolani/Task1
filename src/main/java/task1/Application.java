@@ -33,6 +33,7 @@ public class Application {
 				"add-reservation -c pippo -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
 				"show-reservations",
 				"logout",
 				"exit"
