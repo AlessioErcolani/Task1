@@ -135,7 +135,6 @@ public class ReceptionistTerminal extends Terminal {
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}
-		
 	}
 	
 	private void showRooms(String[] options) {
