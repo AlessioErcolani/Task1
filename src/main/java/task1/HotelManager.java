@@ -3,8 +3,6 @@ package task1;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-
 import javax.persistence.*;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -172,7 +170,7 @@ public class HotelManager {
 		try {
 			setup();			
 			Room oldRoom = entityManager.find(Room.class, new PKRoom(oldReservation.getRoom().getHotel(), oldReservation.getRoom().getRoomNumber()));
-			oldRoom.removeReservation(oldReservation);	
+			oldRoom.removeReservation(oldReservation);
 			Room newRoom = entityManager.find(Room.class, new PKRoom(newReservation.getRoom().getHotel(), newReservation.getRoom().getRoomNumber()));
 			newRoom.addReservation(newReservation);
 		} catch (Exception ex) {
@@ -439,6 +437,22 @@ public class HotelManager {
 		}
 	}
 	
+	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
+		try {			
+			setup();
+			List<Room> rooms = entityManager
+					.createNamedQuery("Room.findByHotel", Room.class)
+					.setParameter("hotelId", hotel.getHotelId())
+					.getResultList();
+			return rooms;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {			
@@ -629,12 +643,5 @@ public class HotelManager {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String[] args) {		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE); //OFF
-		
-		HotelManager manager = new HotelManager("hotel_chain");
-		populateDatabase(manager);				
-		manager.exit();
-	}
+
 }

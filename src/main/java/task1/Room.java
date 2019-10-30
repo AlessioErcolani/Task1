@@ -7,6 +7,9 @@ import javax.persistence.*;
 @Table(name = "room")
 @IdClass(PKRoom.class)
 @NamedQuery(
+		name="Room.findByHotel",
+		query="SELECT r FROM Room r WHERE r.hotel.hotelId = :hotelId")
+@NamedQuery(
 		name="Room.findByHotelAndNumber",
 		query="SELECT r FROM Room r WHERE r.hotel.hotelId = :hotelId AND r.roomNumber = :roomNumber")
 @NamedQuery(
