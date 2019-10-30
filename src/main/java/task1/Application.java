@@ -17,6 +17,23 @@ public class Application {
 		System.out.println("\nType commands to use the application");
 		
 		boolean testing = true;
+		
+		Terminal.testCommandLines = new String[] {
+				"login -c -u piergiorgio -p pwd",
+				"help",
+				"help show-reservations",
+				"show-hotels",
+				"show-reservations",
+				"show-rooms -h 3 -n -f 2019-11-15 -t 2019-11-19",
+				"show-rooms -h 3 -t 2019-11-19",
+				"show-rooms -h 3 -t 2018-11-19",
+				"show-rooms -a -h 1",
+				"show-rooms -a -h 2",
+				"show-rooms -a -h 3",
+				"logout",
+				"exit"
+		};
+		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
 				"login -u r2 -p pwd",
