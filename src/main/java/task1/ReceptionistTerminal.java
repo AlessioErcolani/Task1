@@ -15,7 +15,6 @@ import org.apache.commons.cli.ParseException;
 
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
-import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
 import exc.ReservationAlreadyPresentException;
 import exc.ReservationNotFoundException;
@@ -173,11 +172,15 @@ public class ReceptionistTerminal extends Terminal {
         	
         	if (cmd.hasOption("notbookable"))
         		rooms = Application.hotelDatabaseManager.getUnreservableRooms(hotel, from, to);
+        	else if (cmd.hasOption("all"))
+        		rooms = Application.hotelDatabaseManager.getRoomsOfHotel(hotel);
         	else
         		rooms = Application.hotelDatabaseManager.getReservableRooms(hotel, from, to);
             
         	if (cmd.hasOption("notbookable"))
         		System.out.println("Non-bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from) + " to " + dateToString(to));
+        	else if (cmd.hasOption("all"))
+        		System.out.println("Rooms of hotel '" + hotel.getAddress() + "'");
         	else
         		System.out.println("Bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from) + " to " + dateToString(to));
             printRooms(rooms);
@@ -446,10 +449,13 @@ public class ReceptionistTerminal extends Terminal {
 		bookable.setRequired(false);
 		Option notBookable = new Option("n", "notbookable", false, "show rooms that cannot be booked");
 		notBookable.setRequired(false);
+		Option allRooms = new Option("a", "all", false, "show all rooms");
+		notBookable.setRequired(false);
 		
 		OptionGroup groupBookable = new OptionGroup();
 		groupBookable.addOption(bookable);
 		groupBookable.addOption(notBookable);
+		groupBookable.addOption(allRooms);
 		groupBookable.setRequired(false);
 		
 		Option from = new Option("f", "from", true, "check-in date (format: yyyy-mm-dd) (default: today)");

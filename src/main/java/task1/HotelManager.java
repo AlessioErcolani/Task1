@@ -437,6 +437,22 @@ public class HotelManager {
 		}
 	}
 	
+	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
+		try {			
+			setup();
+			List<Room> rooms = entityManager
+					.createNamedQuery("Room.findByHotel", Room.class)
+					.setParameter("hotelId", hotel.getHotelId())
+					.getResultList();
+			return rooms;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {			
