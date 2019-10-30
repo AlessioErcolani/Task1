@@ -8,7 +8,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		
-		//java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		
 		System.out.println("Populating database...");
 		Application.hotelDatabaseManager = new HotelManager("hotel_chain");
@@ -16,7 +16,7 @@ public class Application {
 		
 		System.out.println("\nType commands to use the application");
 		
-		boolean testing = true;
+		boolean testing = false;
 		
 		Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",

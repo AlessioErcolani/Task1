@@ -24,7 +24,7 @@ public class TestApplication {
 	
 	@Test
 	public void testAddAndReadCustomer() {
-		// test add new customer
+		// add new customer
 		Customer customer = new Customer("username", "pwd", "name", "surname");
 		try {
 			manager.addCustomer(customer);
@@ -34,68 +34,173 @@ public class TestApplication {
 			fail("Test add new customer: failed.");
 		}
 		
-		// test add customer with an username already present
+		// read the inserted customer
+		Customer readCustomer = null;
+		try {
+			readCustomer = manager.readCustomer("username");
+		} catch (CustomerNotFoundException e) {
+			fail("Test read customer: failed because customer not found.");
+		} catch (DatabaseManagerException e) {
+			fail("Test read customer: failed.");
+		}
+		assertTrue("Test add new customer", customer.equals(readCustomer));
+		
+		// try to add customer with an username already present
 		Customer customerCopy = new Customer("username", "newPwd", "newName","newSurname");
-		boolean exceptionCatched = false;
+		boolean exception = false;
 		try {
 			manager.addCustomer(customerCopy);
 		} catch (CustomerUsernameAlreadyPresentException e) {
-			exceptionCatched = true;			
+			exception = true;
 		} catch (DatabaseManagerException e) {
-			fail("Test add new customer: failed. ");
+			fail("Test add new customer: failed.");
 		}
-		assertTrue("Test add existing customer.", exceptionCatched);
+		assertTrue("Test add new customer", exception);
 		
-		// test read customer by username and password
-		Customer readCustomer = null;
+		// authenticate the customer by username and password
+		Customer authenticateCustomer = null;
 		try {
-			readCustomer = manager.authenticateCustomer("username", "pwd");
+			authenticateCustomer = manager.authenticateCustomer("username", "pwd");
 		} catch (CustomerAuthenticationFailure e) {
 			fail("Test authenticate customer: failed.");
 		}
-		assertEquals("Test authenticate customer", customer, readCustomer);	
+		assertTrue("Test authenticate customer", customer.equals(authenticateCustomer));	
 		
-		// test delete a customer
-		exceptionCatched = false;
+		// delete the customer
 		try {
 			manager.deleteCustomer(readCustomer);
 		} catch (DatabaseManagerException e) {
-			exceptionCatched = true;
+			fail("Test delete customer: failed.");
 		}		
-		assertFalse("Test delete customer", exceptionCatched);
+		
+		exception = false;
+		try {
+			readCustomer = manager.readCustomer("username");
+		} catch (CustomerNotFoundException e) {
+			exception = true;
+		} catch (DatabaseManagerException e) {
+			fail("Test read deleted customer: failed.");
+		}
+		assertTrue("Test read deleted customer", exception);
 	}
 	
 	@Test
-	public void testAddAndReadHotel() {
+	public void testAddAndReadHotelAndRoom() {
 		String address = "Via Ferrara 45, Ferrara";
 		
-		// test add new hotel
+		// add new hotel
 		Hotel hotel = new Hotel(address);
 		try {
 			manager.addHotel(hotel);
+		} catch (HotelAlreadyPresentException e) {
+			fail("Test add new hotel: failed because hotel already present.");
 		} catch (DatabaseManagerException e) {
 			fail("Test add new hotel: failed.");
-		}
+		} 
 		
-		// test read hotel		
+		// read hotel		
 		Hotel readHotel = null;
 		try {
 			readHotel = manager.readHotel(address);
+		} catch (HotelNotFoundException e) {
+			fail("Test read hotel: failed.");
 		} catch (DatabaseManagerException e) {
 			fail("Test read hotel: failed.");
 		}
-		assertEquals("Test read hotel.", readHotel, hotel);	
+		assertTrue("Test read hotel.", hotel.equals(readHotel));	
 		
-		// test delete an hotel
-		boolean exceptionCatched = false;
+		// try to add again the hotel
+		boolean exception = false;
+		try {
+			manager.addHotel(hotel);
+		} catch (HotelAlreadyPresentException e) {
+			exception = true;
+		} catch (DatabaseManagerException e) {
+			fail("Test add existing hotel: failed.");
+		} 
+		assertTrue("Test add existing hotel.", exception);
+		
+		// add a room to the hotel
+		Room room = new Room(101, 5, hotel);
+		try {
+			manager.addRoom(room);
+		} catch (RoomAlreadyPresentException e) {
+			fail("Test add room: failed because room already present.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add room: failed.");
+		}
+		
+		// read room
+		Room readRoom = null;
+		try {
+			readRoom = manager.readRoom(hotel.getHotelId(), 101);
+		} catch (RoomNotFoundException e1) {
+			fail("Test read room: failed.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test read room: failed.");
+		} 
+		assertTrue("Test read room.", room.equals(readRoom));
+		
+		// try to add again the room
+		exception = false;
+		try {
+			manager.addRoom(room);
+		} catch (RoomAlreadyPresentException e) {
+			exception = true;
+		} catch (DatabaseManagerException e1) {
+			fail("Test add room: failed.");
+		}
+		assertTrue("Test add existing room.", exception);
+		
+		// delete the inserted room
+		exception = false;
+		try {
+			manager.deleteRoom(readRoom);
+		} catch (DatabaseManagerException e) {
+			fail("Test delete hotel: failed.");
+		}
+		
+		// add again the room
+		try {
+			manager.addRoom(room);
+		} catch (RoomAlreadyPresentException e) {
+			fail("Test add room: failed because room already present.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add room: failed.");
+		}
+		
+		// delete the inserted hotel
+		exception = false;
 		try {
 			manager.deleteHotel(readHotel);
 		} catch (DatabaseManagerException e) {
-			exceptionCatched = true;
+			fail("Test delete hotel: failed.");
 		}
-		assertFalse("Test delete hotel", exceptionCatched);
+		
+		// try to read the deleted hotel
+		exception = false;
+		try {
+			readHotel = manager.readHotel(address);
+		} catch (HotelNotFoundException e) {
+			exception = true;
+		} catch (DatabaseManagerException e) {
+			fail("Test read deleted hotel: failed.");
+		}
+		assertTrue("Test read deleted hotel.", exception);	
+		
+		// try to read the room deleted together with the hotel
+		exception = false;
+		try {
+			readRoom = manager.readRoom(hotel.getHotelId(), 101);
+		} catch (RoomNotFoundException e1) {
+			exception = true;
+		} catch (DatabaseManagerException e1) {
+			fail("Test read unexisting room room: failed.");
+		} 
+		assertTrue("Test read room.", exception);	
 	}
 	
+	// arrivata qui!!
 	@Test
 	public void testAddAndReadReceptionist() {	
 		//test add new receptionist
@@ -103,11 +208,11 @@ public class TestApplication {
 		
 		Hotel hotel = new Hotel(address);
 		
-		try {
+		/*try {
 			manager.addHotel(hotel);
 		} catch (DatabaseManagerException ex) {
 			fail(ex.getMessage());
-		}
+		}*/
 		
 		Receptionist receptionist = new Receptionist("username", "pwd", "name", "surname", hotel);
 		try {

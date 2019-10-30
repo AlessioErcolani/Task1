@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
+
+import org.hibernate.PersistentObjectException;
 import org.hibernate.exception.ConstraintViolationException;
 
 import exc.*;
@@ -87,7 +89,7 @@ public class HotelManager {
 				throw new ReceptionistUsernameAlreadyPresentException(receptionist.getUsername());
 			}
 		} catch (Exception ex) {
-				throw new DatabaseManagerException(ex.getMessage());
+			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			commit();
 			close();
@@ -95,14 +97,18 @@ public class HotelManager {
 	}
 	
 	/**
+	 * @throws HotelAlreadtPresentException 
 	 * Inserts a new Hotel in the database
 	 * @param hotel the Hotel to add
 	 * @throws DatabaseManagerException in case of errors
+	 * @throws  
 	 */
-	public void addHotel(Hotel hotel) throws DatabaseManagerException {
+	public void addHotel(Hotel hotel) throws HotelAlreadyPresentException, DatabaseManagerException {
 		try {
 			setup();
 			persistObject(hotel);
+		} catch (PersistenceException ex) {
+			throw new HotelAlreadyPresentException(ex.getMessage());
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -118,7 +124,7 @@ public class HotelManager {
 	 * @param room the Room to add
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public void addRoom(Room room) throws DatabaseManagerException {
+	public void addRoom(Room room) throws RoomAlreadyPresentException, DatabaseManagerException {
 		try {
 			setup();
 			Hotel hotel = entityManager.find(Hotel.class, room.getHotel().getHotelId());
@@ -126,7 +132,11 @@ public class HotelManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			try {
+				commit();
+			} catch (RollbackException ex) {
+				throw new RoomAlreadyPresentException(ex.getMessage());
+			}
 			close();
 		}
 	}
@@ -405,7 +415,7 @@ public class HotelManager {
 		}
 	}
 	
-	public Hotel readHotel(String address) throws DatabaseManagerException {
+	public Hotel readHotel(String address) throws HotelNotFoundException, DatabaseManagerException {
 		Hotel hotel = null;
 		try {			
 			setup();
@@ -413,7 +423,7 @@ public class HotelManager {
 			query.setParameter("address", address);
 			hotel = query.getSingleResult();	
 		} catch (NoResultException nr) {
-			return null;
+			throw new HotelNotFoundException();
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -551,6 +561,19 @@ public class HotelManager {
 		}	
 	}
 	
+	public void deleteRoom(Room room) throws DatabaseManagerException {
+		try {
+			setup();
+			Room ref = entityManager.find(Room.class, new PKRoom(room.getHotel(), room.getRoomNumber()));
+	        entityManager.remove(ref);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}	
+	}
+	
 	/**
 	 * Delete a receptionist
 	 * @param receptionist
@@ -604,6 +627,9 @@ public class HotelManager {
 			
 			manager.addReceptionist(new Receptionist("r1", "pwd", "Laura", "Romani", hotelRoma));
 			manager.addReceptionist(new Receptionist("r2", "pwd", "Francesco", "Bolognesi", hotelBologna));
+			manager.addReceptionist(new Receptionist("r3", "pwd", "Mirco", "Rossi", hotelBologna));
+			manager.addReceptionist(new Receptionist("r4", "pwd", "Luisa", "Milanelli", hotelMilano));
+			manager.addReceptionist(new Receptionist("r5", "pwd", "Benedetta", "Vinci", hotelMilano));
 			
 			manager.addRoom(new Room(101, 4, hotelRoma));
 			manager.addRoom(new Room(102, 3, hotelRoma));
