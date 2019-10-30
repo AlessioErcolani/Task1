@@ -1,5 +1,6 @@
 package task1;
 
+import java.text.SimpleDateFormat;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -27,6 +28,26 @@ public class Terminal {
 	protected User nextUser;
 	protected CommandLineParser parser;
 	protected HelpFormatter formatter;
+	
+	//------------------------------------------------------------------------\\
+	// Just for testing                                                       \\
+	//------------------------------------------------------------------------\\
+	
+	private static int nextCommandIndex = 0;
+	public static String[] testCommandLines;
+	
+	public static String nextCommand() {
+		String command = testCommandLines[nextCommandIndex];
+		nextCommandIndex++;
+		
+		System.out.println(command);
+		
+		return command;
+	}
+	
+	//------------------------------------------------------------------------\\
+	// Commands and Options initialization                                    \\
+	//------------------------------------------------------------------------\\
 
 	private final static List<String> commands = Arrays.asList(
 			"login-c",
@@ -272,7 +293,12 @@ public class Terminal {
 	// Utilities                                                              \\
 	//------------------------------------------------------------------------\\
 	
-	Date parseDate(String string) throws java.text.ParseException {
+	public String dateToString(Date date) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		return simpleDateFormat.format(date);
+	}
+	
+	public Date parseDate(String string) throws java.text.ParseException {
 		try {
 			String[] split = string.split("-");
 			
