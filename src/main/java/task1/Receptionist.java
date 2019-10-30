@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 import exc.DatabaseManagerException;
+import exc.ReservationAlreadyPresentException;
 
 @Entity(name = "Receptionist")
 @Table(name = "receptionist")
@@ -41,7 +42,7 @@ public class Receptionist extends User {
 		this.hotel = hotel;
 	}
 	
-	public void addReservation(Reservation reservation) throws DatabaseManagerException {
+	public void addReservation(Reservation reservation) throws DatabaseManagerException, ReservationAlreadyPresentException {
 		getHotelManager().addReservation(reservation);
 	}
 	

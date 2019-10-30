@@ -18,6 +18,7 @@ import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
 import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
+import exc.ReservationAlreadyPresentException;
 import exc.ReservationNotFoundException;
 import exc.RoomAlreadyBookedException;
 import exc.RoomNotFoundException;
@@ -214,12 +215,12 @@ public class ReceptionistTerminal extends Terminal {
         	if (!reservableRooms.contains(room))
         		throw new RoomAlreadyBookedException();
         	
-        	//Reservation reservation = Application.hotelDatabaseManager.addReservation(room, customer, from, to);
-        	Application.hotelDatabaseManager.addReservation(new Reservation(room, from, to, customer));
-        	Reservation reservation = Application.hotelDatabaseManager.readReservation(room.getHotel().getHotelId(), room.getRoomNumber(), from);
+        	Reservation reservation = new Reservation(room, from, to, customer);
+        	Application.hotelDatabaseManager.addReservation(reservation);
         	
         	System.out.println("Reservation added successfully");
         	printReservations(Arrays.asList(reservation));
+        	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("add-reservation", getOptionsMap().get("add-reservation"), true);
@@ -231,6 +232,8 @@ public class ReceptionistTerminal extends Terminal {
 			System.out.println("Customer '" + e.getMessage() + "' not found");
 		} catch (RoomAlreadyBookedException e) {
 			System.out.println("The specified room is already booked in that period");
+		} catch (ReservationAlreadyPresentException e) {
+			System.out.println("Reservation already present");
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}

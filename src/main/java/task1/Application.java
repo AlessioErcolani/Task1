@@ -8,7 +8,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+		//java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		
 		System.out.println("Populating database...");
 		Application.hotelDatabaseManager = new HotelManager("hotel_chain");
@@ -20,15 +20,19 @@ public class Application {
 		Terminal.testCommandLines = new String[] {
 				"login-r -u r2 -p pwd",
 				"show-reservations",
-				"logout",
-				"exit"
-		};
-		Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
-				"show-reservations",
 				"show-reservations --from 2018-11-16",
 				"show-reservations --hotel 3",
 				"show-reservations --hotel 1",
+				"logout",
+				"exit"
+		};
+		
+		Terminal.testCommandLines = new String[] {
+				"login-r -u r2 -p pwd",
+				"show-reservations",
+				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"show-reservations",
 				"logout",
 				"exit"
 		};

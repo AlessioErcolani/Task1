@@ -1,5 +1,7 @@
 package task1;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -125,7 +127,7 @@ public class HotelManager {
 		try {
 			setup();
 			Hotel hotel = entityManager.find(Hotel.class, room.getHotel().getHotelId());
-			hotel.addRoom(room);;
+			hotel.addRoom(room);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -142,12 +144,21 @@ public class HotelManager {
 	 * @param checkOut check-out date
 	 * @return the Reservation object corresponding to the inserted record
 	 * @throws DatabaseManagerException in case of errors
+	 * @throws ReservationAlreadyPresentException 
 	 */
-	public void addReservation(Reservation reservation) throws DatabaseManagerException {
+	public void addReservation(Reservation reservation) throws DatabaseManagerException, ReservationAlreadyPresentException {
 		try {
 			setup();
 			Room room = entityManager.find(Room.class, new PKRoom(reservation.getRoom().getHotel(), reservation.getRoom().getRoomNumber()));
 			room.addReservation(reservation);
+		} catch (PersistenceException pe) { // ConstraintViolationException
+			Throwable t = pe.getCause();
+			while ((t != null) && !(t instanceof ConstraintViolationException)) {
+				t = t.getCause();
+			}
+			if (t instanceof ConstraintViolationException) {
+				throw new ReservationAlreadyPresentException();
+			}
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
