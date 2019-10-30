@@ -17,15 +17,19 @@ public class Application {
 		System.out.println("\nType commands to use the application");
 		
 		boolean testing = true;
-		/*Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
+		Terminal.testCommandLines = new String[] {
+				"help login",
+				"login -u r2 -p pwd",
+				"login -c -u federico -p pwd",
+				"logout",
+				"login -r -u r2 -p pwd",
 				"show-reservations",
 				"show-reservations --from 2018-11-16",
 				"show-reservations --hotel 3",
 				"show-reservations --hotel 1",
 				"logout",
 				"exit"
-		};*/
+		};
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login-r -u r2 -p pwd",
@@ -64,7 +68,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login-r -u r2 -p pwd",
 				"help update-reservation",
 				"show-reservations -h 3 -f 2019-11-15",
@@ -79,7 +83,7 @@ public class Application {
 				"show-reservations -h 2",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		Terminal cli = new Terminal();
 		
