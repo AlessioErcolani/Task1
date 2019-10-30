@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
+import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
 import exc.ReservationAlreadyPresentException;
 import exc.ReservationNotFoundException;
@@ -321,7 +322,10 @@ public class ReceptionistTerminal extends Terminal {
         	Customer newCustomer = Application.hotelDatabaseManager.readCustomer(newUsername);
         	
         	Reservation newReservation = new Reservation(newRoom, newCheckIn, newCheckOut, newCustomer);
-        	// TODO: invoke updateReservation method and maybe print, check if fails in case of duplicate key
+        	
+        	// check if (newReservation.equals(oldReservation))
+        	// TODO: invoke updateReservation method and maybe print, check if it fails in case of duplicate key
+        	Application.hotelDatabaseManager.updateReservation(oldReservation, newReservation);
         	
         	System.out.println("Reservation updated successfully");
         	printReservations(Arrays.asList(newReservation));

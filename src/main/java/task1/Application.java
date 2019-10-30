@@ -70,9 +70,13 @@ public class Application {
 				"show-reservations -h 3 -f 2019-11-15",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -h 2",
-				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
-				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
-				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", // 302 is not available
+				"show-reservations -h 3",
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 101 -h 2",
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", // 302 is not available
+				"show-reservations -h 3",
+				"show-reservations -h 2",
 				"logout",
 				"exit"
 		};
