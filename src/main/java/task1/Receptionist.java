@@ -41,8 +41,8 @@ public class Receptionist extends User {
 		this.hotel = hotel;
 	}
 	
-	public Reservation addReservation(Room room, Customer customer, Date checkInDate, Date checkOutDate) throws DatabaseManagerException {
-		return getHotelManager().addReservation(room, customer, checkInDate, checkOutDate);
+	public void addReservation(Reservation reservation) throws DatabaseManagerException {
+		getHotelManager().addReservation(reservation);
 	}
 	
 	public void deleteReservation(Date checkInDate, Room room) throws DatabaseManagerException {

@@ -183,8 +183,9 @@ public class TestApplication {
 			Date checkOutDate = calendar.getTime();
 			
 			// add a new reservation for a customer
-			Reservation reservation = manager.addReservation(room, customer, checkInDate, checkOutDate);
-			reservation = manager.readReservation(hotel.getHotelId(), room.getRoomNumber(), checkInDate);
+			//Reservation reservation = manager.addReservation(room, customer, checkInDate, checkOutDate);
+			manager.addReservation(new Reservation(room, checkInDate, checkOutDate, customer));
+			Reservation reservation = manager.readReservation(hotel.getHotelId(), room.getRoomNumber(), checkInDate);
 			
 			// get all reservations of a customer
 			List<Reservation> upcomingReservations = customer.getUpcomingReservations();	

@@ -76,6 +76,17 @@ public class Room {
 		this.available = available;
 	}
 	
+	public Room(int roomNumber, int roomCapacity, Hotel hotel) {
+		this(roomNumber, roomCapacity, hotel, true);
+	}
+	
+	public Room(int roomNumber, int roomCapacity, Hotel hotel, boolean available) {
+		this.roomNumber = roomNumber;
+		this.roomCapacity = roomCapacity;
+		this.hotel = hotel;
+		this.available = available;
+	}
+	
 	public void addReservation(Reservation reservation) {
 		reservations.add(reservation);
 		reservation.setRoom(this);

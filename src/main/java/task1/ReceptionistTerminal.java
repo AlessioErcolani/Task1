@@ -225,7 +225,9 @@ public class ReceptionistTerminal extends Terminal {
         	if (!reservableRooms.contains(room))
         		throw new RoomAlreadyBookedException();
         	
-        	Reservation reservation = Application.hotelDatabaseManager.addReservation(room, customer, from, to);
+        	//Reservation reservation = Application.hotelDatabaseManager.addReservation(room, customer, from, to);
+        	Application.hotelDatabaseManager.addReservation(new Reservation(room, from, to, customer));
+        	Reservation reservation = Application.hotelDatabaseManager.readReservation(room.getHotel().getHotelId(), room.getRoomNumber(), from);
         	
         	System.out.println("Reservation added successfully");
         	printReservations(Arrays.asList(reservation));

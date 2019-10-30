@@ -121,11 +121,11 @@ public class HotelManager {
 	 * @param room the Room to add
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public void addRoom(Hotel hotel, Room room) throws DatabaseManagerException {
+	public void addRoom(Room room) throws DatabaseManagerException {
 		try {
 			setup();
-			room.setHotel(hotel);
-			mergeObject(room);
+			Hotel hotel = entityManager.find(Hotel.class, room.getHotel().getHotelId());
+			hotel.addRoom(room);;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -143,13 +143,11 @@ public class HotelManager {
 	 * @return the Reservation object corresponding to the inserted record
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public Reservation addReservation(Room room, Customer customer, Date checkIn, Date checkOut) throws DatabaseManagerException {
+	public void addReservation(Reservation reservation) throws DatabaseManagerException {
 		try {
 			setup();
-			Reservation reservation = new Reservation(room, checkIn, checkOut);
-			reservation.setCustomer(customer);
-			mergeObject(reservation);
-			return reservation;
+			Room room = entityManager.find(Room.class, new PKRoom(reservation.getRoom().getHotel(), reservation.getRoom().getRoomNumber()));
+			room.addReservation(reservation);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -584,23 +582,22 @@ public class HotelManager {
 			manager.addReceptionist(new Receptionist("r1", "pwd", "Laura", "Romani", hotelRoma));
 			manager.addReceptionist(new Receptionist("r2", "pwd", "Francesco", "Bolognesi", hotelBologna));
 			
-			manager.addRoom(hotelRoma, new Room(101, 4));
-			manager.addRoom(hotelRoma, new Room(101, 4));
-			manager.addRoom(hotelRoma, new Room(102, 3));
-			manager.addRoom(hotelRoma, new Room(103, 2));
+			manager.addRoom(new Room(101, 4, hotelRoma));
+			manager.addRoom(new Room(102, 3, hotelRoma));
+			manager.addRoom(new Room(103, 2, hotelRoma));
 			
-			manager.addRoom(hotelMilano, new Room(101, 2));
-			manager.addRoom(hotelMilano, new Room(102, 3));
-			manager.addRoom(hotelMilano, new Room(201, 4));
+			manager.addRoom(new Room(101, 2, hotelMilano));
+			manager.addRoom(new Room(102, 3, hotelMilano));
+			manager.addRoom(new Room(201, 4, hotelMilano));
 			
-			manager.addRoom(hotelBologna, new Room(101, 4));
-			manager.addRoom(hotelBologna, new Room(201, 3));
-			manager.addRoom(hotelBologna, new Room(301, 2));
-			manager.addRoom(hotelBologna, new Room(302, 2, false));
+			manager.addRoom(new Room(101, 4, hotelBologna));
+			manager.addRoom(new Room(201, 3, hotelBologna));
+			manager.addRoom(new Room(301, 2, hotelBologna));
+			manager.addRoom(new Room(302, 2, hotelBologna, false));
 			
-			Room room401 = new Room(401, 5);
+			Room room401 = new Room(401, 5, hotelBologna);
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
-			manager.addRoom(hotelBologna, room401);
+			manager.addRoom(room401);
 			manager.addCustomer(customer401);
 			
 			Calendar calendar = Calendar.getInstance();
@@ -610,7 +607,7 @@ public class HotelManager {
 			calendar.set(2019, 11 - 1, 19, 1, 0, 0);	
 			Date checkOut = calendar.getTime();
 			
-			manager.addReservation(room401, customer401, checkIn, checkOut);
+			manager.addReservation(new Reservation(room401, checkIn, checkOut, customer401));
 			
 			calendar.set(2018, 11 - 1, 15, 1, 0, 0);	
 			checkIn = calendar.getTime();
@@ -618,7 +615,7 @@ public class HotelManager {
 			calendar.set(2018, 11 - 1, 19, 1, 0, 0);	
 			checkOut = calendar.getTime();
 			
-			manager.addReservation(room401, customer401, checkIn, checkOut);
+			manager.addReservation(new Reservation(room401, checkIn, checkOut, customer401));
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");
