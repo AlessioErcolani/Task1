@@ -18,7 +18,41 @@ public class Application {
 		
 		boolean testing = true;
 		
+		/*Terminal.testCommandLines = new String[] {
+				"help login",
+				"help help",
+				"help exit",
+				"exit"
+		};*/
+		
 		Terminal.testCommandLines = new String[] {
+				"login --customer -u federico -p pwd",
+				"help show-reservations",
+				"help show-hotels",
+				"help show-rooms",
+				"help help",
+				"help logout",
+				"logout",
+				"exit"
+		};
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"help show-hotels",
+				"help show-rooms",
+				"help add-reservation",
+				"help show-reservations",
+				"help update-reservation",
+				"help delete-reservation",
+				"help set-room",
+				"help register",
+				"help help",
+				"help logout",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
 				"help",
 				"help show-reservations",
@@ -32,7 +66,7 @@ public class Application {
 				"show-rooms -a -h 3",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
