@@ -505,6 +505,24 @@ public class HotelManager {
 		return customer;
 	}
 	
+	public Receptionist readReceptionist(String username) throws DatabaseManagerException, ReceptionistNotFoundException {
+		Receptionist receptionist = null;
+		try {			
+			setup();
+			TypedQuery<Receptionist> query = entityManager.createNamedQuery("Receptionist.findByUsername", Receptionist.class);
+			query.setParameter("username", username);
+			receptionist = query.getSingleResult();	
+		} catch (NoResultException nr) {
+			throw new ReceptionistNotFoundException(username);
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+		return receptionist;
+	}
+	
 	public Reservation readReservation(long hotelId, int room, Date checkInDate) throws DatabaseManagerException, ReservationNotFoundException {
 		Reservation reservation = null;
 		try {			

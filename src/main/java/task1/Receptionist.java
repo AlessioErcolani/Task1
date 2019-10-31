@@ -13,6 +13,9 @@ import exc.ReservationAlreadyPresentException;
 		name="Receptionist.findByUsernameAndPassword",
 		query="SELECT r FROM Receptionist r WHERE r.username = :username AND r.password = :password")
 @NamedQuery(
+		name="Receptionist.findByUsername",
+		query="SELECT r FROM Receptionist r WHERE r.username = :username")
+@NamedQuery(
 		name="Receptionist.deleteReceptionist",
 		query="DELETE FROM Receptionist r WHERE r.ID = :id")
 public class Receptionist extends User {
