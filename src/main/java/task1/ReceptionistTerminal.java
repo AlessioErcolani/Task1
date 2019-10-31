@@ -325,8 +325,17 @@ public class ReceptionistTerminal extends Terminal {
         	
         	Reservation newReservation = new Reservation(newRoom, newCheckIn, newCheckOut, newCustomer);
         	
-        	// check if (newReservation.equals(oldReservation))
-        	// TODO: invoke updateReservation method and maybe print, check if it fails in case of duplicate key
+        	// check is the user has actually inserted some modification to the reservation
+        	if (newReservation.equals(oldReservation))
+        		throw new ReservationAlreadyPresentException();
+        	
+        	// check if the new room is actually reservable
+        	List<Room> reservableRooms = Application.hotelDatabaseManager
+        			.getReservableRooms(newRoom.getHotel(), newCheckIn, newCheckOut);
+        	if (!reservableRooms.contains(newRoom))
+        		throw new RoomAlreadyBookedException();
+        	
+        	// TODO: check if it fails in case of duplicate key
         	Application.hotelDatabaseManager.updateReservation(oldReservation, newReservation);
         	
         	System.out.println("Reservation updated successfully");
@@ -343,6 +352,10 @@ public class ReceptionistTerminal extends Terminal {
 			System.out.println("Customer '" + e.getMessage() + "' not found");
 		} catch (RoomNotFoundException e) {
 			System.out.println("The specified room does not exist");
+		} catch (ReservationAlreadyPresentException e) {
+			System.out.println("You did not provided any modification to the reservation");
+		} catch (RoomAlreadyBookedException e) {
+			System.out.println("The specified room is not bookable in that period");
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}

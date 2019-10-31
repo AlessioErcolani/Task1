@@ -18,7 +18,41 @@ public class Application {
 		
 		boolean testing = false;
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
+				"help login",
+				"help help",
+				"help exit",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login --customer -u federico -p pwd",
+				"help show-reservations",
+				"help show-hotels",
+				"help show-rooms",
+				"help help",
+				"help logout",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"help show-hotels",
+				"help show-rooms",
+				"help add-reservation",
+				"help show-reservations",
+				"help update-reservation",
+				"help delete-reservation",
+				"help set-room",
+				"help register",
+				"help help",
+				"help logout",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
 				"help",
 				"help show-reservations",
@@ -32,7 +66,7 @@ public class Application {
 				"show-rooms -a -h 3",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
@@ -94,21 +128,43 @@ public class Application {
 		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
-				"help update-reservation",
+				"login -r -u r2 -p pwd",
 				"show-reservations -h 3 -f 2019-11-15",
-				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -h 2",
 				"show-reservations -h 3",
-				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
+				"show-reservations -h 3",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 101 -h 2",
 				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
-				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", // 302 is not available
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", 		// 302 is not available
+				"show-reservations -h 3",
+				"show-reservations -h 2",
+				"update-reservation --currenthotel 2 --currentroom 101 --currentcheckin 2019-11-15 -r 401 -h 3 -c piergiorgio",	// reset changes
 				"show-reservations -h 3",
 				"show-reservations -h 2",
 				"logout",
 				"exit"
 		};*/
+		
+		Terminal.testCommandLines = new String[] {
+				"login -r -u r2 -p pwd",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
+				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401 -c piergiorgio",		// reset changes
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c federico",				// key is untouched!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c piergiorgio",				// reset changes
+				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401",						// old reservation does not exist!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 656",						// new room does not exist!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c idonotexist",				// new customer does not exist!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c piergiorgio",				// it stays the same!
+				"show-rooms --all -h 3",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", 			// 302 is not available!
+				"show-rooms -b -h 3 -f 2019-11-15",
+				"show-rooms -n -h 3 -f 2019-11-15",
+				"show-reservations -h 3",
+				"show-reservations -h 2",
+				"logout",
+				"exit"
+		};
 		
 		Terminal cli = new Terminal();
 		
