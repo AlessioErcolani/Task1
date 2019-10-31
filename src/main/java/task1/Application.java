@@ -16,9 +16,64 @@ public class Application {
 		
 		System.out.println("\nType commands to use the application");
 		
-		boolean testing = true;
+		boolean testing = false;
+		
 		/*Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
+				"help login",
+				"help help",
+				"help exit",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login --customer -u federico -p pwd",
+				"help show-reservations",
+				"help show-hotels",
+				"help show-rooms",
+				"help help",
+				"help logout",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"help show-hotels",
+				"help show-rooms",
+				"help add-reservation",
+				"help show-reservations",
+				"help update-reservation",
+				"help delete-reservation",
+				"help set-room",
+				"help register",
+				"help help",
+				"help logout",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login -c -u piergiorgio -p pwd",
+				"help",
+				"help show-reservations",
+				"show-hotels",
+				"show-reservations",
+				"show-rooms -h 3 -n -f 2019-11-15 -t 2019-11-19",
+				"show-rooms -h 3 -t 2019-11-19",
+				"show-rooms -h 3 -t 2018-11-19",
+				"show-rooms -a -h 1",
+				"show-rooms -a -h 2",
+				"show-rooms -a -h 3",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"help login",
+				"login -u r2 -p pwd",
+				"login -c -u federico -p pwd",
+				"logout",
+				"login -r -u r2 -p pwd",
 				"show-reservations",
 				"show-reservations --from 2018-11-16",
 				"show-reservations --hotel 3",
@@ -28,12 +83,85 @@ public class Application {
 		};*/
 		
 		Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
+				"login -r -u r2 -p pwd",
 				"show-reservations",
 				"add-reservation -c pippo -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"show-reservations",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -f 2019-11-12 -t 2019-11-15",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-12 -c chiara",
+				"show-reservations",
+				"logout",
+				"exit"
+		};
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login -r -u r2 -p pwd",
+				"show-rooms",
+				"show-rooms --bookable",
+				"show-rooms -n",
+				"show-rooms -f 2019-11-14",
+				"show-rooms -n -f 2019-11-15 -t 2019-11-19",
+				"show-rooms -t 2019-11-19",
+				"show-rooms -t 2018-11-19",
+				"show-rooms -a",
+				"show-rooms -a -h 1",
+				"show-rooms -a -h 2",
+				"show-rooms --all -h 3",
+				"show-rooms --all -h 4",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login-r -u r2 -p pwd",
+				"help set-room",
+				"show-rooms",
+				"set-room --hotel 3 --room 301 --notavailable",
+				"show-rooms",
+				"set-room --hotel 3 --room 301 --available",
+				"show-rooms",
+				"set-room --hotel 565 --room 656 --available",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login -r -u r2 -p pwd",
+				"show-reservations -h 3 -f 2019-11-15",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -h 2",
+				"show-reservations -h 3",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
+				"show-reservations -h 3",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 101 -h 2",
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", 		// 302 is not available
+				"show-reservations -h 3",
+				"show-reservations -h 2",
+				"update-reservation --currenthotel 2 --currentroom 101 --currentcheckin 2019-11-15 -r 401 -h 3 -c piergiorgio",	// reset changes
+				"show-reservations -h 3",
+				"show-reservations -h 2",
+				"logout",
+				"exit"
+		};*/
+		
+		Terminal.testCommandLines = new String[] {
+				"login -r -u r2 -p pwd",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
+				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401 -c piergiorgio",		// reset changes
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c federico",				// key is untouched!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c piergiorgio",				// reset changes
+				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401",						// old reservation does not exist!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 656",						// new room does not exist!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c idonotexist",				// new customer does not exist!
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c piergiorgio",				// it stays the same!
+				"show-rooms --all -h 3",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", 			// 302 is not available!
+				"show-rooms -b -h 3 -f 2019-11-15",
+				"show-rooms -n -h 3 -f 2019-11-15",
+				"show-reservations -h 3",
+				"show-reservations -h 2",
 				"logout",
 				"exit"
 		};
@@ -41,7 +169,7 @@ public class Application {
 		Terminal cli = new Terminal();
 		
 		while (cli.notEnd()) {
-			System.out.print(cli.getUsername() + "> ");
+			System.out.print("\n" + cli.getUsername() + "> ");
 			
 			String command = null;
 			if (testing)

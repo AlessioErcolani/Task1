@@ -15,6 +15,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -50,8 +51,7 @@ public class Terminal {
 	//------------------------------------------------------------------------\\
 
 	private final static List<String> commands = Arrays.asList(
-			"login-c",
-			"login-r",
+			"login",
 			"help",
 			"exit");
 	
@@ -60,8 +60,7 @@ public class Terminal {
 	static {
 		Map<String, Options> map = new HashMap<>();
 		
-		map.put("login-r", getOptionsForLogin());
-		map.put("login-c", getOptionsForLogin());
+		map.put("login", getOptionsForLogin());
 		map.put("help", new Options());
 		map.put("exit", new Options());
 		
@@ -154,11 +153,8 @@ public class Terminal {
 	// overloaded in subclasses
 	protected void execute(String command, String[] options) {
 		switch (command) {
-		case "login-r":
-			loginReceptionist(options);
-			break;
-		case "login-c":
-			loginCustomer(options);
+		case "login":
+			login(options);
 			break;
 		case "help":
 			help(options);
@@ -169,42 +165,30 @@ public class Terminal {
 		}
 
 	}
-	
+
 	//------------------------------------------------------------------------\\
 	// Commands implementation                                                \\
 	//------------------------------------------------------------------------\\
-	
-	private void loginReceptionist(String[] options) {
-        try {
-        	CommandLine cmd = parser.parse(getOptionsMap().get("login-r"), options);
-            String username = cmd.getOptionValue("username");
-            String password = cmd.getOptionValue("password");
-            
-            nextUser = Application.hotelDatabaseManager.authenticateReceptionist(username, password);
-            newUser = true;
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-            formatter.printHelp("login-r", getOptionsMap().get("login-r"), true);
-        } catch (ReceptionistAuthenticationFailure e) {
-        	System.out.println("Authentication failed for " + e.getMessage());
-		} catch (Exception e) {
-			System.out.println("Something went wrong");
-		}
-	}
-	
-	private void loginCustomer(String[] options) {
+
+	private void login(String[] options) {
 		try {
-        	CommandLine cmd = parser.parse(getOptionsMap().get("login-c"), options);
+        	CommandLine cmd = parser.parse(getOptionsMap().get("login"), options);
             String username = cmd.getOptionValue("username");
             String password = cmd.getOptionValue("password");
             
-            nextUser = Application.hotelDatabaseManager.authenticateCustomer(username, password);
+            if (cmd.hasOption("customer"))
+            	nextUser = Application.hotelDatabaseManager.authenticateCustomer(username, password);
+            else if (cmd.hasOption("receptionist"))
+            	nextUser = Application.hotelDatabaseManager.authenticateReceptionist(username, password);
             newUser = true;
+            
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("login-r", getOptionsMap().get("login-r"), true);
-        } catch (CustomerAuthenticationFailure e) {
-        	System.out.println("Authentication failed for " + e.getMessage());
+            formatter.printHelp("login", getOptionsMap().get("login"), true);
+        } catch (ReceptionistAuthenticationFailure e) {
+        	System.out.println("Authentication failed for receptionist " + e.getMessage());
+		} catch (CustomerAuthenticationFailure e) {
+        	System.out.println("Authentication failed for customer " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}
@@ -255,29 +239,29 @@ public class Terminal {
 		if (rooms == null)
 			return;
 
-		String format = "| %-4d | %-8d | %-26s | %-4s |%n";
+		String format = "| %-4d | %-8d | %-26s | %-9s |%n";
 
-		System.out.format("+------+----------+----------------------------+------+%n");
-		System.out.format("| Room | Capacity | Hotel                      | Free |%n");
-		System.out.format("+------+----------+----------------------------+------+%n");
+		System.out.format("+------+----------+----------------------------+-----------+%n");
+		System.out.format("| Room | Capacity | Hotel                      | Available |%n");
+		System.out.format("+------+----------+----------------------------+-----------+%n");
 		for (Room r : rooms)
 			System.out.format(format,
 					r.getRoomNumber(),
 					r.getRoomCapacity(),
 					r.getHotel().getHotelId() + ") " + r.getHotel().getAddress(),
 					r.isAvailable() ? "yes" : "no");
-		System.out.format("+------+----------+----------------------------+------+%n");
+		System.out.format("+------+----------+----------------------------+-----------+%n");
 	}
 
 	protected void printReservations(List<Reservation> reservations) {
 		if (reservations == null)
 			return;
 
-		String format = "| %-4d | %-8d | %-26s | %-10s | %-10s | %-8s |%n";
+		String format = "| %-4d | %-8d | %-26s | %-10s | %-10s | %-11s |%n";
 
-		System.out.format("+------+----------+----------------------------+------------+------------+----------+%n");
-		System.out.format("| Room | Capacity | Hotel                      | Check-In   | Check-Out  | Customer |%n");
-		System.out.format("+------+----------+----------------------------+------------+------------+----------+%n");
+		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
+		System.out.format("| Room | Capacity | Hotel                      | Check-In   | Check-Out  | Customer    |%n");
+		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
 		for (Reservation r : reservations)
 			System.out.format(format,
 					r.getRoom().getRoomNumber(),
@@ -285,8 +269,8 @@ public class Terminal {
 					r.getRoom().getHotel().getHotelId() + ") " + r.getRoom().getHotel().getAddress(),
 					dateToString(r.getCheckInDate()),
 					dateToString(r.getCheckOutDate()),
-					r.getCustomer().getSurname());
-		System.out.format("+------+----------+----------------------------+------------+------------+----------+%n");
+					r.getCustomer().getUsername());
+		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
 	}
 	
 	//------------------------------------------------------------------------\\
@@ -350,6 +334,15 @@ public class Terminal {
 
 		options.addOption(usernameOption);
         options.addOption(passwordOption);
+        
+        Option recepionist = new Option("r", "receptionist", false, "login as a receptionist");
+        Option customer = new Option("c", "customer", false, "login as a customer");
+        
+        OptionGroup group = new OptionGroup();
+        group.addOption(recepionist);
+        group.addOption(customer);
+        group.setRequired(true);
+        options.addOptionGroup(group);
         
         return options;
 	}
