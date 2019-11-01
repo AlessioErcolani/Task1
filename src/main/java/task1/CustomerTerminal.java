@@ -9,7 +9,6 @@ import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -155,21 +154,9 @@ public class CustomerTerminal extends Terminal {
             
         	Hotel hotel = Application.hotelDatabaseManager.getHotel(hotelId);
         	
-        	List<Room> rooms = null;
-        	
-        	if (cmd.hasOption("notbookable"))
-        		rooms = Application.hotelDatabaseManager.getUnreservableRooms(hotel, from, to);
-        	else if (cmd.hasOption("all"))
-        		rooms = Application.hotelDatabaseManager.getRoomsOfHotel(hotel);
-        	else
-        		rooms = Application.hotelDatabaseManager.getReservableRooms(hotel, from, to);
+        	List<Room> rooms = Application.hotelDatabaseManager.getReservableRooms(hotel, from, to);
             
-        	if (cmd.hasOption("notbookable"))
-        		System.out.println("Non-bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from) + " to " + dateToString(to));
-        	else if (cmd.hasOption("all"))
-        		System.out.println("Rooms of hotel '" + hotel.getAddress() + "'");
-        	else
-        		System.out.println("Bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from) + " to " + dateToString(to));
+        	System.out.println("Bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from) + " to " + dateToString(to));
             printRooms(rooms);
             
         } catch (ParseException e) {
@@ -206,26 +193,12 @@ public class CustomerTerminal extends Terminal {
 		hotel.setRequired(true);
 		hotel.setType(Number.class);
 		
-		Option bookable = new Option("b", "bookable", false, "show rooms that can be booked (default)");
-		bookable.setRequired(false);
-		Option notBookable = new Option("n", "notbookable", false, "show rooms that cannot be booked");
-		notBookable.setRequired(false);
-		Option allRooms = new Option("a", "all", false, "show all rooms");
-		notBookable.setRequired(false);
-		
-		OptionGroup groupBookable = new OptionGroup();
-		groupBookable.addOption(bookable);
-		groupBookable.addOption(notBookable);
-		groupBookable.addOption(allRooms);
-		groupBookable.setRequired(false);
-		
 		Option from = new Option("f", "from", true, "check-in date (format: yyyy-mm-dd) (default: today)");
 		from.setRequired(false);
 		Option to = new Option("t", "to", true, "check-out date: if not specified is equal to the check-in date");
 		to.setRequired(false);
 		
 		options.addOption(hotel);
-		options.addOptionGroup(groupBookable);
 		options.addOption(from);
 		options.addOption(to);
 		

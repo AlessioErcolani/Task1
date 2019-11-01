@@ -18,7 +18,7 @@ public class Application {
 		
 		boolean testing = true;
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
@@ -28,7 +28,7 @@ public class Application {
 				"show-reservations",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
@@ -64,7 +64,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		/*Terminal.testCommandLines = new String[] {
+		Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
 				"help",
 				"help show-reservations",
@@ -73,12 +73,16 @@ public class Application {
 				"show-rooms -h 3 -n -f 2019-11-15 -t 2019-11-19",
 				"show-rooms -h 3 -t 2019-11-19",
 				"show-rooms -h 3 -t 2018-11-19",
-				"show-rooms -a -h 1",
-				"show-rooms -a -h 2",
-				"show-rooms -a -h 3",
+				"show-rooms -h 1",
+				"show-rooms -h 2",
+				"show-rooms -h 3",
+				"show-rooms -h 3 --all",
+				"show-rooms -h 3 -n",
+				"show-rooms -h 3 -b",
+				"help show-rooms",
 				"logout",
 				"exit"
-		};*/
+		};
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
