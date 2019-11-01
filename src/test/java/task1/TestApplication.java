@@ -13,7 +13,11 @@ public class TestApplication {
 	@BeforeClass
 	public static void setup() {
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-		manager = new DatabaseManager("hotel_chain");
+		try {
+			manager = new DatabaseManager("hotel_chain");
+		} catch (DatabaseManagerException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	@AfterClass
@@ -713,5 +717,71 @@ public class TestApplication {
 			fail("Read unreservable rooms: failed");
 		}
 		assertTrue("Test unavailable room in unreservable rooms.", unreservableRooms.contains(room));
+	}
+	
+	@Test 
+	public void insertReadBooking() {
+		Booking firstBooking = new Booking ("Alessio", "Ercolani", "44");
+		Booking secondBooking = new Booking("Marco", "Del Gamba", "66");
+		Booking thirdBooking = new Booking("Chiara", "Bonsignori", "23");
+		
+		int idBooking = 0;
+	
+		try {
+			manager.insertBooking(idBooking++, firstBooking);
+			manager.insertBooking(idBooking++, secondBooking);
+		} catch (DatabaseManagerException e) {
+			fail("Impossible to insert a new booking: failed");
+		}  catch (BookingAlreadyPresentException e) {
+			fail("Impossible duplication of Id: failed");
+		}
+		
+		boolean exception = false;
+			
+		try {
+			manager.insertBooking(0, thirdBooking);			
+		} catch (DatabaseManagerException e) {
+			fail("Impossible to insert a new booking: failed");
+		}  catch (BookingAlreadyPresentException e) {
+			exception = true;
+		}
+	
+		assertTrue("Test insertReadBooking.", exception);
+		
+		Booking readBooking = null;
+		
+		try {
+			readBooking = manager.getBooking(0);
+		} catch (DatabaseManagerException e) {
+			fail("Impossible to read a booking: failed");			
+		}
+		
+		assertEquals("Test insertReadBookin", firstBooking, readBooking);
+		
+		try {
+			readBooking = manager.getBooking(-1);
+		} catch (DatabaseManagerException e) {
+			fail("Impossible to read a booking: failed");
+		}
+		
+		assertEquals("Test insertReadBooking.", null, readBooking);
+		
+		try {
+			manager.deleteBooking(0);		
+			manager.deleteBooking(1);
+			firstBooking = manager.getBooking(0);
+			secondBooking = manager.getBooking(1);
+		} catch (DatabaseManagerException e) {
+			fail("Impossible to delete a booking: failed");
+		}
+		
+		boolean successdeleteOperations = firstBooking == null && secondBooking == null;
+		assertTrue("Test insertReadBooking.", successdeleteOperations);
+		
+		try {
+			manager.closeKeyValueDb();
+		} catch (DatabaseManagerException e) {
+			fail("Impossible to close the key-value database");
+		}
 	}
 }

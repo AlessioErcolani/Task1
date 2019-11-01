@@ -2,6 +2,8 @@ package task1;
 
 import java.util.logging.Level;
 
+import exc.DatabaseManagerException;
+
 public class Application {
 	
 	public static DatabaseManager hotelDatabaseManager;
@@ -11,7 +13,11 @@ public class Application {
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		
 		System.out.println("Populating database...");
-		Application.hotelDatabaseManager = new DatabaseManager("hotel_chain");
+		try {
+			Application.hotelDatabaseManager = new DatabaseManager("hotel_chain");
+		} catch (DatabaseManagerException e) {
+			System.out.println(e.getMessage());
+		}
 		DatabaseManager.populateDatabase(hotelDatabaseManager);
 		
 		System.out.println("\nType commands to use the application");
