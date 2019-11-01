@@ -100,10 +100,10 @@ public class CustomerTerminal extends Terminal {
 	
 	private void showReservations(String[] options) {
 		try {
-        	CommandLine cmd = parser.parse(getOptionsMap().get("show-reservations"), options);
+        	parser.parse(getOptionsMap().get("show-reservations"), options);
             
         	System.out.println("Your upcoming reservations:");
-            printReservations(customer.getUpcomingReservations());
+            printReservations(Application.hotelDatabaseManager.getUpcomingReservations(customer));
             
         } catch (ParseException e) {
             System.out.println(e.getMessage());
@@ -116,7 +116,7 @@ public class CustomerTerminal extends Terminal {
 	private void showHotels(String[] options) {
 		try {
 			
-			CommandLine cmd = parser.parse(getOptionsMap().get("show-hotels"), options);
+			parser.parse(getOptionsMap().get("show-hotels"), options);
 			printHotels(Application.hotelDatabaseManager.getAllHotels());
 			
 		} catch (ParseException e) {

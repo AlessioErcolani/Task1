@@ -1,11 +1,6 @@
 package task1;
 
-import java.util.Date;
-
 import javax.persistence.*;
-
-import exc.DatabaseManagerException;
-import exc.ReservationAlreadyPresentException;
 
 @Entity(name = "Receptionist")
 @Table(name = "receptionist")
@@ -43,14 +38,6 @@ public class Receptionist extends User {
 
 	public void setHotel(Hotel hotel) {
 		this.hotel = hotel;
-	}
-	
-	public void addReservation(Reservation reservation) throws DatabaseManagerException, ReservationAlreadyPresentException {
-		getHotelManager().addReservation(reservation);
-	}
-	
-	public void deleteReservation(Date checkInDate, Room room) throws DatabaseManagerException {
-		getHotelManager().deleteReservation(checkInDate, room);
 	}
 
 	@Override

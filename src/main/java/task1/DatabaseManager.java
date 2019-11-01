@@ -5,17 +5,16 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 
-import org.hibernate.PersistentObjectException;
 import org.hibernate.exception.ConstraintViolationException;
 
 import exc.*;
 
-public class HotelManager {
+public class DatabaseManager {
 
 	private EntityManagerFactory factory;
 	private EntityManager entityManager;
 	
-	public HotelManager(String databaseSchema) {
+	public DatabaseManager(String databaseSchema) {
 		factory = Persistence.createEntityManagerFactory(databaseSchema);
 	}
 	
@@ -220,7 +219,7 @@ public class HotelManager {
 	 * @return the list of reservations
 	 * @throws DatabaseManagerException
 	 */
-	public List<Reservation> getUpcomingReservation(Customer customer) throws DatabaseManagerException {
+	public List<Reservation> getUpcomingReservations(Customer customer) throws DatabaseManagerException {
 		try {
 			setup();
 			List<Reservation> upcomingReservations = entityManager
@@ -627,7 +626,7 @@ public class HotelManager {
 		}
 	}
 
-	public static void populateDatabase(HotelManager manager) {
+	public static void populateDatabase(DatabaseManager manager) {
 		try {
 			manager.addCustomer(new Customer("federico", "pwd", "Federico", "Verdi"));
 			manager.addCustomer(new Customer("alessio", "pwd", "Alessio", "Rossi"));

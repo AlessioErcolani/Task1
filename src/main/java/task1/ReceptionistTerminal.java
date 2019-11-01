@@ -335,7 +335,6 @@ public class ReceptionistTerminal extends Terminal {
         	if (!reservableRooms.contains(newRoom))
         		throw new RoomAlreadyBookedException();
         	
-        	// TODO: check if it fails in case of duplicate key
         	Application.hotelDatabaseManager.updateReservation(oldReservation, newReservation);
         	
         	System.out.println("Reservation updated successfully");
@@ -370,10 +369,12 @@ public class ReceptionistTerminal extends Terminal {
         	Date checkIn = parseDate(cmd.getOptionValue("date"));
         	
         	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
+        	Reservation reservation = Application.hotelDatabaseManager.readReservation(hotelId, roomNumber, checkIn);
+        	
         	Application.hotelDatabaseManager.deleteReservation(checkIn, room);
         	
         	System.out.println("Reservation deleted successfully");
-        	// TODO: read and print
+        	printReservations(Arrays.asList(reservation));
         	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
@@ -382,6 +383,8 @@ public class ReceptionistTerminal extends Terminal {
         	System.out.println("Date format: yyyy-mm-dd");
 		} catch (RoomNotFoundException e) {
 			System.out.println("Room not found");
+		} catch (ReservationNotFoundException e) {
+			System.out.println("The specified reservation does not exist");
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}

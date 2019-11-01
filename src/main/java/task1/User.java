@@ -13,7 +13,7 @@ public abstract class User {
 	private String name;
 	private String surname;
 
-	private static HotelManager hotelManager = new HotelManager("hotel_chain");
+	//private static DatabaseManager hotelManager = new DatabaseManager("hotel_chain");
 	
 	public User() {
 		
@@ -123,14 +123,6 @@ public abstract class User {
 		} else if (!username.equals(other.username))
 			return false;
 		return true;
-	}
-
-	public HotelManager getHotelManager() {
-		return hotelManager;
-	}
-
-	public static void setHotelManager(HotelManager hotelManager) {
-		User.hotelManager = hotelManager;
 	}
 
 }

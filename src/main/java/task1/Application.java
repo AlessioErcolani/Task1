@@ -4,19 +4,31 @@ import java.util.logging.Level;
 
 public class Application {
 	
-	public static HotelManager hotelDatabaseManager;
+	public static DatabaseManager hotelDatabaseManager;
 
 	public static void main(String[] args) {
 		
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		
 		System.out.println("Populating database...");
-		Application.hotelDatabaseManager = new HotelManager("hotel_chain");
-		HotelManager.populateDatabase(hotelDatabaseManager);
+		Application.hotelDatabaseManager = new DatabaseManager("hotel_chain");
+		DatabaseManager.populateDatabase(hotelDatabaseManager);
 		
 		System.out.println("\nType commands to use the application");
 		
-		boolean testing = false;
+		boolean testing = true;
+		
+		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"show-reservations",
+				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"show-reservations",
+				"delete-reservation -d 2020-01-12 -h 3 -r 201",
+				"delete-reservation -d 2020-01-12 -h 3 -r 201",	// delete a reservation that does not exist!
+				"show-reservations",
+				"logout",
+				"exit"
+		};
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
@@ -82,7 +94,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login -r -u r2 -p pwd",
 				"show-reservations",
 				"add-reservation -c pippo -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
@@ -94,7 +106,7 @@ public class Application {
 				"show-reservations",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login -r -u r2 -p pwd",
@@ -146,7 +158,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login -r -u r2 -p pwd",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
 				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401 -c piergiorgio",		// reset changes
@@ -164,7 +176,7 @@ public class Application {
 				"show-reservations -h 2",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		Terminal cli = new Terminal();
 		

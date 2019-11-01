@@ -3,8 +3,6 @@ package task1;
 import java.util.*;
 import javax.persistence.*;
 
-import exc.DatabaseManagerException;
-
 @Entity(name = "Customer")
 @Table(name = "customer")
 @NamedQuery(
@@ -40,10 +38,6 @@ public class Customer extends User {
 		reservation.setCustomer(null);
 	}
 	
-	public List<Reservation> getUpcomingReservations() throws DatabaseManagerException {
-		return getHotelManager().getUpcomingReservation(this);
-	}
-
 	@Override
 	public String toString() {
 		return "Customer [ID=" + this.getID() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", name=" + this.getName() + ", surname="
