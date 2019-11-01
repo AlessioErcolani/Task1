@@ -126,7 +126,7 @@ public class DatabaseManager {
 	public void addRoom(Room room) throws RoomAlreadyPresentException, DatabaseManagerException {
 		try {
 			setup();
-			Hotel hotel = entityManager.find(Hotel.class, room.getHotel().getHotelId());
+			Hotel hotel = entityManager.find(Hotel.class, room.getHotel().getId());
 			hotel.addRoom(room);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -153,7 +153,7 @@ public class DatabaseManager {
 	public void addReservation(Reservation reservation) throws DatabaseManagerException, ReservationAlreadyPresentException {
 		try {
 			setup();
-			Room room = entityManager.find(Room.class, new PKRoom(reservation.getRoom().getHotel(), reservation.getRoom().getRoomNumber()));
+			Room room = entityManager.find(Room.class, reservation.getRoom().getId());
 			room.addReservation(reservation);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -178,10 +178,10 @@ public class DatabaseManager {
 	public void updateReservation(Reservation oldReservation, Reservation newReservation) throws DatabaseManagerException {
 		try {
 			setup();			
-			Room oldRoom = entityManager.find(Room.class, new PKRoom(oldReservation.getRoom().getHotel(), oldReservation.getRoom().getRoomNumber()));
+			Room oldRoom = entityManager.find(Room.class, oldReservation.getRoom().getId());
 			oldRoom.removeReservation(oldReservation);
 			entityManager.flush();
-			Room newRoom = entityManager.find(Room.class, new PKRoom(newReservation.getRoom().getHotel(), newReservation.getRoom().getRoomNumber()));
+			Room newRoom = entityManager.find(Room.class, newReservation.getRoom().getId());
 			newRoom.addReservation(newReservation);
 		} catch (Exception ex) {		
 			throw new DatabaseManagerException(ex.getMessage());
@@ -200,10 +200,10 @@ public class DatabaseManager {
 	 * @param reservation the Reservation to delete
 	 * @throws DatabaseManagerException
 	 */
-	public void deleteReservation(Date checkInDate, Room room) throws DatabaseManagerException {
+	public void deleteReservation(Reservation reservationToDelete) throws DatabaseManagerException {
 		try {
 			setup();			
-			Reservation reservation = entityManager.find(Reservation.class, new PKReservation(checkInDate, room));
+			Reservation reservation = entityManager.find(Reservation.class, reservationToDelete.getId());
 	        entityManager.remove(reservation);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -224,7 +224,7 @@ public class DatabaseManager {
 			setup();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByCustomer", Reservation.class)
-					.setParameter("customerId", customer.getID())
+					.setParameter("customerId", customer.getId())
 					.getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
@@ -247,7 +247,7 @@ public class DatabaseManager {
 			setup();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByHotel", Reservation.class)
-					.setParameter("hotelId", hotel.getHotelId())
+					.setParameter("hotelId", hotel.getId())
 					.setParameter("from", date, TemporalType.DATE)
 					.getResultList();
 			return upcomingReservations;
@@ -272,7 +272,7 @@ public class DatabaseManager {
 		try {
 			setup();
 			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class);
-			query.setParameter("hotelId", hotel.getHotelId());
+			query.setParameter("hotelId", hotel.getId());
 			query.setParameter("startPeriod", startPeriod);
 			query.setParameter("endPeriod", endPeriod);
 			List<Room> rooms = query.getResultList();
@@ -297,7 +297,7 @@ public class DatabaseManager {
 		try {
 			setup();
 			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getUnreservableRoomsGivenPeriod", Room.class);
-			query.setParameter("hotelId", hotel.getHotelId());
+			query.setParameter("hotelId", hotel.getId());
 			query.setParameter("startPeriod", startPeriod);
 			query.setParameter("endPeriod", endPeriod);
 			List<Room> rooms = query.getResultList();
@@ -317,10 +317,10 @@ public class DatabaseManager {
 	 * @return the updated room
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public Room setRoomAvailable(Hotel hotel, int roomNumber) throws DatabaseManagerException {
+	public Room setRoomAvailable(Room unavailableRoom) throws DatabaseManagerException {
 		try {
 			setup();
-			Room room = entityManager.find(Room.class, new PKRoom(hotel, roomNumber));		
+			Room room = entityManager.find(Room.class, unavailableRoom.getId());		
 			room.setAvailable(true);
 			return room;
 		} catch (Exception ex) {
@@ -338,10 +338,10 @@ public class DatabaseManager {
 	 * @return the updated room
 	 * @throws DatabaseManagerException in case of errors 
 	 */
-	public Room setRoomUnavailable(Hotel hotel, int roomNumber) throws DatabaseManagerException {
+	public Room setRoomUnavailable(Room availableRoom) throws DatabaseManagerException {
 		try {
 			setup();
-			Room room = entityManager.find(Room.class, new PKRoom(hotel, roomNumber));		
+			Room room = entityManager.find(Room.class, availableRoom.getId());		
 			room.setAvailable(false);
 			return room;
 		} catch (Exception ex) {
@@ -456,7 +456,7 @@ public class DatabaseManager {
 			setup();
 			List<Room> rooms = entityManager
 					.createNamedQuery("Room.findByHotel", Room.class)
-					.setParameter("hotelId", hotel.getHotelId())
+					.setParameter("hotelId", hotel.getId())
 					.getResultList();
 			return rooms;
 		} catch (Exception ex) {
@@ -550,7 +550,7 @@ public class DatabaseManager {
 	public void deleteCustomer(Customer customer) throws DatabaseManagerException {
 		try {
 			setup();
-			Customer ref = entityManager.find(Customer.class, customer.getID());
+			Customer ref = entityManager.find(Customer.class, customer.getId());
 	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -568,7 +568,7 @@ public class DatabaseManager {
 	public void deleteHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
 			setup();
-			Hotel ref = entityManager.find(Hotel.class, hotel.getHotelId());
+			Hotel ref = entityManager.find(Hotel.class, hotel.getId());
 	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -581,7 +581,7 @@ public class DatabaseManager {
 	public void deleteRoom(Room room) throws DatabaseManagerException {
 		try {
 			setup();
-			Room ref = entityManager.find(Room.class, new PKRoom(room.getHotel(), room.getRoomNumber()));
+			Room ref = entityManager.find(Room.class, room.getId());
 	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -599,7 +599,7 @@ public class DatabaseManager {
 	public void deleteReceptionist(Receptionist receptionist) throws DatabaseManagerException {
 		try {
 			setup();
-			Receptionist ref = entityManager.find(Receptionist.class, receptionist.getID());
+			Receptionist ref = entityManager.find(Receptionist.class, receptionist.getId());
 	        entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());

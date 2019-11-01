@@ -64,7 +64,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
 				"help",
 				"help show-reservations",
@@ -82,7 +82,7 @@ public class Application {
 				"help show-rooms",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
@@ -92,6 +92,7 @@ public class Application {
 				"login -r -u r2 -p pwd",
 				"show-reservations",
 				"show-reservations --from 2018-11-16",
+				"show-reservations --from 2018-11-15",
 				"show-reservations --hotel 3",
 				"show-reservations --hotel 1",
 				"logout",
@@ -131,7 +132,7 @@ public class Application {
 		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
-				"login-r -u r2 -p pwd",
+				"login -r -u r2 -p pwd",
 				"help set-room",
 				"show-rooms",
 				"set-room --hotel 3 --room 301 --notavailable",
@@ -150,9 +151,9 @@ public class Application {
 				"show-reservations -h 3",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -c chiara",
 				"show-reservations -h 3",
-				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 101 -h 2",
-				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
-				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", 		// 302 is not available
+				//"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 101 -h 2",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
+				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 302 -c chiara", 		// 302 is not available
 				"show-reservations -h 3",
 				"show-reservations -h 2",
 				"update-reservation --currenthotel 2 --currentroom 101 --currentcheckin 2019-11-15 -r 401 -h 3 -c piergiorgio",	// reset changes
@@ -162,7 +163,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		/*Terminal.testCommandLines = new String[] {
+		Terminal.testCommandLines = new String[] {
 				"login -r -u r2 -p pwd",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
 				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401 -c piergiorgio",		// reset changes
@@ -180,7 +181,7 @@ public class Application {
 				"show-reservations -h 2",
 				"logout",
 				"exit"
-		};*/
+		};
 		
 		Terminal cli = new Terminal();
 		

@@ -5,38 +5,43 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity(name = "Reservation")
-@Table(name = "reservation")
-@IdClass(PKReservation.class)
+@Table(name = "reservation", 
+		uniqueConstraints =  @UniqueConstraint(
+			name = "uk_room_checkIn",
+			columnNames = {
+					"room_id",		
+					"check_in"
+			}
+		))
 @NamedQuery(
 		name="Reservation.getByHoteAndRoomAndCheckInDate",
-		query="SELECT r FROM Reservation r WHERE r.room.hotel.hotelId = :hotelId AND r.room.roomNumber = :roomNumber AND r.checkInDate = :checkInDate")
+		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.room.number = :roomNumber AND r.checkInDate = :checkInDate")
 @NamedQuery(
 		name="Reservation.getByCustomer",
-		query="SELECT r FROM Reservation r WHERE r.customer.ID = :customerId AND r.checkInDate >= current_time")
+		query="SELECT r FROM Reservation r WHERE r.customer.id = :customerId AND r.checkInDate >= current_time")
 @NamedQuery(
 		name="Reservation.getByHotel",
-		query="SELECT r FROM Reservation r WHERE r.room.hotel.hotelId = :hotelId AND r.checkInDate >= :from")
+		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.checkInDate >= :from")
 public class Reservation {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
 	@ManyToOne
-	@JoinColumn(name = "ID_costumer")
+	@JoinColumn(name = "room_id", referencedColumnName = "id")
+	private Room room;
+	
+	@ManyToOne
+	@JoinColumn(name = "customer_id", referencedColumnName = "id")
 	private Customer customer;
 
-	@Id
-	@ManyToOne
-	@JoinColumns({ @JoinColumn(name = "ID_hotel", referencedColumnName = "ID_hotel"),
-			@JoinColumn(name = "ID_room", referencedColumnName = "room_number") })
-	private Room room;
-
-	@Id
+	@Column(name = "check_in")
 	@Temporal(TemporalType.DATE)
 	private Date checkInDate;
 	
+	@Column(name = "check_out")
 	@Temporal(TemporalType.DATE)
 	private Date checkOutDate;
-
-	public Reservation() {
-
-	}
 
 	public Reservation(Room room, Date checkInDate, Date checkOutDate) {
 		this.room = room;
@@ -51,6 +56,18 @@ public class Reservation {
 		this.customer = customer;
 	}
 
+	public Reservation() {
+
+	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
 	public Date getCheckInDate() {
 		return checkInDate;
 	}

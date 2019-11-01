@@ -230,7 +230,7 @@ public class Terminal {
 		System.out.format("+------+---------------------------+%n");
 		for (Hotel h : hotels)
 			System.out.format(format,
-					h.getHotelId(),
+					h.getId(),
 					h.getAddress());
 		System.out.format("+------+---------------------------+%n");
 	}
@@ -246,9 +246,9 @@ public class Terminal {
 		System.out.format("+------+----------+----------------------------+-----------+%n");
 		for (Room r : rooms)
 			System.out.format(format,
-					r.getRoomNumber(),
-					r.getRoomCapacity(),
-					r.getHotel().getHotelId() + ") " + r.getHotel().getAddress(),
+					r.getNumber(),
+					r.getCapacity(),
+					r.getHotel().getId() + ") " + r.getHotel().getAddress(),
 					r.isAvailable() ? "yes" : "no");
 		System.out.format("+------+----------+----------------------------+-----------+%n");
 	}
@@ -264,9 +264,9 @@ public class Terminal {
 		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
 		for (Reservation r : reservations)
 			System.out.format(format,
-					r.getRoom().getRoomNumber(),
-					r.getRoom().getRoomCapacity(),
-					r.getRoom().getHotel().getHotelId() + ") " + r.getRoom().getHotel().getAddress(),
+					r.getRoom().getNumber(),
+					r.getRoom().getCapacity(),
+					r.getRoom().getHotel().getId() + ") " + r.getRoom().getHotel().getAddress(),
 					dateToString(r.getCheckInDate()),
 					dateToString(r.getCheckOutDate()),
 					r.getCustomer().getUsername());

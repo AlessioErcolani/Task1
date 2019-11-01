@@ -14,8 +14,9 @@ import javax.persistence.*;
 public class Hotel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID_hotel")
-	private Long hotelId;
+	@Column(name = "id")
+	private Long id;
+	
 	@Column(unique = true)
 	private String address;
 
@@ -25,36 +26,20 @@ public class Hotel {
 	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Receptionist> receptionists = new ArrayList<Receptionist>();
 
+	public Hotel(String address) {
+		this.address = address;
+	}
+	
 	public Hotel() {
 
 	}
 
-	public Hotel(String address) {
-		this.address = address;
+	public Long getId() {
+		return id;
 	}
 
-	public Long getHotelId() {
-		return hotelId;
-	}
-
-	public void setHotelId(Long hotelId) {
-		this.hotelId = hotelId;
-	}
-	
-	public List<Receptionist> getReceptionists() {
-		return receptionists;
-	}
-
-	public void setReceptionists(List<Receptionist> receptionists) {
-		this.receptionists = receptionists;
-	}
-
-	public List<Room> getRooms() {
-		return rooms;
-	}
-
-	public void setRooms(List<Room> rooms) {
-		this.rooms = rooms;
+	public void setId(Long hotelId) {
+		this.id = hotelId;
 	}
 
 	public void addRoom(Room room) {
@@ -75,13 +60,13 @@ public class Hotel {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((address == null) ? 0 : address.hashCode());
-		result = prime * result + ((hotelId == null) ? 0 : hotelId.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "Hotel [hotelId=" + hotelId + ", address=" + address + "]";
+		return "Hotel [hotelId=" + id + ", address=" + address + "]";
 	}
 
 	@Override
@@ -98,10 +83,10 @@ public class Hotel {
 				return false;
 		} else if (!address.equals(other.address))
 			return false;
-		if (hotelId == null) {
-			if (other.hotelId != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!hotelId.equals(other.hotelId))
+		} else if (!id.equals(other.id))
 			return false;
 		return true;
 	}
