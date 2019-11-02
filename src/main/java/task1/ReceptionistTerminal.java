@@ -34,6 +34,7 @@ public class ReceptionistTerminal extends Terminal {
 			"delete-reservation",
 			"set-room",
 			"register",
+			"arrival",
 			"help",
 			"logout"
 			);
@@ -51,6 +52,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
+		map.put("arrival", getOptionsForArrival());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -115,6 +117,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "register":
 			register(options);
+			break;
+		case "arrival":
+			arrival(options);
 			break;
 		case "help":
 			help(options);
@@ -444,6 +449,21 @@ public class ReceptionistTerminal extends Terminal {
 		
 	}
 	
+	private void arrival(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("arrival"), options);
+        	
+        	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
+        	
+        	// TODO: get Booking and print information
+        	System.out.println(reservationId);
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("arrival", getOptionsMap().get("arrival"), true);
+        }
+	}
+	
 	private void logout() {
 		newUser = true;
 		nextUser = null;
@@ -628,6 +648,18 @@ public class ReceptionistTerminal extends Terminal {
 		group.setRequired(true);
 		
 		options.addOptionGroup(group);
+		
+		return options;
+	}
+	
+	private static Options getOptionsForArrival() {
+		Options options = new Options();
+		
+		Option id = new Option("i", "id", true, "reservation identifier");
+		id.setRequired(true);
+		id.setType(Number.class);
+		
+		options.addOption(id);
 		
 		return options;
 	}

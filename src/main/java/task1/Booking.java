@@ -2,14 +2,20 @@ package task1;
 
 public class Booking {
 	
+	private String id;
 	private String name;
 	private String surname;
 	private String roomNumber;
 
-	public Booking(String name, String surname, String roomNumber) {
+	public Booking(String id, String name, String surname, String roomNumber) {
+		this.id = id;
 		this.name = name;
 		this.surname = surname;
 		this.roomNumber = roomNumber;		
+	}
+	
+	public Booking(String name, String surname, String roomNumber) {
+		this("", name, surname, roomNumber);
 	}
 
 	@Override
@@ -31,6 +37,10 @@ public class Booking {
 				this.roomNumber.equals(other.getRoomNumber());
 	}
 
+	public String getId() {
+		return id;
+	}
+	
 	public String getName() {
 		return name;
 	}

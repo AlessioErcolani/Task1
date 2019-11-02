@@ -24,6 +24,15 @@ public class Application {
 		
 		boolean testing = true;
 		
+		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"help arrival",
+				"arrival --id f",
+				"arrival --id 1",
+				"logout",
+				"exit"
+		};
+		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations",
@@ -70,7 +79,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
 				"help",
 				"help show-reservations",
@@ -88,7 +97,7 @@ public class Application {
 				"help show-rooms",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"help login",
