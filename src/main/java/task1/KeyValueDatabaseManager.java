@@ -50,7 +50,7 @@ public class KeyValueDatabaseManager {
 	 */
 	private boolean isIdAlreadyPresent(String id) {
 		DBIterator iterator = keyValueDb.iterator();
-		iterator.seek(bytes("Reservation:" + id));
+		iterator.seek(bytes("res:" + id));
 		return iterator.hasNext();
 	}
 
@@ -62,16 +62,16 @@ public class KeyValueDatabaseManager {
 	 * @return the key bytes
 	 */
 	private byte[] forgeKey(String id, Type field) {
-		String key = "Reservation:" + id + ":";
+		String key = "res:" + id + ":";
 		switch (field) {
 		case NAME:
-			key += "Name";
+			key += "name";
 			break;
 		case SURNAME:
-			key += "Surname";
+			key += "surname";
 			break;
 		case ROOM_NUMBER:
-			key += "RoomNumber";
+			key += "room";
 			break;
 		}
 		return key.getBytes();
@@ -147,7 +147,7 @@ public class KeyValueDatabaseManager {
 			throws DatabaseManagerException, BookingAlreadyPresentException {
 
 		if (isIdAlreadyPresent(id))
-			throw new BookingAlreadyPresentException();
+			throw new BookingAlreadyPresentException(id);
 
 		boolean writesCompleted[] = { false, false };
 

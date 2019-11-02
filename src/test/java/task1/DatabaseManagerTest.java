@@ -730,13 +730,14 @@ public class DatabaseManagerTest {
 		int idBooking = 0;
 	
 		try {
+			System.out.println(manager.keyValue.toStringKeyValue());
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), firstBooking);
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), secondBooking);
-			// System.out.println(manager.keyValue.toStringKeyValue());
+			
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
 		}  catch (BookingAlreadyPresentException e) {
-			fail("Impossible duplication of Id: failed");
+			fail("Impossible duplication of id " + e.getMessage() + ": failed");
 		}
 	
 		boolean exception = false;
@@ -759,7 +760,7 @@ public class DatabaseManagerTest {
 			fail("Impossible to read a booking: failed");			
 		}
 		
-		assertEquals("Test insertReadBookin", firstBooking, readBooking);
+		assertEquals("Test insertReadBooking", firstBooking, readBooking);
 		
 		try {
 			readBooking = manager.keyValue.getBooking(Integer.toString(-1));
