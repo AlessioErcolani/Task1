@@ -6,24 +6,16 @@ import javax.persistence.*;
 public abstract class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long ID;
+	private Long id;
+	
 	@Column(unique = true)
 	private String username;
-	private String password;
-	private String name;
-	private String surname;
-
-	//private static DatabaseManager hotelManager = new DatabaseManager("hotel_chain");
 	
-	public User() {
-		
-	}
-
-	@Override
-	public String toString() {
-		return "User [ID=" + ID + ", username=" + username + ", password=" + password + ", name=" + name + ", surname="
-				+ surname + "]";
-	}
+	private String password;
+	
+	private String name;
+	
+	private String surname;
 
 	public User(String username, String password, String name, String surname) {
 		this.username = username;
@@ -35,13 +27,17 @@ public abstract class User {
 	public User(String username) {
 		this.username = username;
 	}
-
-	public Long getID() {
-		return ID;
+	
+	public User() {
+		
+	}
+	
+	public Long getId() {
+		return id;
 	}
 
-	public void setID(Long ID) {
-		this.ID = ID;
+	public void setId(Long ID) {
+		this.id = ID;
 	}
 
 	public String getUsername() {
@@ -80,12 +76,18 @@ public abstract class User {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((surname == null) ? 0 : surname.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return "User [ID=" + id + ", username=" + username + ", password=" + password + ", name=" + name + ", surname="
+				+ surname + "]";
 	}
 
 	@Override
@@ -97,10 +99,10 @@ public abstract class User {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		if (ID == null) {
-			if (other.ID != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!ID.equals(other.ID))
+		} else if (!id.equals(other.id))
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -124,5 +126,4 @@ public abstract class User {
 			return false;
 		return true;
 	}
-
 }

@@ -60,7 +60,7 @@ public class ReceptionistTerminal extends Terminal {
 	}
 	
 	//------------------------------------------------------------------------\\
-	// @Constructors                                                          \\
+	// Constructors                                                           \\
 	//------------------------------------------------------------------------\\
 
 	public ReceptionistTerminal(Receptionist receptionist, Scanner scanner) {
@@ -148,7 +148,7 @@ public class ReceptionistTerminal extends Terminal {
         	
         	long hotelId = cmd.hasOption("hotel") ?
         			((Number) cmd.getParsedOptionValue("hotel")).longValue() :
-        			receptionist.getHotel().getHotelId();
+        			receptionist.getHotel().getId();
         			
         	Date from;
         	Date to;
@@ -256,7 +256,7 @@ public class ReceptionistTerminal extends Terminal {
         	
         	long hotelId = cmd.hasOption("hotel") ?
         			((Number) cmd.getParsedOptionValue("hotel")).longValue() :
-        			receptionist.getHotel().getHotelId();
+        			receptionist.getHotel().getId();
         	
             Date date;
         	if (cmd.hasOption("from"))
@@ -307,10 +307,10 @@ public class ReceptionistTerminal extends Terminal {
         	// get values of optional parameters
         	long newHotelId = cmd.hasOption("hotel") ? 
         			((Number) cmd.getParsedOptionValue("hotel")).longValue() : 
-        			oldReservation.getRoom().getHotel().getHotelId();
+        			oldReservation.getRoom().getHotel().getId();
         	int newRoomNumber = cmd.hasOption("room") ?
         			((Number) cmd.getParsedOptionValue("room")).intValue() : 
-            		oldReservation.getRoom().getRoomNumber();
+            		oldReservation.getRoom().getNumber();
         	String newUsername = cmd.hasOption("customer") ?
         			cmd.getOptionValue("customer") : 
             		oldReservation.getCustomer().getUsername();
@@ -376,7 +376,7 @@ public class ReceptionistTerminal extends Terminal {
         	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
         	Reservation reservation = Application.hotelDatabaseManager.readReservation(hotelId, roomNumber, checkIn);
         	
-        	Application.hotelDatabaseManager.deleteReservation(checkIn, room);
+        	Application.hotelDatabaseManager.deleteReservation(reservation);
         	
         	System.out.println("Reservation deleted successfully");
         	printReservations(Arrays.asList(reservation));
@@ -407,9 +407,9 @@ public class ReceptionistTerminal extends Terminal {
         	Room updatedRoom = null;
         	
         	if (cmd.hasOption("available"))
-        		updatedRoom = Application.hotelDatabaseManager.setRoomAvailable(room.getHotel(), room.getRoomNumber());
+        		updatedRoom = Application.hotelDatabaseManager.setRoomAvailable(room);
         	else if (cmd.hasOption("notavailable"))
-        		updatedRoom = Application.hotelDatabaseManager.setRoomUnavailable(room.getHotel(), room.getRoomNumber());
+        		updatedRoom = Application.hotelDatabaseManager.setRoomUnavailable(room);
         	
         	System.out.println("Room updated successfully");
         	printRooms(Arrays.asList(updatedRoom));
@@ -457,6 +457,7 @@ public class ReceptionistTerminal extends Terminal {
         	
         	// TODO: get Booking and print information
         	System.out.println(reservationId);
+        	System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
         	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());

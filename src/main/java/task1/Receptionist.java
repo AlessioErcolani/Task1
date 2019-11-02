@@ -12,11 +12,10 @@ import javax.persistence.*;
 		query="SELECT r FROM Receptionist r WHERE r.username = :username")
 @NamedQuery(
 		name="Receptionist.deleteReceptionist",
-		query="DELETE FROM Receptionist r WHERE r.ID = :id")
+		query="DELETE FROM Receptionist r WHERE r.id = :id")
 public class Receptionist extends User {
-
 	@ManyToOne
-	@JoinColumn(name = "ID_hotel")
+	@JoinColumn(name = "hotel_id", referencedColumnName = "id")
 	private Hotel hotel;
 	
 	public Receptionist(String username, String password, String name, String surname, Hotel hotel) {
@@ -64,5 +63,4 @@ public class Receptionist extends User {
 			return false;
 		return true;
 	}
-
 }

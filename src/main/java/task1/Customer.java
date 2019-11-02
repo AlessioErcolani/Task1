@@ -12,7 +12,6 @@ import javax.persistence.*;
 		name="Customer.findByUsername",
 		query="SELECT c FROM Customer c WHERE c.username = :username")
 public class Customer extends User {
-
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Reservation> reservations = new ArrayList<Reservation>();
 
@@ -37,14 +36,14 @@ public class Customer extends User {
 		reservations.remove(reservation);
 		reservation.setCustomer(null);
 	}
-	
-	@Override
-	public String toString() {
-		return "Customer [ID=" + this.getID() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", name=" + this.getName() + ", surname="
-				+ this.getSurname() + "]";
-	}
 
 	public List<Reservation> getReservations() {
 		return reservations;
+	}
+	
+	@Override
+	public String toString() {
+		return "Customer [ID=" + this.getId() + ", username=" + this.getUsername() + ", password=" + this.getPassword() + ", name=" + this.getName() + ", surname="
+				+ this.getSurname() + "]";
 	}
 }

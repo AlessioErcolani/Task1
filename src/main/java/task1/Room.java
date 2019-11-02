@@ -4,24 +4,30 @@ import java.util.*;
 import javax.persistence.*;
 
 @Entity(name = "Room")
-@Table(name = "room")
-@IdClass(PKRoom.class)
+@Table(name = "room", 
+	   uniqueConstraints =  @UniqueConstraint(
+			name = "uk_hotel_number",
+        	columnNames = {
+    			"hotel_id",		
+    			"number"
+        	}
+	   ))
 @NamedQuery(
 		name="Room.findByHotel",
-		query="SELECT r FROM Room r WHERE r.hotel.hotelId = :hotelId")
+		query="SELECT r FROM Room r WHERE r.hotel.id = :hotelId")
 @NamedQuery(
 		name="Room.findByHotelAndNumber",
-		query="SELECT r FROM Room r WHERE r.hotel.hotelId = :hotelId AND r.roomNumber = :roomNumber")
+		query="SELECT r FROM Room r WHERE r.hotel.id = :hotelId AND r.number = :roomNumber")
 @NamedQuery(
 		name="Room.getReservableRoomsGivenPeriod", 
 		query=""
 				+ "SELECT r "
 				+ "FROM Room r "
-				+ "WHERE r.hotel.hotelId = :hotelId AND r.available = true AND r.roomNumber NOT IN "
+				+ "WHERE r.hotel.id = :hotelId AND r.available = true AND r.number NOT IN "
 				+ "("
-				+ "		SELECT res.room.roomNumber "
+				+ "		SELECT res.room.number "
 				+ "		FROM Reservation res "
-				+ "		WHERE res.room.hotel.hotelId = :hotelId "
+				+ "		WHERE res.room.hotel.id = :hotelId "
 				+ "			AND ((:startPeriod < res.checkInDate AND :endPeriod > res.checkOutDate) "
 				+ "			OR (:startPeriod < res.checkInDate AND :endPeriod > res.checkInDate) "
 				+ "			OR (:startPeriod < res.checkOutDate AND :endPeriod > res.checkOutDate) "
@@ -32,14 +38,14 @@ import javax.persistence.*;
 		query=""
 				+ "SELECT r "
 				+ "FROM Room r "
-				+ "WHERE r.hotel.hotelId = :hotelId AND "
+				+ "WHERE r.hotel.id = :hotelId AND "
 				+ "( "
 				+ "		(r.available = false) "
 				+ "		OR "
-				+ "		(r.roomNumber IN "
-				+ "			(SELECT res.room.roomNumber "
+				+ "		(r.number IN "
+				+ "			(SELECT res.room.number "
 				+ "			FROM Reservation res "
-				+ "			  	WHERE res.room.hotel.hotelId = :hotelId "
+				+ "			  	WHERE res.room.hotel.id = :hotelId "
 				+ "					AND ((:startPeriod < res.checkInDate AND :endPeriod > res.checkOutDate) " 
 				+ "					OR (:startPeriod < res.checkInDate AND :endPeriod > res.checkInDate) "  
 				+ "					OR (:startPeriod < res.checkOutDate AND :endPeriod > res.checkOutDate) " 
@@ -49,33 +55,28 @@ import javax.persistence.*;
 				+ ")")
 public class Room {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
 	@ManyToOne
-	@JoinColumn(name = "ID_hotel")
+	@JoinColumn(name = "hotel_id", referencedColumnName = "id")
 	private Hotel hotel;
 
-	@Id
-	@Column(name = "room_number")
-	private int roomNumber;
+	@Column(name = "number")
+	private int number;
 
-	@Column(name = "room_capacity")
-	private int roomCapacity;
+	@Column(name = "capacity")
+	private int capacity;
 
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
 	List<Reservation> reservations = new ArrayList<Reservation>();
 
 	private boolean available;
 
-	public Room() {
-
-	}
-
-	public Room(int roomNumber, int roomCapacity) {
-		this(roomNumber, roomCapacity, true);
-	}
-
-	public Room(int roomNumber, int roomCapacity, boolean available) {
-		this.roomNumber = roomNumber;
-		this.roomCapacity = roomCapacity;
+	public Room(int roomNumber, int roomCapacity, Hotel hotel, boolean available) {
+		this.number = roomNumber;
+		this.capacity = roomCapacity;
+		this.hotel = hotel;
 		this.available = available;
 	}
 	
@@ -83,11 +84,18 @@ public class Room {
 		this(roomNumber, roomCapacity, hotel, true);
 	}
 	
-	public Room(int roomNumber, int roomCapacity, Hotel hotel, boolean available) {
-		this.roomNumber = roomNumber;
-		this.roomCapacity = roomCapacity;
-		this.hotel = hotel;
+	public Room(int roomNumber, int roomCapacity, boolean available) {
+		this.number = roomNumber;
+		this.capacity = roomCapacity;
 		this.available = available;
+	}
+	
+	public Room(int roomNumber, int roomCapacity) {
+		this(roomNumber, roomCapacity, true);
+	}
+
+	public Room() {
+
 	}
 	
 	public void addReservation(Reservation reservation) {
@@ -100,20 +108,28 @@ public class Room {
 		reservation.setRoom(null);
 	}
 
-	public int getRoomCapacity() {
-		return roomCapacity;
+	public Long getId() {
+		return id;
 	}
 
-	public void setRoomCapacity(int roomCapacity) {
-		this.roomCapacity = roomCapacity;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public void setRoomNumber(int roomNumber) {
-		this.roomNumber = roomNumber;
+	public int getNumber() {
+		return number;
 	}
 
-	public int getRoomNumber() {
-		return roomNumber;
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
 	}
 
 	public boolean isAvailable() {
@@ -131,12 +147,6 @@ public class Room {
 	public Hotel getHotel() {
 		return hotel;
 	}
-
-	@Override
-	public String toString() {
-		return "Room [hotel=" + hotel + ", roomNumber=" + roomNumber + ", roomCapacity=" + roomCapacity + ", available="
-				+ available + "]";
-	}
 	
 	@Override
 	public int hashCode() {
@@ -144,9 +154,15 @@ public class Room {
 		int result = 1;
 		result = prime * result + (available ? 1231 : 1237);
 		result = prime * result + ((hotel == null) ? 0 : hotel.hashCode());
-		result = prime * result + roomCapacity;
-		result = prime * result + roomNumber;
+		result = prime * result + capacity;
+		result = prime * result + number;
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return "Room [hotel=" + hotel + ", roomNumber=" + number + ", roomCapacity=" + capacity + ", available="
+				+ available + "]";
 	}
 
 	@Override
@@ -165,9 +181,9 @@ public class Room {
 				return false;
 		} else if (!hotel.equals(other.hotel))
 			return false;
-		if (roomCapacity != other.roomCapacity)
+		if (capacity != other.capacity)
 			return false;
-		if (roomNumber != other.roomNumber)
+		if (number != other.number)
 			return false;
 		return true;
 	}

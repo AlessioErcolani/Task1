@@ -6,18 +6,15 @@ import java.util.logging.Level;
 import org.junit.*;
 import exc.*;
 
-public class TestApplication {
+public class DatabaseManagerTest {
 
 	private static DatabaseManager manager;
 
 	@BeforeClass
-	public static void setup() {
+	public static void setup() throws DatabaseManagerException {
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-		try {
-			manager = new DatabaseManager("hotel_chain");
-		} catch (DatabaseManagerException e) {
-			System.out.println(e.getMessage());
-		}
+		manager = new DatabaseManager("hotel_chain");
+		DatabaseManager.populateDatabase(manager);
 	}
 
 	@AfterClass
@@ -129,17 +126,17 @@ public class TestApplication {
 			manager.addRoom(room);
 		} catch (RoomAlreadyPresentException e) {
 			fail("Test add room: failed because room already present.");
-		} catch (DatabaseManagerException e1) {
+		} catch (DatabaseManagerException e) {
 			fail("Test add room: failed.");
 		}
 
 		// read room
 		Room readRoom = null;
 		try {
-			readRoom = manager.readRoom(hotel.getHotelId(), 101);
-		} catch (RoomNotFoundException e1) {
+			readRoom = manager.readRoom(hotel.getId(), 101);
+		} catch (RoomNotFoundException e) {
 			fail("Test read room: failed.");
-		} catch (DatabaseManagerException e1) {
+		} catch (DatabaseManagerException e) {
 			fail("Test read room: failed.");
 		}
 		assertTrue("Test read room.", room.equals(readRoom));
@@ -147,10 +144,10 @@ public class TestApplication {
 		// try to add again the room
 		exception = false;
 		try {
-			manager.addRoom(room);
+			manager.addRoom(new Room(101, 5, hotel));
 		} catch (RoomAlreadyPresentException e) {
 			exception = true;
-		} catch (DatabaseManagerException e1) {
+		} catch (DatabaseManagerException e) {
 			fail("Test add room: failed.");
 		}
 		assertTrue("Test add existing room.", exception);
@@ -164,11 +161,12 @@ public class TestApplication {
 		}
 
 		// add again the room
+		room = new Room(101, 5, hotel);
 		try {
 			manager.addRoom(room);
 		} catch (RoomAlreadyPresentException e) {
 			fail("Test add room: failed because room already present.");
-		} catch (DatabaseManagerException e1) {
+		} catch (DatabaseManagerException e) {
 			fail("Test add room: failed.");
 		}
 
@@ -194,10 +192,10 @@ public class TestApplication {
 		// try to read the room deleted together with the hotel
 		exception = false;
 		try {
-			readRoom = manager.readRoom(hotel.getHotelId(), 101);
-		} catch (RoomNotFoundException e1) {
+			readRoom = manager.readRoom(hotel.getId(), 101);
+		} catch (RoomNotFoundException e) {
 			exception = true;
-		} catch (DatabaseManagerException e1) {
+		} catch (DatabaseManagerException e) {
 			fail("Test read unexisting room room: failed.");
 		}
 		assertTrue("Test read room.", exception);
@@ -324,7 +322,7 @@ public class TestApplication {
 		// read reservation
 		Reservation readReservation = null;
 		try {
-			readReservation = manager.readReservation(hotel.getHotelId(), room.getRoomNumber(), checkInDate);
+			readReservation = manager.readReservation(hotel.getId(), room.getNumber(), checkInDate);
 		} catch (ReservationNotFoundException e) {
 			fail("Test read reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
@@ -367,7 +365,7 @@ public class TestApplication {
 		}
 		readReservation = null;
 		try {
-			readReservation = manager.readReservation(hotel.getHotelId(), newRoom.getRoomNumber(), checkInDate);
+			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), checkInDate);
 		} catch (ReservationNotFoundException e) {
 			fail("Test read updated reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
@@ -383,7 +381,7 @@ public class TestApplication {
 		}
 		readReservation = null;
 		try {
-			readReservation = manager.readReservation(hotel.getHotelId(), newRoom.getRoomNumber(), newCheckInDate);
+			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
 		} catch (ReservationNotFoundException e) {
 			fail("Test read updated reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
@@ -399,7 +397,7 @@ public class TestApplication {
 		}
 		readReservation = null;
 		try {
-			readReservation = manager.readReservation(hotel.getHotelId(), newRoom.getRoomNumber(), newCheckInDate);
+			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
 		} catch (ReservationNotFoundException e) {
 			fail("Test read updated reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
@@ -416,7 +414,7 @@ public class TestApplication {
 
 		// delete the reservation
 		try {
-			manager.deleteReservation(newCheckInDate, newRoom);
+			manager.deleteReservation(readReservation);
 		} catch (DatabaseManagerException e) {
 			fail("Test delete reservation: failed.");
 		}
@@ -451,7 +449,7 @@ public class TestApplication {
 		readReservation = null;
 		boolean exception = false;
 		try {
-			readReservation = manager.readReservation(hotel.getHotelId(), newRoom.getRoomNumber(), newCheckInDate);
+			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
 		} catch (ReservationNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -480,7 +478,7 @@ public class TestApplication {
 		readReservation = null;
 		exception = false;
 		try {
-			readReservation = manager.readReservation(hotel.getHotelId(), newRoom.getRoomNumber(), newCheckInDate);
+			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
 		} catch (ReservationNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -515,7 +513,7 @@ public class TestApplication {
 		// 19-11-2019 (= checkOutDate)
 		Room bookedRoom = null;
 		try {
-			bookedRoom = manager.readRoom(hotel.getHotelId(), 401);
+			bookedRoom = manager.readRoom(hotel.getId(), 401);
 		} catch (DatabaseManagerException | RoomNotFoundException e) {
 			fail("Read room: failed.");
 		}
@@ -523,7 +521,7 @@ public class TestApplication {
 		// unavailable room in the database
 		Room room = null;
 		try {
-			room = manager.readRoom(hotel.getHotelId(), 302);
+			room = manager.readRoom(hotel.getId(), 302);
 		} catch (DatabaseManagerException | RoomNotFoundException e) {
 			fail("Read room: failed.");
 		}
@@ -648,7 +646,7 @@ public class TestApplication {
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
 			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
-		} catch (DatabaseManagerException e1) {
+		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed");
 		}
 		assertFalse("Test booked room not in unreservable rooms.", unreservableRooms.contains(bookedRoom));
@@ -682,7 +680,7 @@ public class TestApplication {
 		// - room must be in the list of reservable rooms for the period
 		// - room must not be in the list of unreservable rooms for the period
 		try {
-			room = manager.setRoomAvailable(room.getHotel(), room.getRoomNumber());
+			room = manager.setRoomAvailable(room);
 		} catch (DatabaseManagerException e) {
 			fail("Test set room available: failed");
 		}
@@ -701,8 +699,8 @@ public class TestApplication {
 
 		// coming back to the original situation
 		try {
-			room = manager.setRoomUnavailable(room.getHotel(), room.getRoomNumber());
-		} catch (DatabaseManagerException e1) {
+			room = manager.setRoomUnavailable(room);
+		} catch (DatabaseManagerException e) {
 			fail("Test set room unavailable: failed");
 		}
 		try {
@@ -719,6 +717,10 @@ public class TestApplication {
 		assertTrue("Test unavailable room in unreservable rooms.", unreservableRooms.contains(room));
 	}
 	
+	//------------------------------------------------------------------------\\
+	// Key Value                                                              \\
+	//------------------------------------------------------------------------\\
+	
 	@Test 
 	public void insertReadBooking() {
 		Booking firstBooking = new Booking ("Alessio", "Ercolani", "44");
@@ -730,6 +732,7 @@ public class TestApplication {
 		try {
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), firstBooking);
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), secondBooking);
+			// System.out.println(manager.keyValue.toStringKeyValue());
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
 		}  catch (BookingAlreadyPresentException e) {

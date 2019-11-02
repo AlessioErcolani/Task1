@@ -25,7 +25,7 @@ public class KeyValueDatabaseManager {
 		try {
 			keyValueDb = org.fusesource.leveldbjni.JniDBFactory.factory.open(new File("reservations"), options);
 		} catch (IOException e) {
-			throw new DatabaseManagerException("Problems with key-value database");
+			throw new DatabaseManagerException("Cannot open key-value database");
 		}
 	}
 
@@ -38,7 +38,7 @@ public class KeyValueDatabaseManager {
 		try {
 			keyValueDb.close();
 		} catch (IOException e) {
-			throw new DatabaseManagerException("Impossible to close key-value DB: " + e.getMessage());
+			throw new DatabaseManagerException("Cannot close key-value DB: " + e.getMessage());
 		}
 	}
 
