@@ -728,30 +728,30 @@ public class TestApplication {
 		int idBooking = 0;
 	
 		try {
-			manager.insertBooking(idBooking++, firstBooking);
-			manager.insertBooking(idBooking++, secondBooking);
+			manager.keyValue.insertBooking(Integer.toString(idBooking++), firstBooking);
+			manager.keyValue.insertBooking(Integer.toString(idBooking++), secondBooking);
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
 		}  catch (BookingAlreadyPresentException e) {
 			fail("Impossible duplication of Id: failed");
 		}
-		
+	
 		boolean exception = false;
 			
 		try {
-			manager.insertBooking(0, thirdBooking);			
+			manager.keyValue.insertBooking(Integer.toString(0), thirdBooking);			
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
 		}  catch (BookingAlreadyPresentException e) {
 			exception = true;
 		}
-	
+		
 		assertTrue("Test insertReadBooking.", exception);
 		
 		Booking readBooking = null;
 		
 		try {
-			readBooking = manager.getBooking(0);
+			readBooking = manager.keyValue.getBooking(Integer.toString(0));
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to read a booking: failed");			
 		}
@@ -759,27 +759,25 @@ public class TestApplication {
 		assertEquals("Test insertReadBookin", firstBooking, readBooking);
 		
 		try {
-			readBooking = manager.getBooking(-1);
+			readBooking = manager.keyValue.getBooking(Integer.toString(-1));
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to read a booking: failed");
 		}
 		
 		assertEquals("Test insertReadBooking.", null, readBooking);
-		
 		try {
-			manager.deleteBooking(0);		
-			manager.deleteBooking(1);
-			firstBooking = manager.getBooking(0);
-			secondBooking = manager.getBooking(1);
+			manager.keyValue.deleteBooking(Integer.toString(0));		
+			manager.keyValue.deleteBooking(Integer.toString(1));
+			firstBooking = manager.keyValue.getBooking(Integer.toString(0));
+			secondBooking = manager.keyValue.getBooking(Integer.toString(1));
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to delete a booking: failed");
 		}
 		
 		boolean successdeleteOperations = firstBooking == null && secondBooking == null;
 		assertTrue("Test insertReadBooking.", successdeleteOperations);
-		
 		try {
-			manager.closeKeyValueDb();
+			manager.keyValue.closeKeyValueDb();
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to close the key-value database");
 		}
