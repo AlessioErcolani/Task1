@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
+import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
 import exc.ReservationAlreadyPresentException;
 import exc.ReservationNotFoundException;
@@ -454,10 +455,10 @@ public class ReceptionistTerminal extends Terminal {
         	CommandLine cmd = parser.parse(getOptionsMap().get("arrival"), options);
         	
         	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
+        	String id = Long.toString(reservationId);
         	
         	// TODO: get Booking and print information
-        	System.out.println(reservationId);
-        	System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
+        	// Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
         	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());

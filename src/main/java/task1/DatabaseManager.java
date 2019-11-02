@@ -167,13 +167,26 @@ public class DatabaseManager {
 			setup();
 			Room room = entityManager.find(Room.class, reservation.getRoom().getId());
 			room.addReservation(reservation);
+        	
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
 				commit();
+				
+				// add key-value pair
+	        	Booking booking = new Booking(
+	        			reservation.getCustomer().getName(),
+	        			reservation.getCustomer().getSurname(),
+	        			Integer.toString(reservation.getRoom().getNumber()));
+	        	keyValue.insertBooking(Long.toString(reservation.getId()), booking);
+	        	
 			} catch (RollbackException ex) {
 				throw new ReservationAlreadyPresentException(ex.getMessage());
+			} catch (BookingAlreadyPresentException e) {
+				// reservation is added to relational db but insert in key-value database fails
+				// TODO: decide how to handle this. Delete and write? Do not write?
+				throw new KeyValueDatabaseManagerException();
 			}
 			close();
 		}
@@ -222,6 +235,9 @@ public class DatabaseManager {
 			setup();			
 			Reservation reservation = entityManager.find(Reservation.class, reservationToDelete.getId());
 	        entityManager.remove(reservation);
+	        
+	        // delete key-value pair
+        	keyValue.deleteBooking(Long.toString(reservation.getId()));
 
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());

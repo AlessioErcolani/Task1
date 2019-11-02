@@ -10,7 +10,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 		
 		System.out.println("Populating database...");
 		try {
@@ -19,6 +19,7 @@ public class Application {
 			System.out.println(e.getMessage());
 		}
 		DatabaseManager.populateDatabase(hotelDatabaseManager);
+		// System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
 		
 		System.out.println("\nType commands to use the application");
 		
@@ -26,6 +27,13 @@ public class Application {
 		
 		Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
+				"show-reservations -f 2000-01-01",
+				"arrival --id 1",
+				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"show-reservations -f 2000-01-01",
+				"arrival --id 1",
+				"delete-reservation -d 2020-01-12 -h 3 -r 201",
+				"show-reservations -f 2000-01-01",
 				"arrival --id 1",
 				"logout",
 				"exit"
