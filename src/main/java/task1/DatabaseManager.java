@@ -98,19 +98,8 @@ public class DatabaseManager {
 	private void insertFieldKeyValue(int id, String value, Type field) throws DatabaseManagerException {
 		byte[] key = null;
 		try {
-			switch(field) {
-			case NAME:
-				key = forgeKey(id, Type.NAME);
-				break;
-			case SURNAME:
-				key = forgeKey(id, Type.SURNAME);
-				break;
-			case ROOM_NUMBER:
-				key = forgeKey(id, Type.ROOM_NUMBER);
-				break;
-			}
-			
-			keyValueDb.put(key, bytes(value));
+				key = forgeKey(id, field);			
+				keyValueDb.put(key, bytes(value));
 			
 		}catch(Exception e) {
 			throw new DatabaseManagerException(e.getMessage());
@@ -127,19 +116,8 @@ public class DatabaseManager {
 	private void deleteFieldKeyValue(int id, Type field) throws DatabaseManagerException {
 		byte[] key = null;
 		try {
-			switch(field) {
-			case NAME:
-				key = forgeKey(id, Type.NAME);				
-				break;
-			case SURNAME:
-				key = forgeKey(id, Type.SURNAME);
-				break;
-			case ROOM_NUMBER:
-				key = forgeKey(id, Type.ROOM_NUMBER);
-				break;
-			}
-		
-			keyValueDb.delete(key);
+				key = forgeKey(id, field);		
+				keyValueDb.delete(key);
 			
 		}catch(Exception e) {
 			throw new DatabaseManagerException(e.getMessage());
