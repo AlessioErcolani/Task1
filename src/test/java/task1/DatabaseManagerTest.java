@@ -758,28 +758,34 @@ public class DatabaseManagerTest {
 			readBooking = manager.keyValue.getBooking(Integer.toString(0));
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to read a booking: failed");			
+		} catch (BookingNotFoundException bnf) {
+			fail("Impossible: the booking is on the database");
 		}
 		
 		assertEquals("Test insertReadBooking", firstBooking, readBooking);
+		
+		exception = false;
 		
 		try {
 			readBooking = manager.keyValue.getBooking(Integer.toString(-1));
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to read a booking: failed");
+		} catch (BookingNotFoundException bnf) {
+			exception = true;
 		}
 		
-		assertEquals("Test insertReadBooking.", null, readBooking);
+		assertTrue("Test insertReadBooking.", exception);
 		try {
 			manager.keyValue.deleteBooking(Integer.toString(0));		
 			manager.keyValue.deleteBooking(Integer.toString(1));
-			firstBooking = manager.keyValue.getBooking(Integer.toString(0));
-			secondBooking = manager.keyValue.getBooking(Integer.toString(1));
 		} catch (DatabaseManagerException e) {
+			
 			fail("Impossible to delete a booking: failed");
-		}
+		}		
 		
-		boolean successdeleteOperations = firstBooking == null && secondBooking == null;
-		assertTrue("Test insertReadBooking.", successdeleteOperations);
+		String stringDb = manager.keyValue.toStringKeyValue();
+		assertEquals("Test insertReadBooking", "", stringDb);
+		
 		try {
 			manager.keyValue.closeKeyValueDb();
 		} catch (DatabaseManagerException e) {

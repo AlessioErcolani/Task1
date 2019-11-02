@@ -2,13 +2,11 @@ package task1;
 
 import org.iq80.leveldb.*;
 
-import exc.BookingAlreadyPresentException;
-import exc.DatabaseManagerException;
+import exc.*;
 
 import static org.fusesource.leveldbjni.JniDBFactory.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class KeyValueDatabaseManager {
 
@@ -185,10 +183,11 @@ public class KeyValueDatabaseManager {
 	 * Returns a Booking wrapper containing reservation informations
 	 * 
 	 * @param id the unique id of a reservation
-	 * @return a Booking wrapper, null if the id is not present in the database
+	 * @return a Booking wrapper
 	 * @throws DatabaseManagerException
+	 * @throws BookingNotFoundException 
 	 */
-	public Booking getBooking(String id) throws DatabaseManagerException {
+	public Booking getBooking(String id) throws DatabaseManagerException, BookingNotFoundException {
 
 		String name = null;
 		String surname = null;
@@ -204,7 +203,7 @@ public class KeyValueDatabaseManager {
 		}
 
 		if (name == null || surname == null || roomNumber == null)
-			return null;
+			throw new BookingNotFoundException();
 
 		return new Booking(id, name, surname, roomNumber);
 	}
