@@ -20,7 +20,11 @@ public class DatabaseManager {
 		factory = Persistence.createEntityManagerFactory(databaseSchema);
 
 		// key-value database
-		keyValue = new KeyValueDatabaseManager(databaseSchema);
+		try {
+			keyValue = new KeyValueDatabaseManager(databaseSchema);
+		}catch(KeyValueDatabaseManagerException kvd) {
+			throw new DatabaseManagerException();
+		}
 	}
 
 	public void exit() {
@@ -154,10 +158,7 @@ public class DatabaseManager {
 	/**
 	 * Inserts a reservation with the given parameters in the database.
 	 * 
-	 * @param room     the Room to book
-	 * @param customer the Customer who ordered the Reservation
-	 * @param checkIn  check-in date
-	 * @param checkOut check-out date
+	 * @param reservation 
 	 * @throws DatabaseManagerException           in case of errors
 	 * @throws ReservationAlreadyPresentException if the reservation is already present
 	 */
@@ -184,8 +185,6 @@ public class DatabaseManager {
 			} catch (RollbackException ex) {
 				throw new ReservationAlreadyPresentException(ex.getMessage());
 			} catch (BookingAlreadyPresentException e) {
-				// reservation is added to relational db but insert in key-value database fails
-				// TODO: decide how to handle this. Delete and write? Do not write?
 				throw new KeyValueDatabaseManagerException();
 			}
 			close();
@@ -195,10 +194,8 @@ public class DatabaseManager {
 	/**
 	 * Update a reservation
 	 * 
-	 * @param oldCheckInDate is the check-in date of the reservation to update
-	 * @param oldRoom        is the room of the reservation to update
+	 * @param oldReservation
 	 * @param newReservation is the new reservation
-	 * @return the updated reservation
 	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void updateReservation(Reservation oldReservation, Reservation newReservation)
@@ -212,16 +209,27 @@ public class DatabaseManager {
 			
 			Room newRoom = entityManager.find(Room.class, newReservation.getRoom().getId());
 			newRoom.addReservation(newReservation);
+			
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
 				commit();
+				// handle key-value
+				keyValue.deleteBooking(Long.toString(oldReservation.getId()));
+				Booking booking = new Booking(
+	        			newReservation.getCustomer().getName(),
+	        			newReservation.getCustomer().getSurname(),
+	        			Integer.toString(newReservation.getRoom().getNumber()));
+			
+				keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
 			} catch (RollbackException ex) {
 				throw new DatabaseManagerException(ex.getMessage());
+			} catch (BookingAlreadyPresentException e) {
+				throw new KeyValueDatabaseManagerException();
 			}
-			close();
-		}
+			close();	
+		}			
 	}
 
 	/**

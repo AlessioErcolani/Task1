@@ -723,27 +723,29 @@ public class DatabaseManagerTest {
 	
 	@Test 
 	public void insertReadBooking() {
+		
+		String startTest = manager.keyValue.toStringKeyValue();
+		
 		Booking firstBooking = new Booking ("Alessio", "Ercolani", "44");
 		Booking secondBooking = new Booking("Marco", "Del Gamba", "66");
 		Booking thirdBooking = new Booking("Chiara", "Bonsignori", "23");
 		
-		int idBooking = 0;
+		int idBooking = 500;
 	
 		try {
-			System.out.println(manager.keyValue.toStringKeyValue());
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), firstBooking);
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), secondBooking);
 			
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
-		}  catch (BookingAlreadyPresentException e) {
-			fail("Impossible duplication of id " + e.getMessage() + ": failed");
+		}  catch (BookingAlreadyPresentException b) {
+			fail("Impossible duplication of id " + b.getMessage() + ": failed");
 		}
 	
 		boolean exception = false;
 			
 		try {
-			manager.keyValue.insertBooking(Integer.toString(0), thirdBooking);			
+			manager.keyValue.insertBooking(Integer.toString(500), thirdBooking);			
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
 		}  catch (BookingAlreadyPresentException e) {
@@ -755,7 +757,7 @@ public class DatabaseManagerTest {
 		Booking readBooking = null;
 		
 		try {
-			readBooking = manager.keyValue.getBooking(Integer.toString(0));
+			readBooking = manager.keyValue.getBooking(Integer.toString(500));
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to read a booking: failed");			
 		} catch (BookingNotFoundException bnf) {
@@ -776,15 +778,14 @@ public class DatabaseManagerTest {
 		
 		assertTrue("Test insertReadBooking.", exception);
 		try {
-			manager.keyValue.deleteBooking(Integer.toString(0));		
-			manager.keyValue.deleteBooking(Integer.toString(1));
+			manager.keyValue.deleteBooking(Integer.toString(500));		
+			manager.keyValue.deleteBooking(Integer.toString(501));
 		} catch (DatabaseManagerException e) {
 			
 			fail("Impossible to delete a booking: failed");
 		}		
 		
-		String stringDb = manager.keyValue.toStringKeyValue();
-		assertEquals("Test insertReadBooking", "", stringDb);
+		assertEquals("Test insertReadBooking", startTest, manager.keyValue.toStringKeyValue());
 		
 		try {
 			manager.keyValue.closeKeyValueDb();

@@ -13,10 +13,11 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import exc.BookingNotFoundException;
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
-import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
+import exc.KeyValueDatabaseManagerException;
 import exc.ReservationAlreadyPresentException;
 import exc.ReservationNotFoundException;
 import exc.RoomAlreadyBookedException;
@@ -457,13 +458,18 @@ public class ReceptionistTerminal extends Terminal {
         	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
         	String id = Long.toString(reservationId);
         	
-        	// TODO: get Booking and print information
-        	// Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
+        	Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
+        	System.out.println("Customer: " + booking.getName() + " " + booking.getSurname() + "\nRoom: " + booking.getRoomNumber());
         	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("arrival", getOptionsMap().get("arrival"), true);
-        }
+        } catch (BookingNotFoundException e) {
+        	System.out.println("The specified reservation does not exist");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		} 
+		
 	}
 	
 	private void logout() {

@@ -23,20 +23,20 @@ public class KeyValueDatabaseManager {
 		try {
 			keyValueDb = org.fusesource.leveldbjni.JniDBFactory.factory.open(new File("reservations"), options);
 		} catch (IOException e) {
-			throw new DatabaseManagerException("Cannot open key-value database");
+			throw new KeyValueDatabaseManagerException("Cannot open key-value database");
 		}
 	}
 
 	/**
 	 * Close the Key-Value database
 	 * 
-	 * @throws DatabaseManagerException
+	 * @throws KeyValueDatabaseManagerException
 	 */
-	public void closeKeyValueDb() throws DatabaseManagerException {
+	public void closeKeyValueDb() throws KeyValueDatabaseManagerException {
 		try {
 			keyValueDb.close();
 		} catch (IOException e) {
-			throw new DatabaseManagerException("Cannot close key-value DB: " + e.getMessage());
+			throw new KeyValueDatabaseManagerException("Cannot close key-value DB: " + e.getMessage());
 		}
 	}
 
@@ -47,9 +47,18 @@ public class KeyValueDatabaseManager {
 	 * @return
 	 */
 	private boolean isIdAlreadyPresent(String id) {
-		DBIterator iterator = keyValueDb.iterator();
-		iterator.seek(bytes("res:" + id));
-		return iterator.hasNext();
+		
+		byte[] keyName = forgeKey(id, Type.NAME);
+		byte[] keySurname = forgeKey(id, Type.SURNAME);
+		byte[] keyRoomNumber = forgeKey(id, Type.ROOM_NUMBER);
+		
+		String valueName = asString(keyValueDb.get(keyName));
+		String valueSurname = asString(keyValueDb.get(keySurname));
+		String valueRoomNumber = asString(keyValueDb.get(keyRoomNumber));
+				
+		return 	valueName != null ||
+				valueSurname != null ||
+				valueRoomNumber != null;
 	}
 
 	/**
@@ -81,15 +90,15 @@ public class KeyValueDatabaseManager {
 	 * @param id    the unique id of a reservation
 	 * @param value the value related to a key
 	 * @param field the type of the value
-	 * @throws DatabaseManagerException in case of errors
+	 * @throws KeyValueDatabaseManagerException in case of errors
 	 */
-	private void insertFieldKeyValue(String id, String value, Type field) throws DatabaseManagerException {
+	private void insertFieldKeyValue(String id, String value, Type field) throws KeyValueDatabaseManagerException {
 		try {
 			byte[] key = forgeKey(id, field);
 			keyValueDb.put(key, bytes(value));
 
 		} catch (Exception e) {
-			throw new DatabaseManagerException(e.getMessage());
+			throw new KeyValueDatabaseManagerException(e.getMessage());
 		}
 
 	}
@@ -100,15 +109,15 @@ public class KeyValueDatabaseManager {
 	 * 
 	 * @param id    the unique id of a reservation
 	 * @param field the type to build the key
-	 * @throws DatabaseManagerException
+	 * @throws KeyValueDatabaseManagerException
 	 */
-	private void deleteFieldKeyValue(String id, Type field) throws DatabaseManagerException {
+	private void deleteFieldKeyValue(String id, Type field) throws KeyValueDatabaseManagerException {
 		try {
 			byte[] key = forgeKey(id, field);
 			keyValueDb.delete(key);
 
 		} catch (Exception e) {
-			throw new DatabaseManagerException(e.getMessage());
+			throw new KeyValueDatabaseManagerException(e.getMessage());
 		}
 	}
 
@@ -137,14 +146,14 @@ public class KeyValueDatabaseManager {
 	 * 
 	 * @param id      the unique id of a reservation
 	 * @param booking
-	 * @throws DatabaseManagerException
+	 * @throws KeyValueDatabaseManagerException
 	 * @throws BookingAlreadyPresentException
 	 */
 
 	public void insertBooking(String id, Booking booking)
-			throws DatabaseManagerException, BookingAlreadyPresentException {
+			throws KeyValueDatabaseManagerException, BookingAlreadyPresentException {
 
-		if (isIdAlreadyPresent(id))
+		if (isIdAlreadyPresent(id)) 
 			throw new BookingAlreadyPresentException(id);
 
 		boolean writesCompleted[] = { false, false };
@@ -155,7 +164,8 @@ public class KeyValueDatabaseManager {
 			insertFieldKeyValue(id, booking.getSurname(), Type.SURNAME);
 			writesCompleted[1] = true;
 			insertFieldKeyValue(id, booking.getRoomNumber(), Type.ROOM_NUMBER);
-		} catch (DatabaseManagerException e) {
+		} catch (KeyValueDatabaseManagerException e) {
+			System.out.println("Non dovrei essere qui");
 			if (writesCompleted[0]) {
 				deleteFieldKeyValue(id, Type.NAME);
 				if (writesCompleted[1])
@@ -170,10 +180,10 @@ public class KeyValueDatabaseManager {
 	 * database the function does nothing
 	 * 
 	 * @param id the unique id of a reservation
-	 * @throws DatabaseManagerException
+	 * @throws KeyValueDatabaseManagerException
 	 */
 
-	public void deleteBooking(String id) throws DatabaseManagerException {
+	public void deleteBooking(String id) throws KeyValueDatabaseManagerException {
 		deleteFieldKeyValue(id, Type.NAME);
 		deleteFieldKeyValue(id, Type.SURNAME);
 		deleteFieldKeyValue(id, Type.ROOM_NUMBER);
@@ -187,7 +197,7 @@ public class KeyValueDatabaseManager {
 	 * @throws DatabaseManagerException
 	 * @throws BookingNotFoundException 
 	 */
-	public Booking getBooking(String id) throws DatabaseManagerException, BookingNotFoundException {
+	public Booking getBooking(String id) throws KeyValueDatabaseManagerException, BookingNotFoundException {
 
 		String name = null;
 		String surname = null;
@@ -199,7 +209,7 @@ public class KeyValueDatabaseManager {
 			roomNumber = asString(keyValueDb.get(forgeKey(id, Type.ROOM_NUMBER)));
 
 		} catch (Exception e) {
-			throw new DatabaseManagerException(e.getMessage());
+			throw new KeyValueDatabaseManagerException(e.getMessage());
 		}
 
 		if (name == null || surname == null || roomNumber == null)
@@ -207,5 +217,4 @@ public class KeyValueDatabaseManager {
 
 		return new Booking(id, name, surname, roomNumber);
 	}
-
 }
