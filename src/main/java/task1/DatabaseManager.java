@@ -352,6 +352,20 @@ public class DatabaseManager {
 		}
 	}
 	
+	public Customer changePassword(Customer customer, String newPassword) throws DatabaseManagerException {
+		try {
+			setup();
+			Customer ref = entityManager.find(Customer.class, customer.getId());		
+			ref.setPassword(newPassword);
+			return ref;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 	/**
 	 * Checks for the authentication of a Customer through their username and password
 	 * @param username customer's username

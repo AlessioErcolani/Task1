@@ -12,6 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import exc.CustomerUsernameAlreadyPresentException;
 import exc.HotelNotFoundException;
 
 public class CustomerTerminal extends Terminal {
@@ -22,6 +23,7 @@ public class CustomerTerminal extends Terminal {
 			"show-reservations",
 			"show-hotels",
 			"show-rooms",
+			"change-password",
 			"help",
 			"logout"
 			);
@@ -34,6 +36,7 @@ public class CustomerTerminal extends Terminal {
 		map.put("show-reservations", getOptionsForShowReservations());
 		map.put("show-hotels", new Options());
 		map.put("show-rooms", getOptionsForShowRooms());
+		map.put("change-password", getOptionsForChangePassword());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -84,6 +87,9 @@ public class CustomerTerminal extends Terminal {
 		case "show-rooms":
 			showRooms(options);
 			break;
+		case "change-password":
+			changePassword(options);
+			break;
 		case "help":
 			help(options);
 			break;
@@ -92,7 +98,7 @@ public class CustomerTerminal extends Terminal {
 			break;
 		}
 	}
-	
+
 	//------------------------------------------------------------------------\\
 	// Commands implementation                                                \\
 	//------------------------------------------------------------------------\\
@@ -171,6 +177,24 @@ public class CustomerTerminal extends Terminal {
 		}
 	}
 	
+	private void changePassword(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("change-password"), options);
+        	
+        	String newPassword = cmd.getOptionValue("newpassword");
+        	
+        	customer = Application.hotelDatabaseManager.changePassword(customer, newPassword);
+        	
+        	System.out.println("Password changed successfully");
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("change-password", getOptionsMap().get("change-password"), true);
+        } catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
+	}
+	
 	private void logout() {
 		newUser = true;
 		nextUser = null;
@@ -201,6 +225,17 @@ public class CustomerTerminal extends Terminal {
 		options.addOption(hotel);
 		options.addOption(from);
 		options.addOption(to);
+		
+		return options;
+	}
+	
+	private static Options getOptionsForChangePassword() {
+		Options options = new Options();
+		
+		Option newPassword = new Option("n", "newpassword", true, "new password");
+		newPassword.setRequired(true);
+		
+		options.addOption(newPassword);
 		
 		return options;
 	}
