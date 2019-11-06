@@ -28,13 +28,13 @@ public class Application {
 		Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations -f 2000-01-01",
-				"arrival --id 1",
+				"check-in --id 1",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"show-reservations -f 2000-01-01",
-				"arrival --id 1",
+				"check-in --id 1",
 				"delete-reservation -d 2020-01-12 -h 3 -r 201",
 				"show-reservations -f 2000-01-01",
-				"arrival --id 1",
+				"check-in --id 1",
 				"logout",
 				"exit"
 		};

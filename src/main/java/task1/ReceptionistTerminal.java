@@ -36,7 +36,7 @@ public class ReceptionistTerminal extends Terminal {
 			"delete-reservation",
 			"set-room",
 			"register",
-			"arrival",
+			"check-in",
 			"help",
 			"logout"
 			);
@@ -54,7 +54,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
-		map.put("arrival", getOptionsForArrival());
+		map.put("check-in", getOptionsForCheckIn());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -120,8 +120,8 @@ public class ReceptionistTerminal extends Terminal {
 		case "register":
 			register(options);
 			break;
-		case "arrival":
-			arrival(options);
+		case "check-in":
+			checkIn(options);
 			break;
 		case "help":
 			help(options);
@@ -451,9 +451,9 @@ public class ReceptionistTerminal extends Terminal {
 		
 	}
 	
-	private void arrival(String[] options) {
+	private void checkIn(String[] options) {
 		try {
-        	CommandLine cmd = parser.parse(getOptionsMap().get("arrival"), options);
+        	CommandLine cmd = parser.parse(getOptionsMap().get("check-in"), options);
         	
         	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
         	String id = Long.toString(reservationId);
@@ -463,7 +463,7 @@ public class ReceptionistTerminal extends Terminal {
         	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
-            formatter.printHelp("arrival", getOptionsMap().get("arrival"), true);
+            formatter.printHelp("check-in", getOptionsMap().get("check-in"), true);
         } catch (BookingNotFoundException e) {
         	System.out.println("The specified reservation does not exist");
 		} catch (Exception e) {
@@ -660,7 +660,7 @@ public class ReceptionistTerminal extends Terminal {
 		return options;
 	}
 	
-	private static Options getOptionsForArrival() {
+	private static Options getOptionsForCheckIn() {
 		Options options = new Options();
 		
 		Option id = new Option("i", "id", true, "reservation identifier");
