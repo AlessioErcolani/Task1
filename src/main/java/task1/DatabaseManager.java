@@ -451,6 +451,25 @@ public class DatabaseManager {
 		}
 	}
 	
+	public Reservation getReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
+		Reservation reservation = null;
+		
+		try {
+			setup();
+			reservation = entityManager.find(Reservation.class, id);
+			if (reservation == null)
+				throw new ReservationNotFoundException(id.toString());
+			return reservation;
+		} catch (ReservationNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DatabaseManagerException(e.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
 		try {			
 			setup();

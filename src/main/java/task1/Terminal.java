@@ -257,20 +257,21 @@ public class Terminal {
 		if (reservations == null)
 			return;
 
-		String format = "| %-4d | %-8d | %-26s | %-10s | %-10s | %-11s |%n";
+		String format = "| %-3d | %-4d | %-8d | %-26s | %-10s | %-10s | %-11s |%n";
 
-		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
-		System.out.format("| Room | Capacity | Hotel                      | Check-In   | Check-Out  | Customer    |%n");
-		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
+		System.out.format("+-----+------+----------+----------------------------+------------+------------+-------------+%n");
+		System.out.format("| Id  | Room | Capacity | Hotel                      | Check-In   | Check-Out  | Customer    |%n");
+		System.out.format("+-----+------+----------+----------------------------+------------+------------+-------------+%n");
 		for (Reservation r : reservations)
 			System.out.format(format,
+					r.getId(),
 					r.getRoom().getNumber(),
 					r.getRoom().getCapacity(),
 					r.getRoom().getHotel().getId() + ") " + r.getRoom().getHotel().getAddress(),
 					dateToString(r.getCheckInDate()),
 					dateToString(r.getCheckOutDate()),
 					r.getCustomer().getUsername());
-		System.out.format("+------+----------+----------------------------+------------+------------+-------------+%n");
+		System.out.format("+-----+------+----------+----------------------------+------------+------------+-------------+%n");
 	}
 	
 	//------------------------------------------------------------------------\\

@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
+import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
 import exc.ReservationAlreadyPresentException;
 import exc.ReservationNotFoundException;
@@ -34,6 +35,7 @@ public class ReceptionistTerminal extends Terminal {
 			"delete-reservation",
 			"set-room",
 			"register",
+			"check-in",
 			"help",
 			"logout"
 			);
@@ -51,6 +53,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
+		map.put("check-in", getOptionsForCheckIn());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -58,7 +61,7 @@ public class ReceptionistTerminal extends Terminal {
 	}
 	
 	//------------------------------------------------------------------------\\
-	// @Constructors                                                          \\
+	// Constructors                                                           \\
 	//------------------------------------------------------------------------\\
 
 	public ReceptionistTerminal(Receptionist receptionist, Scanner scanner) {
@@ -115,6 +118,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "register":
 			register(options);
+			break;
+		case "check-in":
+			checkIn(options);
 			break;
 		case "help":
 			help(options);
@@ -444,6 +450,29 @@ public class ReceptionistTerminal extends Terminal {
 		
 	}
 	
+	private void checkIn(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("check-in"), options);
+        	
+        	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
+        	
+        	Reservation reservation = Application.hotelDatabaseManager.getReservation(reservationId);
+        	
+        	Customer customer = reservation.getCustomer();
+        	
+        	System.out.println("Customer: " + customer.getName() + " " + customer.getSurname());
+        	System.out.println("Room: " + reservation.getRoom().getNumber());
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("check-in", getOptionsMap().get("check-in"), true);
+        } catch (ReservationNotFoundException e) {
+			System.out.println("The specified reservation does not exist");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		}		
+	}
+	
 	private void logout() {
 		newUser = true;
 		nextUser = null;
@@ -628,6 +657,19 @@ public class ReceptionistTerminal extends Terminal {
 		group.setRequired(true);
 		
 		options.addOptionGroup(group);
+		
+		return options;
+	}
+	
+	private static Options getOptionsForCheckIn() {
+		
+		Options options = new Options();
+		
+		Option id = new Option("i", "id", true, "reservation identifier");
+		id.setRequired(true);
+		id.setType(Number.class);
+		
+		options.addOption(id);
 		
 		return options;
 	}

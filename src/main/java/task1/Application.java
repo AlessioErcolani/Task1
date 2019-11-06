@@ -18,6 +18,15 @@ public class Application {
 		
 		boolean testing = true;
 		
+		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"show-reservations -f 2000-01-01",
+				"check-in --id 656",
+				"check-in -i 2",
+				"logout",
+				"exit"
+		};
+		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations",
@@ -163,7 +172,7 @@ public class Application {
 				"exit"
 		};*/
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login -r -u r2 -p pwd",
 				"update-reservation --currenthotel 3 --currentroom 401 --currentcheckin 2019-11-15 -r 201 -c chiara",
 				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2019-11-15 -r 401 -c piergiorgio",		// reset changes
@@ -181,7 +190,7 @@ public class Application {
 				"show-reservations -h 2",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		Terminal cli = new Terminal();
 		
