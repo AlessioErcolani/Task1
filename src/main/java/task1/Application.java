@@ -19,6 +19,18 @@ public class Application {
 		boolean testing = true;
 		
 		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"help register",
+				"register -n Pino -s Verdi -u pino -p pwd",
+				"register -n Pino -s Verdi -u pino",
+				"register -n Pino -s Verdi -u federico",
+				"logout",
+				"login -c -u pino -p pwd",
+				"logout",
+				"exit"
+		};
+		
+		/*Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
 				"help change-password",
 				"change-password",
@@ -29,7 +41,7 @@ public class Application {
 				"change-password -n pwd",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",

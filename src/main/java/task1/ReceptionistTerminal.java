@@ -433,7 +433,7 @@ public class ReceptionistTerminal extends Terminal {
         	String name = cmd.getOptionValue("name");
         	String surname = cmd.getOptionValue("surname");
         	String username = cmd.getOptionValue("username");
-        	String password = cmd.getOptionValue("password");
+        	String password = "pwd";
         	
         	Customer customer = new Customer(username, password, name, surname);
             
@@ -540,13 +540,10 @@ public class ReceptionistTerminal extends Terminal {
 		surname.setRequired(true);
 		Option username = new Option("u", "username", true, "customer's username");
 		username.setRequired(true);
-		Option password = new Option("p", "password", true, "customer's password");
-		password.setRequired(true);
 		
 		options.addOption(name);
 		options.addOption(surname);
 		options.addOption(username);
-		options.addOption(password);
 		
         return options;
 	}
