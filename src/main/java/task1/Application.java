@@ -25,7 +25,7 @@ public class Application {
 		
 		boolean testing = true;
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations -f 2000-01-01",
 				"check-in --id 1",
@@ -37,7 +37,7 @@ public class Application {
 				"check-in --id 1",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
