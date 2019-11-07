@@ -662,37 +662,83 @@ public class DatabaseManager {
 	public static void populateDatabase(DatabaseManager manager) {
 		try {
 			manager.addCustomer(new Customer("federico", "pwd", "Federico", "Verdi"));
-			manager.addCustomer(new Customer("alessio", "pwd", "Alessio", "Rossi"));
+			Customer alessio = new Customer("alessio", "pwd", "Alessio", "Rossi");
+			manager.addCustomer(alessio);
 			manager.addCustomer(new Customer("chiara", "pwd", "Chiara", "Azzurri"));
 			manager.addCustomer(new Customer("marco", "pwd", "Marco", "Bianchi"));
 			manager.addCustomer(new Customer("luca", "pwd", "Luca", "Marroni"));
-			manager.addCustomer(new Customer("sara", "pwd", "Sara", "Violi"));
+			manager.addCustomer(new Customer("sara", "pwd", "Sara", "Violi"));			
+			manager.addCustomer(new Customer("ettore", "pwd", "Ettore", "Amaranti"));
+			Customer james = new Customer("james", "pwd", "James", "Blue");
+			manager.addCustomer(james);
+			manager.addCustomer(new Customer("nathan", "pwd", "Nathan", "Black"));			
+			manager.addCustomer(new Customer("chloe", "pwd", "Chloe", "Red"));			
+			Customer ellie = new Customer("ellie", "pwd", "Ellie", "Green");
+			manager.addCustomer(ellie);
+			manager.addCustomer(new Customer("ellie2", "pwd", "Ellie", "Pink"));			
+			manager.addCustomer(new Customer("sarah", "pwd", "Sarah", "Yellow"));
+			Customer max = new Customer("max", "pwd", "Max", "Brown");
+			manager.addCustomer(max);
+			Customer julia = new Customer("julia", "pwd", "Julia", "White");
+			manager.addCustomer(julia);
+			Customer john = new Customer("john", "pwd", "John", "Orange");
+			manager.addCustomer(john);
+			manager.addCustomer(new Customer("luke", "pwd", "Luke", "Tan"));
+			Customer kevin = new Customer("kevin", "pwd", "Kevin", "Purple");
+			manager.addCustomer(kevin);
+			
 			
 			Hotel hotelRoma = new Hotel("Via Roma 26, Roma");
 			manager.addHotel(hotelRoma);
 			Hotel hotelMilano = new Hotel("Via Milano 27, Milano");
 			manager.addHotel(hotelMilano);
 			Hotel hotelBologna = new Hotel("Via Bologna 28, Bologna");
-			manager.addHotel(hotelBologna);
+			manager.addHotel(hotelBologna);			
+			Hotel hotelFirenze = new Hotel("Via Firenze 29, Firenze");
+			manager.addHotel(hotelFirenze);			
+			Hotel hotelPisa = new Hotel("Via Pisa 28, Pisa");
+			manager.addHotel(hotelPisa);
 			
 			manager.addReceptionist(new Receptionist("r1", "pwd", "Laura", "Romani", hotelRoma));
 			manager.addReceptionist(new Receptionist("r2", "pwd", "Francesco", "Bolognesi", hotelBologna));
 			manager.addReceptionist(new Receptionist("r3", "pwd", "Mirco", "Rossi", hotelBologna));
 			manager.addReceptionist(new Receptionist("r4", "pwd", "Luisa", "Milanelli", hotelMilano));
-			manager.addReceptionist(new Receptionist("r5", "pwd", "Benedetta", "Vinci", hotelMilano));
+			manager.addReceptionist(new Receptionist("r5", "pwd", "Benedetta", "Vinci", hotelMilano));			
+			manager.addReceptionist(new Receptionist("r6", "pwd", "Marco", "Duomo", hotelFirenze));
+			manager.addReceptionist(new Receptionist("r7", "pwd", "Benedetta", "Uffizi", hotelFirenze));			
+			manager.addReceptionist(new Receptionist("r8", "pwd", "Lorena", "Duomo", hotelPisa));
+			manager.addReceptionist(new Receptionist("r9", "pwd", "Federico", "Lungarno", hotelPisa));
 			
-			manager.addRoom(new Room(101, 4, hotelRoma));
+			Room roomRoma1 = new Room(101, 2, hotelRoma);
+			manager.addRoom(roomRoma1);
 			manager.addRoom(new Room(102, 3, hotelRoma));
 			manager.addRoom(new Room(103, 2, hotelRoma));
 			
-			manager.addRoom(new Room(101, 2, hotelMilano));
+			Room roomMilano1 = new Room(101, 2, hotelMilano);
+			manager.addRoom(roomMilano1);
 			manager.addRoom(new Room(102, 3, hotelMilano));
 			manager.addRoom(new Room(201, 4, hotelMilano));
 			
 			manager.addRoom(new Room(101, 4, hotelBologna));
 			manager.addRoom(new Room(201, 3, hotelBologna));
-			manager.addRoom(new Room(301, 2, hotelBologna));
+			Room roomBologna3 = new Room(301, 2, hotelBologna);
+			manager.addRoom(roomBologna3);
 			manager.addRoom(new Room(302, 2, hotelBologna, false));
+			
+			manager.addRoom(new Room(101, 4, hotelFirenze));
+			Room roomFirenze2 = new Room(102, 3, hotelFirenze);
+			manager.addRoom(roomFirenze2);
+			manager.addRoom(new Room(103, 2, hotelFirenze));
+			manager.addRoom(new Room(104, 2, hotelFirenze, false));
+			
+			Room roomPisa1 = new Room(101, 4, hotelPisa);
+			manager.addRoom(roomPisa1);
+			manager.addRoom(new Room(201, 3, hotelPisa));
+			Room roomPisa3 = new Room(202, 2, hotelPisa);
+			manager.addRoom(roomPisa3);
+			manager.addRoom(new Room(301, 2, hotelPisa));
+			
+			
 			
 			Room room401 = new Room(401, 5, hotelBologna);
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
@@ -715,6 +761,173 @@ public class DatabaseManager {
 			checkOut = calendar.getTime();
 			
 			manager.addReservation(new Reservation(room401, checkIn, checkOut, customer401));
+
+			calendar.set(2019, Calendar.JANUARY, 15, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.JANUARY, 16, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, max));
+
+			calendar.set(2019, Calendar.FEBRUARY, 26, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.MARCH, 1, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, ellie));
+			
+			calendar.set(2020, Calendar.FEBRUARY, 26, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.MARCH, 1, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, ellie));
+			
+			calendar.set(2020, Calendar.FEBRUARY, 12, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.FEBRUARY, 13, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, john));
+			
+			calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, john));
+			
+			calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, kevin));
+			
+			calendar.set(2020, Calendar.SEPTEMBER, 28, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.OCTOBER, 2, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, ellie));
+			
+			calendar.set(2019, Calendar.OCTOBER, 1, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.OCTOBER, 2, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, james));
+			
+			calendar.set(2019, Calendar.OCTOBER, 14, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.OCTOBER, 17, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, james));
+			
+			calendar.set(2020, Calendar.JUNE, 4, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.JUNE, 7, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, kevin));
+			
+			calendar.set(2020, Calendar.JULY, 4, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.JULY, 7, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, julia));
+			
+			calendar.set(2020, Calendar.JULY,11, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.JULY, 21, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, julia));
+			
+			calendar.set(2020, Calendar.JULY,23, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.JULY, 27, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, julia));
+
+			calendar.set(2020, Calendar.JULY,24, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.JULY, 27, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomFirenze2, checkIn, checkOut, kevin));
+			
+			calendar.set(2020, Calendar.JANUARY,11, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.JANUARY, 14, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomFirenze2, checkIn, checkOut, julia));
+			
+			calendar.set(2019, Calendar.AUGUST,11, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.AUGUST, 14, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomRoma1, checkIn, checkOut, julia));
+			
+			calendar.set(2019, Calendar.AUGUST, 23, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.SEPTEMBER, 2, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomRoma1, checkIn, checkOut, kevin));
+			
+			calendar.set(2020, Calendar.SEPTEMBER, 2, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.SEPTEMBER, 3, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomRoma1, checkIn, checkOut, kevin));
+			
+			calendar.set(2020, Calendar.SEPTEMBER, 7, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2020, Calendar.SEPTEMBER, 9, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomBologna3, checkIn, checkOut, alessio));
+			
+			calendar.set(2018, Calendar.OCTOBER, 25, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2018, Calendar.NOVEMBER, 1, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomBologna3, checkIn, checkOut, alessio));
+			calendar.set(2019, Calendar.JUNE, 7, 1, 0, 0);	
+			checkIn = calendar.getTime();
+			
+			calendar.set(2019, Calendar.JUNE, 10, 1, 0, 0);
+			checkOut = calendar.getTime();
+			
+			manager.addReservation(new Reservation(roomBologna3, checkIn, checkOut, alessio));
 			
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");
