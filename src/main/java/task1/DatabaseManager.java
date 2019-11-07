@@ -178,24 +178,34 @@ public class DatabaseManager {
 		} finally {
 			try {
 				commit();
-				// when add in the SQL database terminates successfully, add in the key-value
-				// database
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						Booking booking = new Booking(reservation.getCustomer().getName(),
-								reservation.getCustomer().getSurname(),
-								Integer.toString(reservation.getRoom().getNumber()));
-						try {
-							keyValue.insertBooking(Long.toString(reservation.getId()), booking);
-						} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
-							System.out.println("Add on key value\n");
-							String error = "Error in writing reservation for " + booking.getName() + " "
-									+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
-							writeErrorLog(error);
+				
+				//simulation key-value down
+				if(keyValue.isAvailable) {
+					
+					// when add in the SQL database terminates successfully, add in the key-value
+					// database
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Booking booking = new Booking(reservation.getCustomer().getName(),
+									reservation.getCustomer().getSurname(),
+									Integer.toString(reservation.getRoom().getNumber()));
+							try {
+								keyValue.insertBooking(Long.toString(reservation.getId()), booking);
+							} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
+								System.out.println("Add on key value\n");
+								String error = "Error in writing reservation for " + booking.getName() + " "
+										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
+								writeErrorLog("[ERR_INSERT]: " + error);
+							}
 						}
-					}
-				}).start();
+					}).start();
+				}
+				else {
+					writeErrorLog("[INSERT]: " + new Booking(reservation.getCustomer().getName(),
+													reservation.getCustomer().getSurname(),
+													Integer.toString(reservation.getRoom().getNumber())));
+				}
 			} catch (RollbackException ex) {
 				throw new ReservationAlreadyPresentException(ex.getMessage());
 			}
@@ -237,24 +247,33 @@ public class DatabaseManager {
 		} finally {
 			try {
 				commit();
-
-				keyValue.deleteBooking(Long.toString(oldReservation.getId()));
-
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						Booking booking = new Booking(newReservation.getCustomer().getName(),
-								newReservation.getCustomer().getSurname(),
-								Integer.toString(newReservation.getRoom().getNumber()));
-						try {
-							keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
-						} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
-							String error = "Error in writing reservation for " + booking.getName() + " "
-									+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
-							writeErrorLog(error);
+				
+				//used to simulate the key-value down
+				if(keyValue.isAvailable) {
+	
+					keyValue.deleteBooking(Long.toString(oldReservation.getId()));
+	
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Booking booking = new Booking(newReservation.getCustomer().getName(),
+									newReservation.getCustomer().getSurname(),
+									Integer.toString(newReservation.getRoom().getNumber()));
+							try {
+								keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
+							} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
+								String error = "Error in writing reservation for " + booking.getName() + " "
+										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
+								writeErrorLog("[ERR_UPDATE]: " + error);
+							}
 						}
-					}
-				}).start();
+					}).start();
+				}
+				else {
+					writeErrorLog("[UPDATE]: " + new Booking(newReservation.getCustomer().getName(),
+														newReservation.getCustomer().getSurname(),
+														Integer.toString(newReservation.getRoom().getNumber())));
+				}
 
 			} catch (RollbackException ex) {
 				throw new DatabaseManagerException(ex.getMessage());
@@ -276,7 +295,10 @@ public class DatabaseManager {
 			entityManager.remove(reservation);
 
 			// delete key-value pair
-			keyValue.deleteBooking(Long.toString(reservation.getId()));
+			if(!keyValue.isAvailable) {
+				keyValue.deleteBooking(Long.toString(reservation.getId()));
+				writeErrorLog("[DELETE]: " + Long.toString(reservation.getId()));
+			}
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
