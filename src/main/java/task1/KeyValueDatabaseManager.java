@@ -29,7 +29,6 @@ public class KeyValueDatabaseManager {
 
 	/**
 	 * Close the Key-Value database
-	 * 
 	 * @throws KeyValueDatabaseManagerException
 	 */
 	public void closeKeyValueDb() throws KeyValueDatabaseManagerException {
@@ -42,9 +41,8 @@ public class KeyValueDatabaseManager {
 
 	/**
 	 * Checks if the id is already present in the key-value database
-	 * 
 	 * @param id the unique id of a reservation
-	 * @return
+	 * @return true if id is already present, false otherwise
 	 */
 	public boolean isIdAlreadyPresent(String id) {
 		
@@ -63,10 +61,9 @@ public class KeyValueDatabaseManager {
 
 	/**
 	 * Forges a new key to be used in key-value database
-	 * 
 	 * @param id    the unique id of a reservation
 	 * @param field to forge the complete key
-	 * @return the key bytes
+	 * @return the key in bytes
 	 */
 	private byte[] forgeKey(String id, Type field) {
 		String key = "res:" + id + ":";
@@ -86,7 +83,6 @@ public class KeyValueDatabaseManager {
 
 	/**
 	 * Inserts a new entry in the key-value database
-	 * 
 	 * @param id    the unique id of a reservation
 	 * @param value the value related to a key
 	 * @param field the type of the value
@@ -96,7 +92,6 @@ public class KeyValueDatabaseManager {
 		try {
 			byte[] key = forgeKey(id, field);
 			keyValueDb.put(key, bytes(value));
-
 		} catch (Exception e) {
 			throw new KeyValueDatabaseManagerException(e.getMessage());
 		}
@@ -115,7 +110,6 @@ public class KeyValueDatabaseManager {
 		try {
 			byte[] key = forgeKey(id, field);
 			keyValueDb.delete(key);
-
 		} catch (Exception e) {
 			throw new KeyValueDatabaseManagerException(e.getMessage());
 		}
@@ -123,7 +117,6 @@ public class KeyValueDatabaseManager {
 
 	/**
 	 * Return the entire database as a string. Used to debug.
-	 * 
 	 * @return
 	 */
 	public String toStringKeyValue() {
@@ -143,13 +136,11 @@ public class KeyValueDatabaseManager {
 	
 	/**
 	 * Inserts a new Booking wrapper in the key-value database
-	 * 
-	 * @param id      the unique id of a reservation
+	 * @param id the unique id of a reservation
 	 * @param booking
 	 * @throws KeyValueDatabaseManagerException
 	 * @throws BookingAlreadyPresentException
 	 */
-
 	public void insertBooking(String id, Booking booking)
 			throws KeyValueDatabaseManagerException, BookingAlreadyPresentException {
 
@@ -165,7 +156,6 @@ public class KeyValueDatabaseManager {
 			writesCompleted[1] = true;
 			insertFieldKeyValue(id, booking.getRoomNumber(), Type.ROOM_NUMBER);
 		} catch (KeyValueDatabaseManagerException e) {
-			System.out.println("Non dovrei essere qui");
 			if (writesCompleted[0]) {
 				deleteFieldKeyValue(id, Type.NAME);
 				if (writesCompleted[1])
@@ -182,7 +172,6 @@ public class KeyValueDatabaseManager {
 	 * @param id the unique id of a reservation
 	 * @throws KeyValueDatabaseManagerException
 	 */
-
 	public void deleteBooking(String id) throws KeyValueDatabaseManagerException {
 		deleteFieldKeyValue(id, Type.NAME);
 		deleteFieldKeyValue(id, Type.SURNAME);

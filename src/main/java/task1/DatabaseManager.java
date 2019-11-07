@@ -1,5 +1,9 @@
 package task1;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import javax.persistence.*;
 
@@ -11,7 +15,6 @@ public class DatabaseManager {
 
 	private EntityManagerFactory factory;
 	private EntityManager entityManager;
-
 	public final KeyValueDatabaseManager keyValue;
 
 	public DatabaseManager(String databaseSchema) throws DatabaseManagerException {
@@ -22,7 +25,7 @@ public class DatabaseManager {
 		// key-value database
 		try {
 			keyValue = new KeyValueDatabaseManager(databaseSchema);
-		}catch(KeyValueDatabaseManagerException kvd) {
+		} catch (KeyValueDatabaseManagerException kvd) {
 			throw new DatabaseManagerException();
 		}
 	}
@@ -158,36 +161,55 @@ public class DatabaseManager {
 	/**
 	 * Inserts a reservation with the given parameters in the database.
 	 * 
-	 * @param reservation 
+	 * @param reservation
 	 * @throws DatabaseManagerException           in case of errors
-	 * @throws ReservationAlreadyPresentException if the reservation is already present
+	 * @throws ReservationAlreadyPresentException if the reservation is already
+	 *                                            present
 	 */
 	public void addReservation(Reservation reservation)
 			throws DatabaseManagerException, ReservationAlreadyPresentException {
 		try {
 			setup();
 			Room room = entityManager.find(Room.class, reservation.getRoom().getId());
+			// add to the SQL database
 			room.addReservation(reservation);
-        	
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
 				commit();
-				
-				// add key-value pair
-	        	Booking booking = new Booking(
-	        			reservation.getCustomer().getName(),
-	        			reservation.getCustomer().getSurname(),
-	        			Integer.toString(reservation.getRoom().getNumber()));
-	        	keyValue.insertBooking(Long.toString(reservation.getId()), booking);
-	        	
+				// when add in the SQL database terminates successfully, add in the key-value
+				// database
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Booking booking = new Booking(reservation.getCustomer().getName(),
+								reservation.getCustomer().getSurname(),
+								Integer.toString(reservation.getRoom().getNumber()));
+						try {
+							keyValue.insertBooking(Long.toString(reservation.getId()), booking);
+						} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
+							System.out.println("Add on key value\n");
+							String error = "Error in writing reservation for " + booking.getName() + " "
+									+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
+							writeErrorLog(error);
+						}
+					}
+				}).start();
 			} catch (RollbackException ex) {
 				throw new ReservationAlreadyPresentException(ex.getMessage());
-			} catch (BookingAlreadyPresentException e) {
-				throw new KeyValueDatabaseManagerException();
 			}
 			close();
+		}
+	}
+
+	public void writeErrorLog(String error) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File("errorLog.txt"), true));
+			writer.append(error);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -201,35 +223,44 @@ public class DatabaseManager {
 	public void updateReservation(Reservation oldReservation, Reservation newReservation)
 			throws DatabaseManagerException {
 		try {
-			setup();			
+			setup();
 			Room oldRoom = entityManager.find(Room.class, oldReservation.getRoom().getId());
 			oldRoom.removeReservation(oldReservation);
-			
+
 			entityManager.flush();
-			
+
 			Room newRoom = entityManager.find(Room.class, newReservation.getRoom().getId());
 			newRoom.addReservation(newReservation);
-			
+
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
 				commit();
-				// handle key-value
+
 				keyValue.deleteBooking(Long.toString(oldReservation.getId()));
-				Booking booking = new Booking(
-	        			newReservation.getCustomer().getName(),
-	        			newReservation.getCustomer().getSurname(),
-	        			Integer.toString(newReservation.getRoom().getNumber()));
-			
-				keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
+
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Booking booking = new Booking(newReservation.getCustomer().getName(),
+								newReservation.getCustomer().getSurname(),
+								Integer.toString(newReservation.getRoom().getNumber()));
+						try {
+							keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
+						} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
+							String error = "Error in writing reservation for " + booking.getName() + " "
+									+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
+							writeErrorLog(error);
+						}
+					}
+				}).start();
+
 			} catch (RollbackException ex) {
 				throw new DatabaseManagerException(ex.getMessage());
-			} catch (BookingAlreadyPresentException e) {
-				throw new KeyValueDatabaseManagerException();
 			}
-			close();	
-		}			
+			close();
+		}
 	}
 
 	/**
@@ -240,13 +271,12 @@ public class DatabaseManager {
 	 */
 	public void deleteReservation(Reservation reservationToDelete) throws DatabaseManagerException {
 		try {
-			setup();			
+			setup();
 			Reservation reservation = entityManager.find(Reservation.class, reservationToDelete.getId());
-	        entityManager.remove(reservation);
-	        
-	        // delete key-value pair
-        	keyValue.deleteBooking(Long.toString(reservation.getId()));
+			entityManager.remove(reservation);
 
+			// delete key-value pair
+			keyValue.deleteBooking(Long.toString(reservation.getId()));
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -267,8 +297,7 @@ public class DatabaseManager {
 			setup();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByCustomer", Reservation.class)
-					.setParameter("customerId", customer.getId())
-					.getResultList();
+					.setParameter("customerId", customer.getId()).getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -291,8 +320,7 @@ public class DatabaseManager {
 			setup();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByHotel", Reservation.class)
-					.setParameter("hotelId", hotel.getId())
-					.setParameter("from", date, TemporalType.DATE)
+					.setParameter("hotelId", hotel.getId()).setParameter("from", date, TemporalType.DATE)
 					.getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
@@ -510,10 +538,8 @@ public class DatabaseManager {
 	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
 			setup();
-			List<Room> rooms = entityManager
-					.createNamedQuery("Room.findByHotel", Room.class)
-					.setParameter("hotelId", hotel.getId())
-					.getResultList();
+			List<Room> rooms = entityManager.createNamedQuery("Room.findByHotel", Room.class)
+					.setParameter("hotelId", hotel.getId()).getResultList();
 			return rooms;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -612,7 +638,7 @@ public class DatabaseManager {
 		try {
 			setup();
 			Customer ref = entityManager.find(Customer.class, customer.getId());
-	        entityManager.remove(ref);
+			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -631,7 +657,7 @@ public class DatabaseManager {
 		try {
 			setup();
 			Hotel ref = entityManager.find(Hotel.class, hotel.getId());
-	        entityManager.remove(ref);
+			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -644,7 +670,7 @@ public class DatabaseManager {
 		try {
 			setup();
 			Room ref = entityManager.find(Room.class, room.getId());
-	        entityManager.remove(ref);
+			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -663,7 +689,7 @@ public class DatabaseManager {
 		try {
 			setup();
 			Receptionist ref = entityManager.find(Receptionist.class, receptionist.getId());
-	        entityManager.remove(ref);
+			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {

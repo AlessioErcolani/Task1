@@ -38,7 +38,7 @@ public class Application {
 				"logout",
 				"exit"
 		};*/
-		
+
 		Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations -f 2000-01-01",
