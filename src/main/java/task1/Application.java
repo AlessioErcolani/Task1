@@ -25,7 +25,7 @@ public class Application {
 		
 		boolean testing = true;
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations -f 2000-01-01",
 				"check-in --id 1",
@@ -35,6 +35,21 @@ public class Application {
 				"delete-reservation -d 2020-01-12 -h 3 -r 201",
 				"show-reservations -f 2000-01-01",
 				"check-in --id 1",
+				"logout",
+				"exit"
+		};*/
+		
+		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"show-reservations -f 2000-01-01",
+				"add-reservation -c chiara -h 3 -r 201 -f 2019-11-07",
+				"show-reservations -f 2000-01-01",
+				"check-in --id 3",
+				"check-out --id 3",
+				"check-in --id 3",
+				"check-out --id 3",
+				"delete-reservation -h 3 -r 201 -d 2019-11-07",
+				"show-reservations -f 2000-01-01",
 				"logout",
 				"exit"
 		};

@@ -37,6 +37,7 @@ public class ReceptionistTerminal extends Terminal {
 			"set-room",
 			"register",
 			"check-in",
+			"check-out",
 			"help",
 			"logout"
 			);
@@ -55,6 +56,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
 		map.put("check-in", getOptionsForCheckIn());
+		map.put("check-out", getOptionsForCheckOut());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -122,6 +124,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "check-in":
 			checkIn(options);
+			break;
+		case "check-out":
+			checkOut(options);
 			break;
 		case "help":
 			help(options);
@@ -468,8 +473,31 @@ public class ReceptionistTerminal extends Terminal {
         	System.out.println("The specified reservation does not exist");
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
-		} 
-		
+		}
+	}
+	
+	private void checkOut(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("check-out"), options);
+        	
+        	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
+        	String id = Long.toString(reservationId);
+        	
+        	try {
+        		Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
+        		System.out.println("Check-out customer " + booking.getSurname());
+        		System.out.println("Check-out room " + booking.getRoomNumber());
+        		Application.hotelDatabaseManager.keyValue.deleteBooking(id);
+        	} catch (BookingNotFoundException e) {
+        		System.out.println("Check-out executed");
+    		}
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("check-out", getOptionsMap().get("check-out"), true);
+        } catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
 	}
 	
 	private void logout() {
@@ -670,5 +698,9 @@ public class ReceptionistTerminal extends Terminal {
 		options.addOption(id);
 		
 		return options;
+	}
+	
+	private static Options getOptionsForCheckOut() {
+		return getOptionsForCheckIn();
 	}
 }

@@ -46,7 +46,7 @@ public class KeyValueDatabaseManager {
 	 * @param id the unique id of a reservation
 	 * @return
 	 */
-	private boolean isIdAlreadyPresent(String id) {
+	public boolean isIdAlreadyPresent(String id) {
 		
 		byte[] keyName = forgeKey(id, Type.NAME);
 		byte[] keySurname = forgeKey(id, Type.SURNAME);
