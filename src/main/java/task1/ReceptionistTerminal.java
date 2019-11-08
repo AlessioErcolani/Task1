@@ -468,17 +468,32 @@ public class ReceptionistTerminal extends Terminal {
         	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
         	String id = Long.toString(reservationId);
         	
-        	Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
-        	System.out.println("Customer: " + booking.getName() + " " + booking.getSurname() + "\nRoom: " + booking.getRoomNumber());
-        	
-        } catch (ParseException e) {
-        	System.out.println(e.getMessage());
-            formatter.printHelp("check-in", getOptionsMap().get("check-in"), true);
-        } catch (BookingNotFoundException e) {
-        	System.out.println("The specified reservation does not exist");
-		} catch (Exception e) {
-			System.out.println("Something went wrong");
-		}
+        	//used to simulate the key value down
+        	if(Application.hotelDatabaseManager.keyValue.isAvailable) {
+        		Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
+        		System.out.println("Customer: " + booking.getName() + " " + booking.getSurname() + "\nRoom: " + booking.getRoomNumber());
+        	}
+        	else {
+        		System.out.println("Simulating the key-value down...");
+	        	
+	        	Reservation reservation = Application.hotelDatabaseManager.getReservation(reservationId);
+	        	
+	        	Customer customer = reservation.getCustomer();
+	        	
+	        	System.out.println("Customer: " + customer.getName() + " " + customer.getSurname());
+	        	System.out.println("Room: " + reservation.getRoom().getNumber());
+    	        	
+        	} 
+    		} catch (ParseException e) {
+    			System.out.println(e.getMessage());
+    			formatter.printHelp("check-in", getOptionsMap().get("check-in"), true);
+    		} catch (BookingNotFoundException e) {
+    			System.out.println("The specified reservation does not exist");
+    		} catch (ReservationNotFoundException e) {
+    			System.out.println("The specified reservation does not exist");
+    		} catch (Exception e) {
+    			System.out.println("Something went wrong");
+    		}
 	}
 	
 	private void checkOut(String[] options) {

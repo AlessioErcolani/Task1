@@ -28,6 +28,10 @@ public class Application {
 		Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"sim-key-value --disable",
+				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2020-01-12 -c alessio",	
+				"check-in --id 25",
+				"delete-reservation -d 2020-01-12 -h 3 -r 201",
 				"sim-key-value --enable",
 				"logout",
 				"exit"

@@ -196,14 +196,14 @@ public class DatabaseManager {
 								System.out.println("Add on key value\n");
 								String error = "Error in writing reservation for " + booking.getName() + " "
 										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
-								writeErrorLog("[ERR_INSERT]: " + error);
+								writeErrorLog("[ERR_INSERT]: " + error + "\n");
 							}
 						}
 					}).start();
 				} else {
 					writeErrorLog("[INSERT]: "
 							+ new Booking(reservation.getCustomer().getName(), reservation.getCustomer().getSurname(),
-									Integer.toString(reservation.getRoom().getNumber())));
+									Integer.toString(reservation.getRoom().getNumber())) + "\n");
 				}
 			} catch (RollbackException ex) {
 				throw new ReservationAlreadyPresentException(ex.getMessage());
@@ -263,14 +263,14 @@ public class DatabaseManager {
 							} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
 								String error = "Error in writing reservation for " + booking.getName() + " "
 										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
-								writeErrorLog("[ERR_UPDATE]: " + error);
+								writeErrorLog("[ERR_UPDATE]: " + error + "\n");
 							}
 						}
 					}).start();
 				} else {
 					writeErrorLog("[UPDATE]: " + new Booking(newReservation.getCustomer().getName(),
 							newReservation.getCustomer().getSurname(),
-							Integer.toString(newReservation.getRoom().getNumber())));
+							Integer.toString(newReservation.getRoom().getNumber())) + "\n");
 				}
 
 			} catch (RollbackException ex) {
@@ -295,7 +295,7 @@ public class DatabaseManager {
 			// delete key-value pair
 			if (!keyValue.isAvailable) {
 				keyValue.deleteBooking(Long.toString(reservation.getId()));
-				writeErrorLog("[DELETE]: " + Long.toString(reservation.getId()));
+				writeErrorLog("[DELETE]: " + Long.toString(reservation.getId()) + "\n");
 			}
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -712,6 +712,25 @@ public class DatabaseManager {
 			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
+	public Reservation getReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
+		Reservation reservation = null;
+		
+		try {
+			setup();
+			reservation = entityManager.find(Reservation.class, id);
+			if (reservation == null)
+				throw new ReservationNotFoundException(id.toString());
+			return reservation;
+		} catch (ReservationNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DatabaseManagerException(e.getMessage());
 		} finally {
 			commit();
 			close();
