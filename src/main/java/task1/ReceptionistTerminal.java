@@ -16,6 +16,7 @@ import org.apache.commons.cli.ParseException;
 import exc.BookingNotFoundException;
 import exc.CustomerNotFoundException;
 import exc.CustomerUsernameAlreadyPresentException;
+import exc.DatabaseManagerException;
 import exc.HotelNotFoundException;
 import exc.KeyValueDatabaseManagerException;
 import exc.ReservationAlreadyPresentException;
@@ -439,7 +440,7 @@ public class ReceptionistTerminal extends Terminal {
         	String name = cmd.getOptionValue("name");
         	String surname = cmd.getOptionValue("surname");
         	String username = cmd.getOptionValue("username");
-        	String password = cmd.getOptionValue("password");
+        	String password = "pwd";
         	
         	Customer customer = new Customer(username, password, name, surname);
             
@@ -497,7 +498,7 @@ public class ReceptionistTerminal extends Terminal {
             formatter.printHelp("check-out", getOptionsMap().get("check-out"), true);
         } catch (Exception e) {
 			System.out.println("Something went wrong");
-		}
+		}     
 	}
 	
 	private void logout() {
@@ -567,13 +568,10 @@ public class ReceptionistTerminal extends Terminal {
 		surname.setRequired(true);
 		Option username = new Option("u", "username", true, "customer's username");
 		username.setRequired(true);
-		Option password = new Option("p", "password", true, "customer's password");
-		password.setRequired(true);
 		
 		options.addOption(name);
 		options.addOption(surname);
 		options.addOption(username);
-		options.addOption(password);
 		
         return options;
 	}

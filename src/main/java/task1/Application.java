@@ -25,6 +25,40 @@ public class Application {
 		
 		boolean testing = true;
 		
+		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"help register",
+				"register -n Pino -s Verdi -u pino -p pwd",
+				"register -n Pino -s Verdi -u pino",
+				"register -n Pino -s Verdi -u federico",
+				"logout",
+				"login -c -u pino -p pwd",
+				"logout",
+				"exit"
+		};
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login -c -u piergiorgio -p pwd",
+				"help change-password",
+				"change-password",
+				"change-password -n new",
+				"logout",
+				"login -c -u piergiorgio -p pwd",
+				"login -c -u piergiorgio -p new",
+				"change-password -n pwd",
+				"logout",
+				"exit"
+		};*/
+		
+		/*Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
+				"show-reservations -f 2000-01-01",
+				"check-in --id 656",
+				"check-in -i 2",
+				"logout",
+				"exit"
+		};*/
+		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations -f 2000-01-01",

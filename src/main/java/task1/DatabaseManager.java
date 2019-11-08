@@ -431,6 +431,20 @@ public class DatabaseManager {
 		}
 	}
 
+	public Customer changePassword(Customer customer, String newPassword) throws DatabaseManagerException {
+		try {
+			setup();
+			Customer ref = entityManager.find(Customer.class, customer.getId());		
+			ref.setPassword(newPassword);
+			return ref;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 	/**
 	 * Checks for the authentication of a Customer through their username and
 	 * password
@@ -534,7 +548,26 @@ public class DatabaseManager {
 			close();
 		}
 	}
-
+	
+	public Reservation getReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
+		Reservation reservation = null;
+		
+		try {
+			setup();
+			reservation = entityManager.find(Reservation.class, id);
+			if (reservation == null)
+				throw new ReservationNotFoundException(id.toString());
+			return reservation;
+		} catch (ReservationNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DatabaseManagerException(e.getMessage());
+		} finally {
+			commit();
+			close();
+		}
+	}
+	
 	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
 			setup();
