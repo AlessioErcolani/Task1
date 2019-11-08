@@ -114,10 +114,10 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * @throws HotelAlreadtPresentException Inserts a new Hotel in the
-	 *                                      database @param hotel the Hotel to
-	 *                                      add @throws DatabaseManagerException in
-	 *                                      case of errors @throws
+	 * 
+	 * @param hotel the hotel to add
+	 * @throws HotelAlreadyPresentException is the address of the hotel is already used
+	 * @throws DatabaseManagerException  in case of errors
 	 */
 	public void addHotel(Hotel hotel) throws HotelAlreadyPresentException, DatabaseManagerException {
 		try {
@@ -159,9 +159,9 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * Inserts a reservation with the given parameters in the database.
+	 * Inserts a reservation
 	 * 
-	 * @param reservation
+	 * @param reservation the reservation to add
 	 * @throws DatabaseManagerException           in case of errors
 	 * @throws ReservationAlreadyPresentException if the reservation is already
 	 *                                            present
@@ -284,7 +284,7 @@ public class DatabaseManager {
 	 * Delete a reservation
 	 * 
 	 * @param reservation the Reservation to delete
-	 * @throws DatabaseManagerException
+	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void deleteReservation(Reservation reservationToDelete) throws DatabaseManagerException {
 		try {
@@ -310,7 +310,7 @@ public class DatabaseManager {
 	 * 
 	 * @param customer
 	 * @return the list of reservations
-	 * @throws DatabaseManagerException
+	 * @throws DatabaseManagerException in case of errors
 	 */
 	public List<Reservation> getUpcomingReservations(Customer customer) throws DatabaseManagerException {
 		try {
@@ -328,7 +328,7 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * Get the list of upcoming reservations for the given hotel
+	 * Get the list of upcoming reservations for the given hotel and check-in date
 	 * 
 	 * @param hotel
 	 * @param date  the minimum starting date for the check-in
@@ -410,8 +410,7 @@ public class DatabaseManager {
 	/**
 	 * Set a room in an hotel as available
 	 * 
-	 * @param hotel      is the Hotel of the room
-	 * @param roomNumber is the number of the room
+	 * @param unavailableRoom 
 	 * @return the updated room
 	 * @throws DatabaseManagerException in case of errors
 	 */
@@ -432,8 +431,7 @@ public class DatabaseManager {
 	/**
 	 * Set a room in an hotel as unavailable
 	 * 
-	 * @param hotel      is the Hotel of the room
-	 * @param roomNumber is the number of the room
+	 * @param availableRoom is the number of the room
 	 * @return the updated room
 	 * @throws DatabaseManagerException in case of errors
 	 */
@@ -504,7 +502,13 @@ public class DatabaseManager {
 			close();
 		}
 	}
-
+	
+	/**
+	 * Return a list of the hotels
+	 * 
+	 * @return the list of hotels
+	 * @throws DatabaseManagerException in case of errors
+	 */
 	public List<Hotel> getAllHotels() throws DatabaseManagerException {
 		try {
 			setup();
@@ -518,6 +522,14 @@ public class DatabaseManager {
 		}
 	}
 
+	/**
+	 * Return an hotel given the address
+	 * 
+	 * @param address of the hotel
+	 * @return the hotel
+	 * @throws HotelNotFoundException if the hotel does not exist
+	 * @throws DatabaseManagerException in case of errors
+	 */
 	public Hotel readHotel(String address) throws HotelNotFoundException, DatabaseManagerException {
 		Hotel hotel = null;
 		try {
@@ -536,6 +548,14 @@ public class DatabaseManager {
 		return hotel;
 	}
 
+	/**
+	 * Return an hotel given an id 
+	 * 
+	 * @param id the unique id of the hotel
+	 * @return the hotel 
+	 * @throws HotelNotFoundException if the hotel does not exists
+	 * @throws DatabaseManagerException in case of errors
+	 */
 	public Hotel getHotel(Long id) throws HotelNotFoundException, DatabaseManagerException {
 		Hotel hotel = null;
 
@@ -555,6 +575,13 @@ public class DatabaseManager {
 		}
 	}
 
+	/**
+	 * Return the list of the rooms for a specific hotel
+	 * 
+	 * @param hotel 
+	 * @return the list of the rooms of the hotels
+	 * @throws DatabaseManagerException in case of errors
+	 */
 	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
 			setup();
@@ -569,6 +596,15 @@ public class DatabaseManager {
 		}
 	}
 
+	/**
+	 * Return a room given an hotelId and the room number
+	 * 
+	 * @param hotelId the unique id of the hotel
+	 * @param roomNumber 
+	 * @return the room 
+	 * @throws DatabaseManagerException in case of errors
+	 * @throws RoomNotFoundException if the room does not exist
+	 */
 	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {
@@ -588,6 +624,14 @@ public class DatabaseManager {
 		return room;
 	}
 
+	/**
+	 * Return a customer given the username
+	 * 
+	 * @param username
+	 * @return the customer
+	 * @throws DatabaseManagerException in case of errors
+	 * @throws CustomerNotFoundException if the customer with that username does not exist
+	 */
 	public Customer readCustomer(String username) throws DatabaseManagerException, CustomerNotFoundException {
 		Customer customer = null;
 		try {
@@ -606,6 +650,14 @@ public class DatabaseManager {
 		return customer;
 	}
 
+	/**
+	 * Return a receptionist given the username
+	 * 
+	 * @param username 
+	 * @return the receptionist
+	 * @throws DatabaseManagerException in case of errors
+	 * @throws ReceptionistNotFoundException if the receptionist with that username does not exist
+	 */
 	public Receptionist readReceptionist(String username)
 			throws DatabaseManagerException, ReceptionistNotFoundException {
 		Receptionist receptionist = null;
@@ -626,6 +678,16 @@ public class DatabaseManager {
 		return receptionist;
 	}
 
+	/**
+	 * Return a reservation given the hotelId, the roomNumber and the date of check-in
+	 * 
+	 * @param hotelId
+	 * @param room
+	 * @param checkInDate
+	 * @return the reservation
+	 * @throws DatabaseManagerException in case of errors
+	 * @throws ReservationNotFoundException if the reservation does not exist
+	 */
 	public Reservation readReservation(long hotelId, int room, Date checkInDate)
 			throws DatabaseManagerException, ReservationNotFoundException {
 		Reservation reservation = null;
@@ -651,8 +713,8 @@ public class DatabaseManager {
 	/**
 	 * Delete a customer
 	 * 
-	 * @param customer
-	 * @throws DatabaseManagerException
+	 * @param customer the customer to delete
+	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void deleteCustomer(Customer customer) throws DatabaseManagerException {
 		try {
@@ -670,8 +732,8 @@ public class DatabaseManager {
 	/**
 	 * Delete an hotel
 	 * 
-	 * @param hotel
-	 * @throws DatabaseManagerException
+	 * @param hotel the hotel to delete
+	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void deleteHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
@@ -685,6 +747,13 @@ public class DatabaseManager {
 			close();
 		}
 	}
+	
+/**
+ * Delete a room
+ * 
+ * @param room the room to delete
+ * @throws DatabaseManagerException in case of errors
+ */
 
 	public void deleteRoom(Room room) throws DatabaseManagerException {
 		try {
@@ -702,8 +771,8 @@ public class DatabaseManager {
 	/**
 	 * Delete a receptionist
 	 * 
-	 * @param receptionist
-	 * @throws DatabaseManagerException
+	 * @param receptionist the receptionist to delete
+	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void deleteReceptionist(Receptionist receptionist) throws DatabaseManagerException {
 		try {
@@ -718,6 +787,14 @@ public class DatabaseManager {
 		}
 	}
 	
+	/**
+	 * Return a reservation given the id
+	 * 
+	 * @param id the unique id of a reservation
+	 * @return the reservation
+	 * @throws ReservationNotFoundException if the reservation does not exist
+	 * @throws DatabaseManagerException in case of error
+	 */ 
 	public Reservation getReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
 		Reservation reservation = null;
 		
@@ -740,8 +817,8 @@ public class DatabaseManager {
 	/**
 	 * Update a room
 	 * 
-	 * @param room
-	 * @throws DatabaseManagerException
+	 * @param room 
+	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void updateRoom(Room room) throws DatabaseManagerException {
 		try {
@@ -755,6 +832,11 @@ public class DatabaseManager {
 		}
 	}
 
+	/**
+	 * Utility function to populate the database
+	 * 
+	 * @param manager
+	 */
 	public static void populateDatabase(DatabaseManager manager) {
 		try {
 			manager.addCustomer(new Customer("federico", "pwd", "Federico", "Verdi"));
