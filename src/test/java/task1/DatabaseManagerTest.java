@@ -12,9 +12,9 @@ public class DatabaseManagerTest {
 
 	@BeforeClass
 	public static void setup() {
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 		manager = new DatabaseManager("hotel_chain");
-		DatabaseManager.populateDatabase(manager);
+		// DatabaseManager.populateDatabase(manager);
 	}
 
 	@AfterClass
