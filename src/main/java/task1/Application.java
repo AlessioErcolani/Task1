@@ -58,6 +58,18 @@ public class Application {
 				"logout",
 				"exit"
 		};*/
+
+		/*Terminal.testCommandLines = new String[] {
+				"sim-key-value --disable",
+				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2020-01-12 -c alessio",	
+				"check-in --id 25",
+				"delete-reservation -d 2020-01-12 -h 3 -r 201",
+				"sim-key-value --enable",
+				"logout",
+				"exit"
+		};*/
+
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
@@ -73,7 +85,7 @@ public class Application {
 				"exit"
 		};*/
 
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"show-reservations -f 2000-01-01",
 				"add-reservation -c chiara -h 3 -r 201 -f 2019-11-07",
@@ -86,7 +98,7 @@ public class Application {
 				"show-reservations -f 2000-01-01",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",

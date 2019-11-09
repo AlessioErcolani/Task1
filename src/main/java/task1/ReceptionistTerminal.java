@@ -13,16 +13,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import exc.BookingNotFoundException;
-import exc.CustomerNotFoundException;
-import exc.CustomerUsernameAlreadyPresentException;
-import exc.DatabaseManagerException;
-import exc.HotelNotFoundException;
-import exc.KeyValueDatabaseManagerException;
-import exc.ReservationAlreadyPresentException;
-import exc.ReservationNotFoundException;
-import exc.RoomAlreadyBookedException;
-import exc.RoomNotFoundException;
+import exc.*;
 
 public class ReceptionistTerminal extends Terminal {
 	
@@ -39,6 +30,7 @@ public class ReceptionistTerminal extends Terminal {
 			"register",
 			"check-in",
 			"check-out",
+			"sim-key-value",
 			"help",
 			"logout"
 			);
@@ -58,6 +50,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("register", getOptionsForRegister());
 		map.put("check-in", getOptionsForCheckIn());
 		map.put("check-out", getOptionsForCheckOut());
+		map.put("sim-key-value", getOptionsForSimulateKeyValue());
 		map.put("help", new Options());
 		map.put("logout", new Options());
 		
@@ -128,6 +121,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "check-out":
 			checkOut(options);
+			break;
+		case "sim-key-value":
+			simulateKeyValue(options);
 			break;
 		case "help":
 			help(options);
@@ -464,17 +460,32 @@ public class ReceptionistTerminal extends Terminal {
         	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
         	String id = Long.toString(reservationId);
         	
-        	Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
-        	System.out.println("Customer: " + booking.getName() + " " + booking.getSurname() + "\nRoom: " + booking.getRoomNumber());
-        	
-        } catch (ParseException e) {
-        	System.out.println(e.getMessage());
-            formatter.printHelp("check-in", getOptionsMap().get("check-in"), true);
-        } catch (BookingNotFoundException e) {
-        	System.out.println("The specified reservation does not exist");
-		} catch (Exception e) {
-			System.out.println("Something went wrong");
-		}
+        	//used to simulate the key value down
+        	if(Application.hotelDatabaseManager.keyValue.isAvailable) {
+        		Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
+        		System.out.println("Customer: " + booking.getName() + " " + booking.getSurname() + "\nRoom: " + booking.getRoomNumber());
+        	}
+        	else {
+        		System.out.println("Simulating the key-value down...");
+	        	
+	        	Reservation reservation = Application.hotelDatabaseManager.getReservation(reservationId);
+	        	
+	        	Customer customer = reservation.getCustomer();
+	        	
+	        	System.out.println("Customer: " + customer.getName() + " " + customer.getSurname());
+	        	System.out.println("Room: " + reservation.getRoom().getNumber());
+    	        	
+        	} 
+    		} catch (ParseException e) {
+    			System.out.println(e.getMessage());
+    			formatter.printHelp("check-in", getOptionsMap().get("check-in"), true);
+    		} catch (BookingNotFoundException e) {
+    			System.out.println("The specified reservation does not exist");
+    		} catch (ReservationNotFoundException e) {
+    			System.out.println("The specified reservation does not exist");
+    		} catch (Exception e) {
+    			System.out.println("Something went wrong");
+    		}
 	}
 	
 	private void checkOut(String[] options) {
@@ -504,6 +515,31 @@ public class ReceptionistTerminal extends Terminal {
 	private void logout() {
 		newUser = true;
 		nextUser = null;
+	}
+	
+	//------------------------------------------------------------------------\\
+	// Simulation                                                             \\
+	//------------------------------------------------------------------------\\
+	
+	private void simulateKeyValue(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("sim-key-value"), options);
+        	
+        	boolean enabled = true;
+        	
+        	if (cmd.hasOption("enable"))
+        		enabled = true;
+        	else if (cmd.hasOption("disable"))
+        		enabled = false;
+        	
+        	Application.hotelDatabaseManager.keyValue.isAvailable = enabled;
+        	
+        	System.out.println("The key-database is now " + (enabled ? "up" : "down"));
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("sim-key-value", getOptionsMap().get("sim-key-value"), true);
+        }
 	}
 	
 	//------------------------------------------------------------------------\\
@@ -700,5 +736,23 @@ public class ReceptionistTerminal extends Terminal {
 	
 	private static Options getOptionsForCheckOut() {
 		return getOptionsForCheckIn();
+	}
+	
+	private static Options getOptionsForSimulateKeyValue() {
+		Options options = new Options();
+		
+		Option enable = new Option("e", "enable", false, "simulation: enable key-value database");
+		enable.setRequired(false);
+		Option disable = new Option("d", "disable", false, "simulation: key-value database is down");
+		disable.setRequired(false);
+		
+		OptionGroup group = new OptionGroup();
+		group.addOption(enable);
+		group.addOption(disable);
+		group.setRequired(true);
+		
+		options.addOptionGroup(group);
+		
+		return options;
 	}
 }

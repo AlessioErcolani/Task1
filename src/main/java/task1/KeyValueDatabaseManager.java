@@ -9,6 +9,9 @@ import static org.fusesource.leveldbjni.JniDBFactory.*;
 import java.io.*;
 
 public class KeyValueDatabaseManager {
+	
+	// used to simulate the key-value database down
+	public boolean isAvailable = true;
 
 	private DB keyValueDb;
 
