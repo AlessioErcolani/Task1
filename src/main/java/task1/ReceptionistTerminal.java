@@ -13,14 +13,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import exc.CustomerNotFoundException;
-import exc.CustomerUsernameAlreadyPresentException;
-import exc.DatabaseManagerException;
-import exc.HotelNotFoundException;
-import exc.ReservationAlreadyPresentException;
-import exc.ReservationNotFoundException;
-import exc.RoomAlreadyBookedException;
-import exc.RoomNotFoundException;
+import exc.*;
 
 public class ReceptionistTerminal extends Terminal {
 	
