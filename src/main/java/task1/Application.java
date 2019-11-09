@@ -25,7 +25,7 @@ public class Application {
 		
 		boolean testing = true;
 		
-		Terminal.testCommandLines = new String[] {
+		/*Terminal.testCommandLines = new String[] {
 				"login --receptionist -u r2 -p pwd",
 				"help register",
 				"register -n Pino -s Verdi -u pino -p pwd",
@@ -35,7 +35,7 @@ public class Application {
 				"login -c -u pino -p pwd",
 				"logout",
 				"exit"
-		};
+		};*/
 		
 		/*Terminal.testCommandLines = new String[] {
 				"login -c -u piergiorgio -p pwd",
@@ -59,7 +59,8 @@ public class Application {
 				"exit"
 		};*/
 
-		/*Terminal.testCommandLines = new String[] {
+		Terminal.testCommandLines = new String[] {
+				"login --receptionist -u r2 -p pwd",
 				"sim-key-value --disable",
 				"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 				"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2020-01-12 -c alessio",	
@@ -68,7 +69,7 @@ public class Application {
 				"sim-key-value --enable",
 				"logout",
 				"exit"
-		};*/
+		};
 
 		
 		/*Terminal.testCommandLines = new String[] {
