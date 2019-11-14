@@ -341,8 +341,7 @@ public class DatabaseManager {
 			beginTransaction();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByHotel", Reservation.class)
-					.setParameter("hotelId", hotel.getId())
-					.setParameter("from", date, TemporalType.DATE)
+					.setParameter("hotelId", hotel.getId()).setParameter("from", date, TemporalType.DATE)
 					.getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
@@ -367,12 +366,9 @@ public class DatabaseManager {
 			throws DatabaseManagerException {
 		try {
 			beginTransaction();
-			List<Room> rooms = entityManager
-					.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
-					.setParameter("hotelId", hotel.getId())
-					.setParameter("startPeriod", startPeriod)
-					.setParameter("endPeriod", endPeriod)
-					.getResultList();
+			List<Room> rooms = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", hotel.getId()).setParameter("startPeriod", startPeriod)
+					.setParameter("endPeriod", endPeriod).getResultList();
 			return rooms;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -381,23 +377,20 @@ public class DatabaseManager {
 			close();
 		}
 	}
-	
+
 	public List<Room> retrieveReservableRooms(Long hotelId, Date startPeriod, Date endPeriod)
 			throws DatabaseManagerException, HotelNotFoundException {
 		try {
 			beginTransaction();
-			
+
 			Hotel hotel = entityManager.find(Hotel.class, hotelId);
 			if (hotel == null)
 				throw new HotelNotFoundException(hotelId.toString());
-			
-			List<Room> rooms = entityManager
-					.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
-					.setParameter("hotelId", hotel.getId())
-					.setParameter("startPeriod", startPeriod)
-					.setParameter("endPeriod", endPeriod)
-					.getResultList();
-			
+
+			List<Room> rooms = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", hotel.getId()).setParameter("startPeriod", startPeriod)
+					.setParameter("endPeriod", endPeriod).getResultList();
+
 			return rooms;
 		} catch (HotelNotFoundException e) {
 			throw e;
@@ -503,21 +496,20 @@ public class DatabaseManager {
 	 * @throws CustomerAuthenticationFailure if authentication fails
 	 */
 	public Customer authenticateCustomer(String username, String password) throws CustomerAuthenticationFailure {
-		Customer customer = null;
 		try {
 			beginTransaction();
-			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword",
-					Customer.class);
-			query.setParameter("username", username);
-			query.setParameter("password", password);
-			customer = query.getSingleResult();
+			Customer customer = entityManager
+					.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class)
+					.setParameter("username", username)
+					.setParameter("password", password)
+					.getSingleResult();
+			return customer;
 		} catch (Exception ex) {
 			throw new CustomerAuthenticationFailure(username);
 		} finally {
 			commitTransaction();
 			close();
 		}
-		return customer;
 	}
 
 	/**
@@ -533,11 +525,11 @@ public class DatabaseManager {
 			throws ReceptionistAuthenticationFailure {
 		try {
 			beginTransaction();
-			TypedQuery<Receptionist> query = entityManager.createNamedQuery("Receptionist.findByUsernameAndPassword",
-					Receptionist.class);
-			query.setParameter("username", username);
-			query.setParameter("password", password);
-			Receptionist receptionist = query.getSingleResult();
+			Receptionist receptionist = entityManager
+					.createNamedQuery("Receptionist.findByUsernameAndPassword", Receptionist.class)
+					.setParameter("username", username)
+					.setParameter("password", password)
+					.getSingleResult();
 			return receptionist;
 		} catch (Exception ex) {
 			throw new ReceptionistAuthenticationFailure(username);
