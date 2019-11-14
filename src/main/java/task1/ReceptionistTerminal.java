@@ -174,7 +174,7 @@ public class ReceptionistTerminal extends Terminal {
         	if (to.before(from))
         		throw new ParseException("Check-out date must be greater than or equal to check-in date");
             
-        	Hotel hotel = Application.hotelDatabaseManager.getHotel(hotelId);
+        	Hotel hotel = Application.hotelDatabaseManager.retrieveHotel(hotelId);
         	
         	List<Room> rooms = null;
         	
@@ -268,7 +268,7 @@ public class ReceptionistTerminal extends Terminal {
     		else
     			date = new Date();
         	
-        	Hotel hotel = Application.hotelDatabaseManager.getHotel(hotelId);
+        	Hotel hotel = Application.hotelDatabaseManager.retrieveHotel(hotelId);
         	
         	List<Reservation> reservations;
             reservations = Application.hotelDatabaseManager.getUpcomingReservations(hotel, date);

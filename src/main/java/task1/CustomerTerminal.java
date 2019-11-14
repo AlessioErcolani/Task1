@@ -108,7 +108,7 @@ public class CustomerTerminal extends Terminal {
         	parser.parse(getOptionsMap().get("show-reservations"), options);
             
         	System.out.println("Your upcoming reservations:");
-            printReservations(Application.hotelDatabaseManager.getUpcomingReservations(customer));
+            printReservations(Application.hotelDatabaseManager.retrieveUpcomingCustomerReservations(customer));
             
         } catch (ParseException e) {
             System.out.println(e.getMessage());
@@ -158,9 +158,9 @@ public class CustomerTerminal extends Terminal {
         	if (to.before(from))
         		throw new ParseException("Check-out date must be greater than or equal to check-in date");
             
-        	Hotel hotel = Application.hotelDatabaseManager.getHotel(hotelId);
+        	List<Room> rooms = Application.hotelDatabaseManager.retrieveReservableRooms(hotelId, from, to);
         	
-        	List<Room> rooms = Application.hotelDatabaseManager.getReservableRooms(hotel, from, to);
+        	Hotel hotel = Application.hotelDatabaseManager.retrieveHotel(hotelId);
             
         	System.out.println("Bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from) + " to " + dateToString(to));
             printRooms(rooms);

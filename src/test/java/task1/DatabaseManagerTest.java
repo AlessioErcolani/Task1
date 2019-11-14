@@ -332,7 +332,7 @@ public class DatabaseManagerTest {
 		// get all reservations of a customer
 		List<Reservation> upcomingReservations = null;
 		try {
-			upcomingReservations = manager.getUpcomingReservations(customer);
+			upcomingReservations = manager.retrieveUpcomingCustomerReservations(customer);
 		} catch (DatabaseManagerException e) {
 			fail("Test get reservations of a customer: failed.");
 		}
@@ -406,7 +406,7 @@ public class DatabaseManagerTest {
 
 		// get all reservations of the old customer
 		try {
-			upcomingReservations = manager.getUpcomingReservations(customer);
+			upcomingReservations = manager.retrieveUpcomingCustomerReservations(customer);
 		} catch (DatabaseManagerException e) {
 			fail("Test get reservations of the new customer: failed.");
 		}
@@ -421,7 +421,7 @@ public class DatabaseManagerTest {
 
 		// get all reservations of the customer
 		try {
-			upcomingReservations = manager.getUpcomingReservations(newCustomer);
+			upcomingReservations = manager.retrieveUpcomingCustomerReservations(newCustomer);
 		} catch (DatabaseManagerException e) {
 			fail("Test get reservations of the new customer: failed.");
 		}

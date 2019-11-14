@@ -23,7 +23,27 @@ public class Application {
 		
 		System.out.println("\nType commands to use the application");
 		
-		boolean testing = false;
+		boolean testing = true;
+		
+		Terminal.testCommandLines = new String[] {
+				"login -c -u piergiorgio -p pwd",
+				"help",
+				"help show-reservations",
+				"show-hotels",
+				"show-reservations",
+				"show-rooms -h 3 -n -f 2019-11-15 -t 2019-11-19",
+				"show-rooms -h 3 -t 2019-11-19",
+				"show-rooms -h 3 -t 2018-11-19",
+				"show-rooms -h 1",
+				"show-rooms -h 2",
+				"show-rooms -h 3",
+				"show-rooms -h 3 --all",
+				"show-rooms -h 3 -n",
+				"show-rooms -h 3 -b",
+				"help show-rooms",
+				"logout",
+				"exit"
+		};
 		
 		Terminal cli = new Terminal();
 		

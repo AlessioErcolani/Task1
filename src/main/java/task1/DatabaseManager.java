@@ -34,12 +34,12 @@ public class DatabaseManager {
 		factory.close();
 	}
 
-	private void setup() {
+	private void beginTransaction() {
 		entityManager = factory.createEntityManager();
 		entityManager.getTransaction().begin();
 	}
 
-	private void commit() {
+	private void commitTransaction() {
 		entityManager.getTransaction().commit();
 	}
 
@@ -66,7 +66,7 @@ public class DatabaseManager {
 	public void addCustomer(Customer customer)
 			throws CustomerUsernameAlreadyPresentException, DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			persistObject(customer);
 		} catch (PersistenceException pe) { // ConstraintViolationException
 			Throwable t = pe.getCause();
@@ -79,7 +79,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -95,7 +95,7 @@ public class DatabaseManager {
 	public void addReceptionist(Receptionist receptionist)
 			throws ReceptionistUsernameAlreadyPresentException, DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			persistObject(receptionist);
 		} catch (PersistenceException pe) { // ConstraintViolationException
 			Throwable t = pe.getCause();
@@ -108,7 +108,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -116,19 +116,20 @@ public class DatabaseManager {
 	/**
 	 * 
 	 * @param hotel the hotel to add
-	 * @throws HotelAlreadyPresentException is the address of the hotel is already used
-	 * @throws DatabaseManagerException  in case of errors
+	 * @throws HotelAlreadyPresentException is the address of the hotel is already
+	 *                                      used
+	 * @throws DatabaseManagerException     in case of errors
 	 */
 	public void addHotel(Hotel hotel) throws HotelAlreadyPresentException, DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			persistObject(hotel);
 		} catch (PersistenceException ex) {
 			throw new HotelAlreadyPresentException(ex.getMessage());
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -143,14 +144,14 @@ public class DatabaseManager {
 	 */
 	public void addRoom(Room room) throws RoomAlreadyPresentException, DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Hotel hotel = entityManager.find(Hotel.class, room.getHotel().getId());
 			hotel.addRoom(room);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
-				commit();
+				commitTransaction();
 			} catch (RollbackException ex) {
 				throw new RoomAlreadyPresentException(ex.getMessage());
 			}
@@ -169,7 +170,7 @@ public class DatabaseManager {
 	public void addReservation(Reservation reservation)
 			throws DatabaseManagerException, ReservationAlreadyPresentException {
 		try {
-			setup();
+			beginTransaction();
 			Room room = entityManager.find(Room.class, reservation.getRoom().getId());
 			// add to the SQL database
 			room.addReservation(reservation);
@@ -177,7 +178,7 @@ public class DatabaseManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
-				commit();
+				commitTransaction();
 
 				// simulation key-value down
 				if (keyValue.isAvailable) {
@@ -201,9 +202,9 @@ public class DatabaseManager {
 						}
 					}).start();
 				} else {
-					writeErrorLog("[INSERT]: "
-							+ new Booking(reservation.getCustomer().getName(), reservation.getCustomer().getSurname(),
-									Integer.toString(reservation.getRoom().getNumber())) + "\n");
+					writeErrorLog("[INSERT]: " + new Booking(reservation.getCustomer().getName(),
+							reservation.getCustomer().getSurname(), Integer.toString(reservation.getRoom().getNumber()))
+							+ "\n");
 				}
 			} catch (RollbackException ex) {
 				throw new ReservationAlreadyPresentException(ex.getMessage());
@@ -232,7 +233,7 @@ public class DatabaseManager {
 	public void updateReservation(Reservation oldReservation, Reservation newReservation)
 			throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Room oldRoom = entityManager.find(Room.class, oldReservation.getRoom().getId());
 			oldRoom.removeReservation(oldReservation);
 
@@ -245,7 +246,7 @@ public class DatabaseManager {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
 			try {
-				commit();
+				commitTransaction();
 
 				// used to simulate the key-value down
 				if (keyValue.isAvailable) {
@@ -288,7 +289,7 @@ public class DatabaseManager {
 	 */
 	public void deleteReservation(Reservation reservationToDelete) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Reservation reservation = entityManager.find(Reservation.class, reservationToDelete.getId());
 			entityManager.remove(reservation);
 
@@ -300,7 +301,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -312,9 +313,9 @@ public class DatabaseManager {
 	 * @return the list of reservations
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public List<Reservation> getUpcomingReservations(Customer customer) throws DatabaseManagerException {
+	public List<Reservation> retrieveUpcomingCustomerReservations(Customer customer) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByCustomer", Reservation.class)
 					.setParameter("customerId", customer.getId()).getResultList();
@@ -322,7 +323,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -337,22 +338,23 @@ public class DatabaseManager {
 	 */
 	public List<Reservation> getUpcomingReservations(Hotel hotel, Date date) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			List<Reservation> upcomingReservations = entityManager
 					.createNamedQuery("Reservation.getByHotel", Reservation.class)
-					.setParameter("hotelId", hotel.getId()).setParameter("from", date, TemporalType.DATE)
+					.setParameter("hotelId", hotel.getId())
+					.setParameter("from", date, TemporalType.DATE)
 					.getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
 
 	/**
-	 * Get the list of rooms of an hotel that are reservable in a given period, i.e.
+	 * Get the list of rooms of an hotel that are bookable in a given period, i.e.
 	 * they are available AND not occupied in the period
 	 * 
 	 * @param hotel       is the Hotel of the room
@@ -364,17 +366,45 @@ public class DatabaseManager {
 	public List<Room> getReservableRooms(Hotel hotel, Date startPeriod, Date endPeriod)
 			throws DatabaseManagerException {
 		try {
-			setup();
-			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class);
-			query.setParameter("hotelId", hotel.getId());
-			query.setParameter("startPeriod", startPeriod);
-			query.setParameter("endPeriod", endPeriod);
-			List<Room> rooms = query.getResultList();
+			beginTransaction();
+			List<Room> rooms = entityManager
+					.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", hotel.getId())
+					.setParameter("startPeriod", startPeriod)
+					.setParameter("endPeriod", endPeriod)
+					.getResultList();
 			return rooms;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
+			close();
+		}
+	}
+	
+	public List<Room> retrieveReservableRooms(Long hotelId, Date startPeriod, Date endPeriod)
+			throws DatabaseManagerException, HotelNotFoundException {
+		try {
+			beginTransaction();
+			
+			Hotel hotel = entityManager.find(Hotel.class, hotelId);
+			if (hotel == null)
+				throw new HotelNotFoundException(hotelId.toString());
+			
+			List<Room> rooms = entityManager
+					.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", hotel.getId())
+					.setParameter("startPeriod", startPeriod)
+					.setParameter("endPeriod", endPeriod)
+					.getResultList();
+			
+			return rooms;
+		} catch (HotelNotFoundException e) {
+			throw e;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commitTransaction();
 			close();
 		}
 	}
@@ -392,7 +422,7 @@ public class DatabaseManager {
 	public List<Room> getUnreservableRooms(Hotel hotel, Date startPeriod, Date endPeriod)
 			throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Room> query = entityManager.createNamedQuery("Room.getUnreservableRoomsGivenPeriod", Room.class);
 			query.setParameter("hotelId", hotel.getId());
 			query.setParameter("startPeriod", startPeriod);
@@ -402,7 +432,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -410,20 +440,20 @@ public class DatabaseManager {
 	/**
 	 * Set a room in an hotel as available
 	 * 
-	 * @param unavailableRoom 
+	 * @param unavailableRoom
 	 * @return the updated room
 	 * @throws DatabaseManagerException in case of errors
 	 */
 	public Room setRoomAvailable(Room unavailableRoom) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Room room = entityManager.find(Room.class, unavailableRoom.getId());
 			room.setAvailable(true);
 			return room;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -437,32 +467,32 @@ public class DatabaseManager {
 	 */
 	public Room setRoomUnavailable(Room availableRoom) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Room room = entityManager.find(Room.class, availableRoom.getId());
 			room.setAvailable(false);
 			return room;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
 
 	public Customer changePassword(Customer customer, String newPassword) throws DatabaseManagerException {
 		try {
-			setup();
-			Customer ref = entityManager.find(Customer.class, customer.getId());		
+			beginTransaction();
+			Customer ref = entityManager.find(Customer.class, customer.getId());
 			ref.setPassword(newPassword);
 			return ref;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
-	
+
 	/**
 	 * Checks for the authentication of a Customer through their username and
 	 * password
@@ -475,7 +505,7 @@ public class DatabaseManager {
 	public Customer authenticateCustomer(String username, String password) throws CustomerAuthenticationFailure {
 		Customer customer = null;
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsernameAndPassword",
 					Customer.class);
 			query.setParameter("username", username);
@@ -484,7 +514,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new CustomerAuthenticationFailure(username);
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 		return customer;
@@ -502,7 +532,7 @@ public class DatabaseManager {
 	public Receptionist authenticateReceptionist(String username, String password)
 			throws ReceptionistAuthenticationFailure {
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Receptionist> query = entityManager.createNamedQuery("Receptionist.findByUsernameAndPassword",
 					Receptionist.class);
 			query.setParameter("username", username);
@@ -512,11 +542,11 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new ReceptionistAuthenticationFailure(username);
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
-	
+
 	/**
 	 * Return a list of the hotels
 	 * 
@@ -525,13 +555,13 @@ public class DatabaseManager {
 	 */
 	public List<Hotel> getAllHotels() throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			List<Hotel> hotels = entityManager.createNamedQuery("Hotel.findAll", Hotel.class).getResultList();
 			return hotels;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -541,13 +571,13 @@ public class DatabaseManager {
 	 * 
 	 * @param address of the hotel
 	 * @return the hotel
-	 * @throws HotelNotFoundException if the hotel does not exist
+	 * @throws HotelNotFoundException   if the hotel does not exist
 	 * @throws DatabaseManagerException in case of errors
 	 */
 	public Hotel readHotel(String address) throws HotelNotFoundException, DatabaseManagerException {
 		Hotel hotel = null;
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Hotel> query = entityManager.createNamedQuery("Hotel.findByAddress", Hotel.class);
 			query.setParameter("address", address);
 			hotel = query.getSingleResult();
@@ -556,35 +586,35 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 		return hotel;
 	}
 
 	/**
-	 * Return an hotel given an id 
+	 * Return an hotel given an id
 	 * 
 	 * @param id the unique id of the hotel
-	 * @return the hotel 
-	 * @throws HotelNotFoundException if the hotel does not exists
+	 * @return the hotel
+	 * @throws HotelNotFoundException   if the hotel does not exists
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public Hotel getHotel(Long id) throws HotelNotFoundException, DatabaseManagerException {
+	public Hotel retrieveHotel(Long id) throws HotelNotFoundException, DatabaseManagerException {
 		Hotel hotel = null;
 
 		try {
-			setup();
+			beginTransaction();
 			hotel = entityManager.find(Hotel.class, id);
 			if (hotel == null)
-				throw new HotelNotFoundException();
+				throw new HotelNotFoundException(id.toString());
 			return hotel;
 		} catch (HotelNotFoundException e) {
-			throw new HotelNotFoundException(id.toString());
+			throw e;
 		} catch (Exception e) {
 			throw new DatabaseManagerException(e.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -592,20 +622,20 @@ public class DatabaseManager {
 	/**
 	 * Return the list of the rooms for a specific hotel
 	 * 
-	 * @param hotel 
+	 * @param hotel
 	 * @return the list of the rooms of the hotels
 	 * @throws DatabaseManagerException in case of errors
 	 */
 	public List<Room> getRoomsOfHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			List<Room> rooms = entityManager.createNamedQuery("Room.findByHotel", Room.class)
 					.setParameter("hotelId", hotel.getId()).getResultList();
 			return rooms;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -613,16 +643,16 @@ public class DatabaseManager {
 	/**
 	 * Return a room given an hotelId and the room number
 	 * 
-	 * @param hotelId the unique id of the hotel
-	 * @param roomNumber 
-	 * @return the room 
+	 * @param hotelId    the unique id of the hotel
+	 * @param roomNumber
+	 * @return the room
 	 * @throws DatabaseManagerException in case of errors
-	 * @throws RoomNotFoundException if the room does not exist
+	 * @throws RoomNotFoundException    if the room does not exist
 	 */
 	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
 		Room room = null;
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Room> query = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class);
 			query.setParameter("hotelId", hotelId);
 			query.setParameter("roomNumber", roomNumber);
@@ -632,7 +662,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 		return room;
@@ -643,13 +673,14 @@ public class DatabaseManager {
 	 * 
 	 * @param username
 	 * @return the customer
-	 * @throws DatabaseManagerException in case of errors
-	 * @throws CustomerNotFoundException if the customer with that username does not exist
+	 * @throws DatabaseManagerException  in case of errors
+	 * @throws CustomerNotFoundException if the customer with that username does not
+	 *                                   exist
 	 */
 	public Customer readCustomer(String username) throws DatabaseManagerException, CustomerNotFoundException {
 		Customer customer = null;
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Customer> query = entityManager.createNamedQuery("Customer.findByUsername", Customer.class);
 			query.setParameter("username", username);
 			customer = query.getSingleResult();
@@ -658,7 +689,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 		return customer;
@@ -667,16 +698,17 @@ public class DatabaseManager {
 	/**
 	 * Return a receptionist given the username
 	 * 
-	 * @param username 
+	 * @param username
 	 * @return the receptionist
-	 * @throws DatabaseManagerException in case of errors
-	 * @throws ReceptionistNotFoundException if the receptionist with that username does not exist
+	 * @throws DatabaseManagerException      in case of errors
+	 * @throws ReceptionistNotFoundException if the receptionist with that username
+	 *                                       does not exist
 	 */
 	public Receptionist readReceptionist(String username)
 			throws DatabaseManagerException, ReceptionistNotFoundException {
 		Receptionist receptionist = null;
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Receptionist> query = entityManager.createNamedQuery("Receptionist.findByUsername",
 					Receptionist.class);
 			query.setParameter("username", username);
@@ -686,27 +718,28 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 		return receptionist;
 	}
 
 	/**
-	 * Return a reservation given the hotelId, the roomNumber and the date of check-in
+	 * Return a reservation given the hotelId, the roomNumber and the date of
+	 * check-in
 	 * 
 	 * @param hotelId
 	 * @param room
 	 * @param checkInDate
 	 * @return the reservation
-	 * @throws DatabaseManagerException in case of errors
+	 * @throws DatabaseManagerException     in case of errors
 	 * @throws ReservationNotFoundException if the reservation does not exist
 	 */
 	public Reservation readReservation(long hotelId, int room, Date checkInDate)
 			throws DatabaseManagerException, ReservationNotFoundException {
 		Reservation reservation = null;
 		try {
-			setup();
+			beginTransaction();
 			TypedQuery<Reservation> query = entityManager.createNamedQuery("Reservation.getByHoteAndRoomAndCheckInDate",
 					Reservation.class);
 			query.setParameter("hotelId", hotelId);
@@ -718,7 +751,7 @@ public class DatabaseManager {
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 		return reservation;
@@ -732,13 +765,13 @@ public class DatabaseManager {
 	 */
 	public void deleteCustomer(Customer customer) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Customer ref = entityManager.find(Customer.class, customer.getId());
 			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -751,33 +784,33 @@ public class DatabaseManager {
 	 */
 	public void deleteHotel(Hotel hotel) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Hotel ref = entityManager.find(Hotel.class, hotel.getId());
 			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
-	
-/**
- * Delete a room
- * 
- * @param room the room to delete
- * @throws DatabaseManagerException in case of errors
- */
+
+	/**
+	 * Delete a room
+	 * 
+	 * @param room the room to delete
+	 * @throws DatabaseManagerException in case of errors
+	 */
 
 	public void deleteRoom(Room room) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Room ref = entityManager.find(Room.class, room.getId());
 			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -790,30 +823,30 @@ public class DatabaseManager {
 	 */
 	public void deleteReceptionist(Receptionist receptionist) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			Receptionist ref = entityManager.find(Receptionist.class, receptionist.getId());
 			entityManager.remove(ref);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
-	
+
 	/**
 	 * Return a reservation given the id
 	 * 
 	 * @param id the unique id of a reservation
 	 * @return the reservation
 	 * @throws ReservationNotFoundException if the reservation does not exist
-	 * @throws DatabaseManagerException in case of error
-	 */ 
+	 * @throws DatabaseManagerException     in case of error
+	 */
 	public Reservation getReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
 		Reservation reservation = null;
-		
+
 		try {
-			setup();
+			beginTransaction();
 			reservation = entityManager.find(Reservation.class, id);
 			if (reservation == null)
 				throw new ReservationNotFoundException(id.toString());
@@ -823,7 +856,7 @@ public class DatabaseManager {
 		} catch (Exception e) {
 			throw new DatabaseManagerException(e.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
@@ -831,17 +864,17 @@ public class DatabaseManager {
 	/**
 	 * Update a room
 	 * 
-	 * @param room 
+	 * @param room
 	 * @throws DatabaseManagerException in case of errors
 	 */
 	public void updateRoom(Room room) throws DatabaseManagerException {
 		try {
-			setup();
+			beginTransaction();
 			mergeObject(room);
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
-			commit();
+			commitTransaction();
 			close();
 		}
 	}
