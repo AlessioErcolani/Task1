@@ -281,13 +281,47 @@ public class DatabaseManager {
 		}
 	}
 
+	public Reservation deleteReservation(long hotelId, int roomNumber, Date checkIn)
+			throws DatabaseManagerException, ReservationNotFoundException {
+		try {
+			Reservation reservation;
+			beginTransaction();
+			try {
+				reservation = entityManager.createNamedQuery("Reservation.getByHoteAndRoomAndCheckInDate", Reservation.class)
+						.setParameter("hotelId", hotelId)
+						.setParameter("roomNumber", roomNumber)
+						.setParameter("checkInDate", checkIn)
+						.getSingleResult();
+			} catch (NoResultException nr) {
+				throw new ReservationNotFoundException();
+			}
+
+			entityManager.remove(reservation);
+
+			// delete key-value pair
+			if (!keyValue.isAvailable) {
+				keyValue.deleteBooking(Long.toString(reservation.getId()));
+				writeErrorLog("[DELETE]: " + Long.toString(reservation.getId()) + "\n");
+			}
+			
+			return reservation;
+		} catch (ReservationNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DatabaseManagerException(e.getMessage());
+		} finally {
+			commitTransaction();
+			close();
+		}
+	}
+	
 	/**
 	 * Delete a reservation
 	 * 
 	 * @param reservation the Reservation to delete
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public void deleteReservation(Reservation reservationToDelete) throws DatabaseManagerException {
+	public void removeReservation(Reservation reservationToDelete) throws DatabaseManagerException {
 		try {
 			beginTransaction();
 			Reservation reservation = entityManager.find(Reservation.class, reservationToDelete.getId());
@@ -662,23 +696,23 @@ public class DatabaseManager {
 	 * @throws DatabaseManagerException in case of errors
 	 * @throws RoomNotFoundException    if the room does not exist
 	 */
-	public Room readRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
-		Room room = null;
+	public Room retrieveRoom(long hotelId, int roomNumber) throws DatabaseManagerException, RoomNotFoundException {
+
 		try {
 			beginTransaction();
-			TypedQuery<Room> query = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class);
-			query.setParameter("hotelId", hotelId);
-			query.setParameter("roomNumber", roomNumber);
-			room = query.getSingleResult();
+			Room room = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class)
+					.setParameter("hotelId", hotelId)
+					.setParameter("roomNumber", roomNumber)
+					.getSingleResult();
+			return room;
 		} catch (NoResultException nr) {
 			throw new RoomNotFoundException();
-		} catch (Exception ex) {
-			throw new DatabaseManagerException(ex.getMessage());
+		} catch (Exception e) {
+			throw new DatabaseManagerException(e.getMessage());
 		} finally {
 			commitTransaction();
 			close();
 		}
-		return room;
 	}
 
 	/**

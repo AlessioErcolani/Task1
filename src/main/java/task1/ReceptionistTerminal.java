@@ -222,7 +222,7 @@ public class ReceptionistTerminal extends Terminal {
         	if (to.before(from))
         		throw new ParseException("Check-out date must be greater than or equal to check-in date");
         	
-        	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
+        	Room room = Application.hotelDatabaseManager.retrieveRoom(hotelId, roomNumber);
         	Customer customer = Application.hotelDatabaseManager.readCustomer(username);
         	
         	// check if room is reservable
@@ -329,7 +329,7 @@ public class ReceptionistTerminal extends Terminal {
         		throw new ParseException("Check-out date must be greater than or equal to check-in date");
         	
         	// check if specified customer's username and room really exist
-        	Room newRoom = Application.hotelDatabaseManager.readRoom(newHotelId, newRoomNumber);
+        	Room newRoom = Application.hotelDatabaseManager.retrieveRoom(newHotelId, newRoomNumber);
         	Customer newCustomer = Application.hotelDatabaseManager.readCustomer(newUsername);
         	
         	Reservation newReservation = new Reservation(newRoom, newCheckIn, newCheckOut, newCustomer);
@@ -377,10 +377,8 @@ public class ReceptionistTerminal extends Terminal {
         	int roomNumber = ((Number) cmd.getParsedOptionValue("room")).intValue();
         	Date checkIn = parseDate(cmd.getOptionValue("date"));
         	
-        	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
-        	Reservation reservation = Application.hotelDatabaseManager.readReservation(hotelId, roomNumber, checkIn);
-        	
-        	Application.hotelDatabaseManager.deleteReservation(reservation);
+        	Application.hotelDatabaseManager.retrieveRoom(hotelId, roomNumber);
+        	Reservation reservation = Application.hotelDatabaseManager.deleteReservation(hotelId, roomNumber, checkIn);
         	
         	System.out.println("Reservation deleted successfully");
         	printReservations(Arrays.asList(reservation));

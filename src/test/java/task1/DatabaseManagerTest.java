@@ -133,7 +133,7 @@ public class DatabaseManagerTest {
 		// read room
 		Room readRoom = null;
 		try {
-			readRoom = manager.readRoom(hotel.getId(), 101);
+			readRoom = manager.retrieveRoom(hotel.getId(), 101);
 		} catch (RoomNotFoundException e) {
 			fail("Test read room: failed.");
 		} catch (DatabaseManagerException e) {
@@ -192,7 +192,7 @@ public class DatabaseManagerTest {
 		// try to read the room deleted together with the hotel
 		exception = false;
 		try {
-			readRoom = manager.readRoom(hotel.getId(), 101);
+			readRoom = manager.retrieveRoom(hotel.getId(), 101);
 		} catch (RoomNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -414,7 +414,7 @@ public class DatabaseManagerTest {
 
 		// delete the reservation
 		try {
-			manager.deleteReservation(readReservation);
+			manager.removeReservation(readReservation);
 		} catch (DatabaseManagerException e) {
 			fail("Test delete reservation: failed.");
 		}
@@ -513,7 +513,7 @@ public class DatabaseManagerTest {
 		// 19-11-2019 (= checkOutDate)
 		Room bookedRoom = null;
 		try {
-			bookedRoom = manager.readRoom(hotel.getId(), 401);
+			bookedRoom = manager.retrieveRoom(hotel.getId(), 401);
 		} catch (DatabaseManagerException | RoomNotFoundException e) {
 			fail("Read room: failed.");
 		}
@@ -521,7 +521,7 @@ public class DatabaseManagerTest {
 		// unavailable room in the database
 		Room room = null;
 		try {
-			room = manager.readRoom(hotel.getId(), 302);
+			room = manager.retrieveRoom(hotel.getId(), 302);
 		} catch (DatabaseManagerException | RoomNotFoundException e) {
 			fail("Read room: failed.");
 		}
