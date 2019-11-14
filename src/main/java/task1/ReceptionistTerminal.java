@@ -140,7 +140,7 @@ public class ReceptionistTerminal extends Terminal {
 	
 	private void showHotels() {
 		try {
-			printHotels(Application.hotelDatabaseManager.getAllHotels());
+			printHotels(Application.hotelDatabaseManager.retrieveHotels());
 		} catch (Exception e) {
 			System.out.println("Something went wrong");
 		}
