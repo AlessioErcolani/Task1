@@ -213,6 +213,81 @@ public class DatabaseManager {
 		}
 	}
 
+	public void insertReservation(long hotelId, int roomNumber, String username, Reservation reservation)
+			throws RoomNotFoundException, RoomAlreadyBookedException, CustomerNotFoundException, DatabaseManagerException, ReservationAlreadyPresentException {
+		try {
+			beginTransaction();
+
+			Room room;
+			try {
+				// read the room
+				room = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class)
+						.setParameter("hotelId", hotelId).setParameter("roomNumber", roomNumber).getSingleResult();
+			} catch (NoResultException nr) {
+				throw new RoomNotFoundException();
+			}
+			
+			// check if room is reservable
+			List<Room> reservableRooms = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", hotelId).setParameter("startPeriod", reservation.getCheckInDate())
+					.setParameter("endPeriod", reservation.getCheckOutDate()).getResultList();
+			if (!reservableRooms.contains(room))
+				throw new RoomAlreadyBookedException();
+			
+			Customer customer;
+			try {
+				// read the customer
+				customer = entityManager.createNamedQuery("Customer.findByUsername", Customer.class)
+						.setParameter("username", username).getSingleResult();
+			} catch (NoResultException nr) {
+				throw new CustomerNotFoundException();
+			}
+		
+			// add reservation
+			reservation.setRoom(room);
+			reservation.setCustomer(customer);
+			room.addReservation(reservation);
+		} catch (RoomNotFoundException | RoomAlreadyBookedException | CustomerNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DatabaseManagerException();
+		} finally {
+			try {
+				commitTransaction();
+
+				// simulation key-value down
+				if (keyValue.isAvailable) {
+
+					// when add in the SQL database terminates successfully, add in the key-value
+					// database
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Booking booking = new Booking(reservation.getCustomer().getName(),
+									reservation.getCustomer().getSurname(),
+									Integer.toString(reservation.getRoom().getNumber()));
+							try {
+								keyValue.insertBooking(Long.toString(reservation.getId()), booking);
+							} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
+								System.out.println("Add on key value\n");
+								String error = "Error in writing reservation for " + booking.getName() + " "
+										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
+								writeErrorLog("[ERR_INSERT]: " + error + "\n");
+							}
+						}
+					}).start();
+				} else {
+					writeErrorLog("[INSERT]: " + new Booking(reservation.getCustomer().getName(),
+							reservation.getCustomer().getSurname(), Integer.toString(reservation.getRoom().getNumber()))
+							+ "\n");
+				}
+			} catch (RollbackException ex) {
+				throw new ReservationAlreadyPresentException(ex.getMessage());
+			}
+			close();
+		}
+	}
+
 	public void writeErrorLog(String error) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File("errorLog.txt"), true));
@@ -481,6 +556,27 @@ public class DatabaseManager {
 		}
 	}
 
+	public List<Room> retrieveUnreservableRooms(Long hotelId, Date startPeriod, Date endPeriod)
+			throws DatabaseManagerException {
+		try {
+			beginTransaction();
+			
+			Hotel hotel = entityManager.find(Hotel.class, hotelId);
+			if (hotel == null)
+				throw new HotelNotFoundException(hotelId.toString());
+
+			List<Room> rooms = entityManager.createNamedQuery("Room.getUnreservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", hotel.getId()).setParameter("startPeriod", startPeriod)
+					.setParameter("endPeriod", endPeriod).getResultList();
+			return rooms;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commitTransaction();
+			close();
+		}
+	}
+
 	/**
 	 * Set a room in an hotel as available
 	 * 
@@ -570,11 +666,8 @@ public class DatabaseManager {
 	public Customer authenticateCustomer(String username, String password) throws CustomerAuthenticationFailure {
 		try {
 			beginTransaction();
-			Customer customer = entityManager
-					.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class)
-					.setParameter("username", username)
-					.setParameter("password", password)
-					.getSingleResult();
+			Customer customer = entityManager.createNamedQuery("Customer.findByUsernameAndPassword", Customer.class)
+					.setParameter("username", username).setParameter("password", password).getSingleResult();
 			return customer;
 		} catch (Exception ex) {
 			throw new CustomerAuthenticationFailure(username);
@@ -599,9 +692,7 @@ public class DatabaseManager {
 			beginTransaction();
 			Receptionist receptionist = entityManager
 					.createNamedQuery("Receptionist.findByUsernameAndPassword", Receptionist.class)
-					.setParameter("username", username)
-					.setParameter("password", password)
-					.getSingleResult();
+					.setParameter("username", username).setParameter("password", password).getSingleResult();
 			return receptionist;
 		} catch (Exception ex) {
 			throw new ReceptionistAuthenticationFailure(username);
@@ -695,6 +786,20 @@ public class DatabaseManager {
 			beginTransaction();
 			List<Room> rooms = entityManager.createNamedQuery("Room.findByHotel", Room.class)
 					.setParameter("hotelId", hotel.getId()).getResultList();
+			return rooms;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commitTransaction();
+			close();
+		}
+	}
+
+	public List<Room> retrieveHotelRooms(long hotelId) throws DatabaseManagerException {
+		try {
+			beginTransaction();
+			List<Room> rooms = entityManager.createNamedQuery("Room.findByHotel", Room.class)
+					.setParameter("hotelId", hotelId).getResultList();
 			return rooms;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -996,40 +1101,34 @@ public class DatabaseManager {
 			manager.addReceptionist(new Receptionist("r7", "pwd", "Benedetta", "Uffizi", hotelFirenze));
 			manager.addReceptionist(new Receptionist("r8", "pwd", "Lorena", "Duomo", hotelPisa));
 			manager.addReceptionist(new Receptionist("r9", "pwd", "Federico", "Lungarno", hotelPisa));
-
-			Room roomRoma1 = new Room(101, 2, hotelRoma);
-			manager.addRoom(roomRoma1);
+ 
+			manager.addRoom(new Room(101, 2, hotelRoma));
 			manager.addRoom(new Room(102, 3, hotelRoma));
 			manager.addRoom(new Room(103, 2, hotelRoma));
 
-			Room roomMilano1 = new Room(101, 2, hotelMilano);
-			manager.addRoom(roomMilano1);
+			manager.addRoom(new Room(101, 2, hotelMilano));
 			manager.addRoom(new Room(102, 3, hotelMilano));
 			manager.addRoom(new Room(201, 4, hotelMilano));
 
 			manager.addRoom(new Room(101, 4, hotelBologna));
 			manager.addRoom(new Room(201, 3, hotelBologna));
-			Room roomBologna3 = new Room(301, 2, hotelBologna);
-			manager.addRoom(roomBologna3);
+			manager.addRoom(new Room(301, 2, hotelBologna));
 			manager.addRoom(new Room(302, 2, hotelBologna, false));
 
 			manager.addRoom(new Room(101, 4, hotelFirenze));
-			Room roomFirenze2 = new Room(102, 3, hotelFirenze);
-			manager.addRoom(roomFirenze2);
+			manager.addRoom(new Room(102, 3, hotelFirenze));
 			manager.addRoom(new Room(103, 2, hotelFirenze));
 			manager.addRoom(new Room(104, 2, hotelFirenze, false));
 
-			Room roomPisa1 = new Room(101, 4, hotelPisa);
-			manager.addRoom(roomPisa1);
+			manager.addRoom(new Room(101, 4, hotelPisa));
 			manager.addRoom(new Room(201, 3, hotelPisa));
-			Room roomPisa3 = new Room(202, 2, hotelPisa);
-			manager.addRoom(roomPisa3);
+			manager.addRoom(new Room(202, 2, hotelPisa));
 			manager.addRoom(new Room(301, 2, hotelPisa));
 
-			Room room401 = new Room(401, 5, hotelBologna);
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
-			manager.addRoom(room401);
 			manager.insertCustomer(customer401);
+
+			manager.addRoom(new Room(401, 5, hotelBologna));
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(2019, 11 - 1, 15, 1, 0, 0);
@@ -1038,7 +1137,7 @@ public class DatabaseManager {
 			calendar.set(2019, 11 - 1, 19, 1, 0, 0);
 			Date checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(room401, checkIn, checkOut, customer401));
+			manager.insertReservation(3, 401, "piergiorgio", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2018, 11 - 1, 15, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1046,23 +1145,23 @@ public class DatabaseManager {
 			calendar.set(2018, 11 - 1, 19, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(room401, checkIn, checkOut, customer401));
+			manager.insertReservation(3, 401, "piergiorgio", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.JANUARY, 15, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2019, Calendar.JANUARY, 16, 1, 0, 0);
 			checkOut = calendar.getTime();
-
-			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, max));
-
+			
+			manager.insertReservation(5, 101, "max", new Reservation(null, checkIn, checkOut, null));
+			
 			calendar.set(2019, Calendar.FEBRUARY, 26, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2019, Calendar.MARCH, 1, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, ellie));
+			manager.insertReservation(5, 101, "ellie", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.FEBRUARY, 26, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1070,23 +1169,15 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.MARCH, 1, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, ellie));
+			manager.insertReservation(2, 101, "ellie", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.FEBRUARY, 12, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2020, Calendar.FEBRUARY, 13, 1, 0, 0);
 			checkOut = calendar.getTime();
-
-			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, john));
-
-			calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0);
-			checkIn = calendar.getTime();
-
-			calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
-			checkOut = calendar.getTime();
-
-			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, john));
+			
+			manager.insertReservation(2, 101, "john", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1094,7 +1185,15 @@ public class DatabaseManager {
 			calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, kevin));
+			manager.insertReservation(2, 101, "john", new Reservation(null, checkIn, checkOut, null));
+
+			calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0);
+			checkIn = calendar.getTime();
+
+			calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
+			checkOut = calendar.getTime();
+
+			manager.insertReservation(5, 202, "kevin", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.SEPTEMBER, 28, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1102,7 +1201,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.OCTOBER, 2, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, ellie));
+			manager.insertReservation(5, 202, "ellie", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.OCTOBER, 1, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1110,7 +1209,7 @@ public class DatabaseManager {
 			calendar.set(2019, Calendar.OCTOBER, 2, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, james));
+			manager.insertReservation(2, 101, "james", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.OCTOBER, 14, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1118,7 +1217,7 @@ public class DatabaseManager {
 			calendar.set(2019, Calendar.OCTOBER, 17, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, james));
+			manager.insertReservation(5, 202, "james", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.JUNE, 4, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1126,7 +1225,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.JUNE, 7, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, kevin));
+			manager.insertReservation(5, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.JULY, 4, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1134,7 +1233,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.JULY, 7, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa1, checkIn, checkOut, julia));
+			manager.insertReservation(5, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.JULY, 11, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1142,7 +1241,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.JULY, 21, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomPisa3, checkIn, checkOut, julia));
+			manager.insertReservation(5, 202, "julia", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.JULY, 23, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1150,7 +1249,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.JULY, 27, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomMilano1, checkIn, checkOut, julia));
+			manager.insertReservation(2, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.JULY, 24, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1158,7 +1257,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.JULY, 27, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomFirenze2, checkIn, checkOut, kevin));
+			manager.insertReservation(4, 102, "kevin", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.JANUARY, 11, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1166,31 +1265,31 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.JANUARY, 14, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomFirenze2, checkIn, checkOut, julia));
+			manager.insertReservation(4, 102, "julia", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.AUGUST, 11, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2019, Calendar.AUGUST, 14, 1, 0, 0);
 			checkOut = calendar.getTime();
-
-			manager.addReservation(new Reservation(roomRoma1, checkIn, checkOut, julia));
+			
+			manager.insertReservation(1, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.AUGUST, 23, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2019, Calendar.SEPTEMBER, 2, 1, 0, 0);
 			checkOut = calendar.getTime();
-
-			manager.addReservation(new Reservation(roomRoma1, checkIn, checkOut, kevin));
-
+			
+			manager.insertReservation(1, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
+			
 			calendar.set(2020, Calendar.SEPTEMBER, 2, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2020, Calendar.SEPTEMBER, 3, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomRoma1, checkIn, checkOut, kevin));
+			manager.insertReservation(1, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2020, Calendar.SEPTEMBER, 7, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1198,7 +1297,7 @@ public class DatabaseManager {
 			calendar.set(2020, Calendar.SEPTEMBER, 9, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomBologna3, checkIn, checkOut, alessio));
+			manager.insertReservation(3, 301, "alessio", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2018, Calendar.OCTOBER, 25, 1, 0, 0);
 			checkIn = calendar.getTime();
@@ -1206,14 +1305,14 @@ public class DatabaseManager {
 			calendar.set(2018, Calendar.NOVEMBER, 1, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomBologna3, checkIn, checkOut, alessio));
+			manager.insertReservation(3, 301, "alessio", new Reservation(null, checkIn, checkOut, null));
 			calendar.set(2019, Calendar.JUNE, 7, 1, 0, 0);
 			checkIn = calendar.getTime();
 
 			calendar.set(2019, Calendar.JUNE, 10, 1, 0, 0);
 			checkOut = calendar.getTime();
 
-			manager.addReservation(new Reservation(roomBologna3, checkIn, checkOut, alessio));
+			manager.insertReservation(3, 301, "alessio", new Reservation(null, checkIn, checkOut, null));
 
 		} catch (CustomerUsernameAlreadyPresentException ex) {
 			System.out.println(ex.getMessage() + " already present (customer)");
