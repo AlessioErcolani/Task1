@@ -310,15 +310,20 @@ public class DatabaseManagerTest {
 		Date checkOutDate = calendar.getTime();
 
 		// add a new reservation in the new room for the new customer
-		Reservation reservation = new Reservation(room, checkInDate, checkOutDate, customer);
 		try {
-			manager.addReservation(reservation);
-		} catch (ReservationAlreadyPresentException e) {
-			fail("Test add new reservation: failed because reservation already present.");
-		} catch (DatabaseManagerException e) {
+			manager.insertReservation(hotel.getId(), 105, "username", new Reservation(null, checkInDate, checkOutDate, null));
+		} catch (RoomNotFoundException e) {
 			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test add new reservation: failed.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e1) {
+			fail("Test add new reservation: failed because reservation already present.");;
 		}
-
+	
 		// read reservation
 		Reservation readReservation = null;
 		try {
@@ -429,13 +434,18 @@ public class DatabaseManagerTest {
 		assertFalse("Test: reservation deleted.", upcomingReservations.contains(newReservation));
 
 		// add again the reservation
-		newReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate, newCustomer);
 		try {
-			manager.addReservation(newReservation);
-		} catch (ReservationAlreadyPresentException e) {
-			fail("Test add again reservation: failed because reservation already present.");
-		} catch (DatabaseManagerException e) {
-			fail("Test add again reservation: failed.");
+			manager.insertReservation(hotel.getId(), 106, "newUsername", new Reservation(null, newCheckInDate, newCheckOutDate, null));
+		} catch (RoomNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test add new reservation: failed.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e1) {
+			fail("Test add new reservation: failed because reservation already present.");;
 		}
 
 		// delete room of the reservation
@@ -458,13 +468,18 @@ public class DatabaseManagerTest {
 		assertTrue("Test read deleted reservation.", exception);
 
 		// add again the reservation
-		newReservation = new Reservation(room, newCheckInDate, newCheckOutDate, newCustomer);
 		try {
-			manager.addReservation(newReservation);
-		} catch (ReservationAlreadyPresentException e) {
-			fail("Test add again reservation: failed because reservation already present.");
-		} catch (DatabaseManagerException e) {
-			fail("Test add again reservation: failed.");
+			manager.insertReservation(hotel.getId(), 105, "newUsername", new Reservation(null, newCheckInDate, newCheckOutDate, null));
+		} catch (RoomNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test add new reservation: failed.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e1) {
+			fail("Test add new reservation: failed because reservation already present.");;
 		}
 
 		// delete customer of the reservation
