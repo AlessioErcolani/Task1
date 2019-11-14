@@ -27,7 +27,7 @@ public class DatabaseManagerTest {
 		// add new customer
 		Customer customer = new Customer("username", "pwd", "name", "surname");
 		try {
-			manager.addCustomer(customer);
+			manager.insertCustomer(customer);
 		} catch (CustomerUsernameAlreadyPresentException e) {
 			fail("Test add new customer: failed because username already present.");
 		} catch (DatabaseManagerException e) {
@@ -49,7 +49,7 @@ public class DatabaseManagerTest {
 		Customer customerCopy = new Customer("username", "newPwd", "newName", "newSurname");
 		boolean exception = false;
 		try {
-			manager.addCustomer(customerCopy);
+			manager.insertCustomer(customerCopy);
 		} catch (CustomerUsernameAlreadyPresentException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -297,7 +297,7 @@ public class DatabaseManagerTest {
 		}
 		Customer customer = new Customer("username", "password", "name", "surname");
 		try {
-			manager.addCustomer(customer);
+			manager.insertCustomer(customer);
 		} catch (DatabaseManagerException | CustomerUsernameAlreadyPresentException e) {
 			fail("Read customer: failed.");
 		}
@@ -351,7 +351,7 @@ public class DatabaseManagerTest {
 		}
 		Customer newCustomer = new Customer("newUsername", "password", "name", "surname");
 		try {
-			manager.addCustomer(newCustomer);
+			manager.insertCustomer(newCustomer);
 		} catch (DatabaseManagerException | CustomerUsernameAlreadyPresentException e) {
 			fail("Read customer: failed.");
 		}

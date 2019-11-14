@@ -63,7 +63,7 @@ public class DatabaseManager {
 	 *                                                 used
 	 * @throws DatabaseManagerException
 	 */
-	public void addCustomer(Customer customer)
+	public void insertCustomer(Customer customer)
 			throws CustomerUsernameAlreadyPresentException, DatabaseManagerException {
 		try {
 			beginTransaction();
@@ -478,6 +478,27 @@ public class DatabaseManager {
 			close();
 		}
 	}
+	
+	public Room updateRoomAvailability(long hotelId, int roomNumber, boolean availability)
+			throws RoomNotFoundException, DatabaseManagerException {
+		Room room = null;
+		try {
+			beginTransaction();
+			room = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class)
+					.setParameter("hotelId", hotelId)
+					.setParameter("roomNumber", roomNumber)
+					.getSingleResult();
+			room.setAvailable(availability);
+			return room;
+		} catch (NoResultException nr) {
+			throw new RoomNotFoundException();
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commitTransaction();
+			close();
+		}
+	}
 
 	public Customer updatePassword(Customer customer, String newPassword) throws DatabaseManagerException {
 		try {
@@ -842,7 +863,7 @@ public class DatabaseManager {
 	 * @throws ReservationNotFoundException if the reservation does not exist
 	 * @throws DatabaseManagerException     in case of error
 	 */
-	public Reservation getReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
+	public Reservation retrieveReservation(Long id) throws ReservationNotFoundException, DatabaseManagerException {
 		Reservation reservation = null;
 
 		try {
@@ -886,31 +907,31 @@ public class DatabaseManager {
 	 */
 	public static void populateDatabase(DatabaseManager manager) {
 		try {
-			manager.addCustomer(new Customer("federico", "pwd", "Federico", "Verdi"));
+			manager.insertCustomer(new Customer("federico", "pwd", "Federico", "Verdi"));
 			Customer alessio = new Customer("alessio", "pwd", "Alessio", "Rossi");
-			manager.addCustomer(alessio);
-			manager.addCustomer(new Customer("chiara", "pwd", "Chiara", "Azzurri"));
-			manager.addCustomer(new Customer("marco", "pwd", "Marco", "Bianchi"));
-			manager.addCustomer(new Customer("luca", "pwd", "Luca", "Marroni"));
-			manager.addCustomer(new Customer("sara", "pwd", "Sara", "Violi"));
-			manager.addCustomer(new Customer("ettore", "pwd", "Ettore", "Amaranti"));
+			manager.insertCustomer(alessio);
+			manager.insertCustomer(new Customer("chiara", "pwd", "Chiara", "Azzurri"));
+			manager.insertCustomer(new Customer("marco", "pwd", "Marco", "Bianchi"));
+			manager.insertCustomer(new Customer("luca", "pwd", "Luca", "Marroni"));
+			manager.insertCustomer(new Customer("sara", "pwd", "Sara", "Violi"));
+			manager.insertCustomer(new Customer("ettore", "pwd", "Ettore", "Amaranti"));
 			Customer james = new Customer("james", "pwd", "James", "Blue");
-			manager.addCustomer(james);
-			manager.addCustomer(new Customer("nathan", "pwd", "Nathan", "Black"));
-			manager.addCustomer(new Customer("chloe", "pwd", "Chloe", "Red"));
+			manager.insertCustomer(james);
+			manager.insertCustomer(new Customer("nathan", "pwd", "Nathan", "Black"));
+			manager.insertCustomer(new Customer("chloe", "pwd", "Chloe", "Red"));
 			Customer ellie = new Customer("ellie", "pwd", "Ellie", "Green");
-			manager.addCustomer(ellie);
-			manager.addCustomer(new Customer("ellie2", "pwd", "Ellie", "Pink"));
-			manager.addCustomer(new Customer("sarah", "pwd", "Sarah", "Yellow"));
+			manager.insertCustomer(ellie);
+			manager.insertCustomer(new Customer("ellie2", "pwd", "Ellie", "Pink"));
+			manager.insertCustomer(new Customer("sarah", "pwd", "Sarah", "Yellow"));
 			Customer max = new Customer("max", "pwd", "Max", "Brown");
-			manager.addCustomer(max);
+			manager.insertCustomer(max);
 			Customer julia = new Customer("julia", "pwd", "Julia", "White");
-			manager.addCustomer(julia);
+			manager.insertCustomer(julia);
 			Customer john = new Customer("john", "pwd", "John", "Orange");
-			manager.addCustomer(john);
-			manager.addCustomer(new Customer("luke", "pwd", "Luke", "Tan"));
+			manager.insertCustomer(john);
+			manager.insertCustomer(new Customer("luke", "pwd", "Luke", "Tan"));
 			Customer kevin = new Customer("kevin", "pwd", "Kevin", "Purple");
-			manager.addCustomer(kevin);
+			manager.insertCustomer(kevin);
 
 			Hotel hotelRoma = new Hotel("Via Roma 26, Roma");
 			manager.addHotel(hotelRoma);
@@ -965,7 +986,7 @@ public class DatabaseManager {
 			Room room401 = new Room(401, 5, hotelBologna);
 			Customer customer401 = new Customer("piergiorgio", "pwd", "Piergiorgio", "Neri");
 			manager.addRoom(room401);
-			manager.addCustomer(customer401);
+			manager.insertCustomer(customer401);
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(2019, 11 - 1, 15, 1, 0, 0);

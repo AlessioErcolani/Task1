@@ -406,14 +406,12 @@ public class ReceptionistTerminal extends Terminal {
         	long hotelId = ((Number) cmd.getParsedOptionValue("hotel")).longValue();
         	int roomNumber = ((Number) cmd.getParsedOptionValue("room")).intValue();
         	
-        	Room room = Application.hotelDatabaseManager.readRoom(hotelId, roomNumber);
-        	
         	Room updatedRoom = null;
         	
         	if (cmd.hasOption("available"))
-        		updatedRoom = Application.hotelDatabaseManager.setRoomAvailable(room);
+        		updatedRoom = Application.hotelDatabaseManager.updateRoomAvailability(hotelId, roomNumber, true);
         	else if (cmd.hasOption("notavailable"))
-        		updatedRoom = Application.hotelDatabaseManager.setRoomUnavailable(room);
+        		updatedRoom = Application.hotelDatabaseManager.updateRoomAvailability(hotelId, roomNumber, false);
         	
         	System.out.println("Room updated successfully");
         	printRooms(Arrays.asList(updatedRoom));
@@ -440,7 +438,7 @@ public class ReceptionistTerminal extends Terminal {
         	
         	Customer customer = new Customer(username, password, name, surname);
             
-			Application.hotelDatabaseManager.addCustomer(customer);
+			Application.hotelDatabaseManager.insertCustomer(customer);
 			System.out.println("Added new customer " + name + " " + surname);
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
@@ -460,15 +458,16 @@ public class ReceptionistTerminal extends Terminal {
         	long reservationId = ((Number) cmd.getParsedOptionValue("id")).longValue();
         	String id = Long.toString(reservationId);
         	
-        	//used to simulate the key value down
+        	// used to simulate the key value down
         	if(Application.hotelDatabaseManager.keyValue.isAvailable) {
+        		// key-value database is up
         		Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
         		System.out.println("Customer: " + booking.getName() + " " + booking.getSurname() + "\nRoom: " + booking.getRoomNumber());
-        	}
-        	else {
+        	} else {
+        		// key-value database is down
         		System.out.println("Simulating the key-value down...");
 	        	
-	        	Reservation reservation = Application.hotelDatabaseManager.getReservation(reservationId);
+	        	Reservation reservation = Application.hotelDatabaseManager.retrieveReservation(reservationId);
 	        	
 	        	Customer customer = reservation.getCustomer();
 	        	

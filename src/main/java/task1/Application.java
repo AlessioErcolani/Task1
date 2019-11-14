@@ -26,21 +26,14 @@ public class Application {
 		boolean testing = true;
 		
 		Terminal.testCommandLines = new String[] {
-				"login -c -u piergiorgio -p pwd",
-				"help",
-				"help show-reservations",
-				"show-hotels",
-				"show-reservations",
-				"show-rooms -h 3 -n -f 2019-11-15 -t 2019-11-19",
-				"show-rooms -h 3 -t 2019-11-19",
-				"show-rooms -h 3 -t 2018-11-19",
-				"show-rooms -h 1",
-				"show-rooms -h 2",
-				"show-rooms -h 3",
-				"show-rooms -h 3 --all",
-				"show-rooms -h 3 -n",
-				"show-rooms -h 3 -b",
-				"help show-rooms",
+				"login -r -u r2 -p pwd",
+				"help set-room",
+				"show-rooms",
+				"set-room --hotel 3 --room 301 --notavailable",
+				"show-rooms",
+				"set-room --hotel 3 --room 301 --available",
+				"show-rooms",
+				"set-room --hotel 565 --room 656 --available",
 				"logout",
 				"exit"
 		};
