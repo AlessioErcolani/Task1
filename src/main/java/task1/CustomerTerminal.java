@@ -122,7 +122,7 @@ public class CustomerTerminal extends Terminal {
 		try {
 			
 			parser.parse(getOptionsMap().get("show-hotels"), options);
-			printHotels(Application.hotelDatabaseManager.getAllHotels());
+			printHotels(Application.hotelDatabaseManager.retrieveHotels());
 			
 		} catch (ParseException e) {
             System.out.println(e.getMessage());
@@ -183,7 +183,7 @@ public class CustomerTerminal extends Terminal {
         	
         	String newPassword = cmd.getOptionValue("newpassword");
         	
-        	customer = Application.hotelDatabaseManager.changePassword(customer, newPassword);
+        	customer = Application.hotelDatabaseManager.updatePassword(customer, newPassword);
         	
         	System.out.println("Password changed successfully");
         	

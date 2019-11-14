@@ -472,7 +472,7 @@ public class DatabaseManager {
 		}
 	}
 
-	public Customer changePassword(Customer customer, String newPassword) throws DatabaseManagerException {
+	public Customer updatePassword(Customer customer, String newPassword) throws DatabaseManagerException {
 		try {
 			beginTransaction();
 			Customer ref = entityManager.find(Customer.class, customer.getId());
@@ -545,7 +545,7 @@ public class DatabaseManager {
 	 * @return the list of hotels
 	 * @throws DatabaseManagerException in case of errors
 	 */
-	public List<Hotel> getAllHotels() throws DatabaseManagerException {
+	public List<Hotel> retrieveHotels() throws DatabaseManagerException {
 		try {
 			beginTransaction();
 			List<Hotel> hotels = entityManager.createNamedQuery("Hotel.findAll", Hotel.class).getResultList();
