@@ -269,9 +269,7 @@ public class ReceptionistTerminal extends Terminal {
     			date = new Date();
         	
         	Hotel hotel = Application.hotelDatabaseManager.retrieveHotel(hotelId);
-        	
-        	List<Reservation> reservations;
-            reservations = Application.hotelDatabaseManager.getUpcomingReservations(hotel, date);
+        	List<Reservation> reservations = Application.hotelDatabaseManager.retrieveUpcomingReservations(hotelId, date);
             
             System.out.println("Reservations from " + dateToString(date) + " in hotel '" + hotel.getAddress() + "'");
 			printReservations(reservations);

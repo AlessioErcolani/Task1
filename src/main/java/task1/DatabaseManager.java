@@ -385,6 +385,23 @@ public class DatabaseManager {
 			close();
 		}
 	}
+	
+	public List<Reservation> retrieveUpcomingReservations(long hotelId, Date date) throws DatabaseManagerException {
+		try {
+			beginTransaction();
+			List<Reservation> upcomingReservations = entityManager
+					.createNamedQuery("Reservation.getByHotel", Reservation.class)
+					.setParameter("hotelId", hotelId)
+					.setParameter("from", date, TemporalType.DATE)
+					.getResultList();
+			return upcomingReservations;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commitTransaction();
+			close();
+		}
+	}
 
 	/**
 	 * Get the list of rooms of an hotel that are bookable in a given period, i.e.
