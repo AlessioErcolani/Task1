@@ -23,20 +23,7 @@ public class Application {
 		
 		System.out.println("\nType commands to use the application");
 		
-		boolean testing = true;
-		
-		Terminal.testCommandLines = new String[] {
-				"login -r -u r2 -p pwd",
-				"help set-room",
-				"show-rooms",
-				"set-room --hotel 3 --room 301 --notavailable",
-				"show-rooms",
-				"set-room --hotel 3 --room 301 --available",
-				"show-rooms",
-				"set-room --hotel 565 --room 656 --available",
-				"logout",
-				"exit"
-		};
+		boolean testing = false;
 		
 		Terminal cli = new Terminal();
 		
