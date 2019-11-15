@@ -18,8 +18,8 @@ public class Application {
 			System.out.println(e.getMessage());
 		}
 		// System.out.println("Populating database...");
-		// DatabaseManager.populateDatabase(hotelDatabaseManager);
-		// System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
+		//DatabaseManager.populateDatabase(hotelDatabaseManager);
+		//System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
 		
 		System.out.println("\nType commands to use the application");
 		
@@ -94,6 +94,15 @@ public class Application {
 "exit"
 };*/
 
+/*Terminal.testCommandLines = new String[] {
+"login --receptionist -u r2 -p pwd",
+"sim-key-value --disable",
+"check-in --id 2",
+"check-out --id 2",
+"sim-key-value --enable",
+"logout",
+"exit"
+};*/
 
 /*Terminal.testCommandLines = new String[] {
 "login --receptionist -u r2 -p pwd",

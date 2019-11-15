@@ -499,11 +499,21 @@ public class ReceptionistTerminal extends Terminal {
         		Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
         		System.out.println("Check-out customer " + booking.getSurname());
         		System.out.println("Check-out room " + booking.getRoomNumber());
-        		Application.hotelDatabaseManager.keyValue.deleteBooking(id);
+        		//Simulation
+        		if(Application.hotelDatabaseManager.keyValue.isAvailable) {
+        			try {
+        				Application.hotelDatabaseManager.keyValue.deleteBooking(id);
+        			}catch(KeyValueDatabaseManagerException kv) {
+        				Application.hotelDatabaseManager.writeErrorLog("[ERROR_CHECK-OUT]: " + kv.getMessage() + "\n");
+        			}
+        		}
+        		else {
+        			System.out.println("Simulating the key-value down...");
+        			Application.hotelDatabaseManager.writeErrorLog("[CHECK-OUT]: " + id + "\n");        			
+        		}
         	} catch (BookingNotFoundException e) {
         		System.out.println("Check-out executed");
-    		}
-        	
+        	}	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("check-out", getOptionsMap().get("check-out"), true);
