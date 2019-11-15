@@ -43,6 +43,11 @@ public class Reservation {
 	@Temporal(TemporalType.DATE)
 	private Date checkOutDate;
 
+	public Reservation(Date checkInDate, Date checkOutDate) {
+		this.checkInDate = checkInDate;
+		this.checkOutDate = checkOutDate;
+	}
+	
 	public Reservation(Room room, Date checkInDate, Date checkOutDate) {
 		this.room = room;
 		this.checkInDate = checkInDate;

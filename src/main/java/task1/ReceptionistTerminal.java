@@ -265,8 +265,8 @@ public class ReceptionistTerminal extends Terminal {
 			System.out.println("Something went wrong");
 		}
 	}
-
-	private void updateReservation(String[] options) {
+	
+	/*private void updateReservation(String[] options) {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("update-reservation"), options);
         	
@@ -327,6 +327,58 @@ public class ReceptionistTerminal extends Terminal {
         	System.out.println("Reservation updated successfully");
         	printReservations(Arrays.asList(newReservation));
         	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+            formatter.printHelp("update-reservation", getOptionsMap().get("update-reservation"), true);
+        } catch (java.text.ParseException e) {
+        	System.out.println("Date format: yyyy-mm-dd");
+		} catch (ReservationNotFoundException e) {
+			System.out.println("Reservation not found");
+		} catch (CustomerNotFoundException e) {
+			System.out.println("Customer '" + e.getMessage() + "' not found");
+		} catch (RoomNotFoundException e) {
+			System.out.println("The specified room does not exist");
+		} catch (ReservationAlreadyPresentException e) {
+			System.out.println("You did not provided any modification to the reservation");
+		} catch (RoomAlreadyBookedException e) {
+			System.out.println("The specified room is not bookable in that period");
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
+	}*/
+
+	private void updateReservation(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("update-reservation"), options);
+        	
+        	// get values of mandatory options
+        	long oldHotelId = ((Number) cmd.getParsedOptionValue("currenthotel")).longValue();
+        	int oldRoomNumber = ((Number) cmd.getParsedOptionValue("currentroom")).intValue();
+        	Date oldCheckIn = parseDate(cmd.getOptionValue("currentcheckin"));
+        	
+        	// check if at least one optional option is present
+        	if (	!cmd.hasOption("hotel")
+        			&& !cmd.hasOption("room")
+        			&& !cmd.hasOption("customer")
+        			&& !cmd.hasOption("from")
+        			&& !cmd.hasOption("to"))
+        		throw new ParseException("Provide at least one new value to update the reservation");
+        	
+        	// get values of optional parameters
+        	long newHotelId = cmd.hasOption("hotel") ? ((Number) cmd.getParsedOptionValue("hotel")).longValue() : oldHotelId;
+        	int newRoomNumber = cmd.hasOption("room") ? ((Number) cmd.getParsedOptionValue("room")).intValue() : oldRoomNumber;
+        	String newUsername = cmd.hasOption("customer") ? cmd.getOptionValue("customer") : null;
+        	Date newCheckIn = cmd.hasOption("from") ? parseDate(cmd.getOptionValue("from")) : oldCheckIn;
+        	Date newCheckOut = cmd.hasOption("to") ? parseDate(cmd.getOptionValue("to")) : null;
+        	
+        	Reservation newReservation = new Reservation(newCheckIn, newCheckOut);
+        	
+        	Application.hotelDatabaseManager.updateReservation(oldHotelId, oldRoomNumber, oldCheckIn, newHotelId, newRoomNumber, newUsername, newReservation);
+        	
+        	newReservation = Application.hotelDatabaseManager.readReservation(newHotelId, newRoomNumber, newCheckIn);
+        	
+        	System.out.println("Reservation updated successfully");
+        	printReservations(Arrays.asList(newReservation));      	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("update-reservation", getOptionsMap().get("update-reservation"), true);

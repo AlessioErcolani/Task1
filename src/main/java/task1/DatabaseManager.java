@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.*;
 import javax.persistence.*;
 
+import org.apache.commons.cli.ParseException;
 import org.hibernate.exception.ConstraintViolationException;
 
 import exc.*;
@@ -182,25 +183,7 @@ public class DatabaseManager {
 
 				// simulation key-value down
 				if (keyValue.isAvailable) {
-
-					// when add in the SQL database terminates successfully, add in the key-value
-					// database
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							Booking booking = new Booking(reservation.getCustomer().getName(),
-									reservation.getCustomer().getSurname(),
-									Integer.toString(reservation.getRoom().getNumber()));
-							try {
-								keyValue.insertBooking(Long.toString(reservation.getId()), booking);
-							} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
-								System.out.println("Add on key value\n");
-								String error = "Error in writing reservation for " + booking.getName() + " "
-										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
-								writeErrorLog("[ERR_INSERT]: " + error + "\n");
-							}
-						}
-					}).start();
+					updateKeyValue(null, reservation);
 				} else {
 					writeErrorLog("[INSERT]: " + new Booking(reservation.getCustomer().getName(),
 							reservation.getCustomer().getSurname(), Integer.toString(reservation.getRoom().getNumber()))
@@ -214,7 +197,8 @@ public class DatabaseManager {
 	}
 
 	public void insertReservation(long hotelId, int roomNumber, String username, Reservation reservation)
-			throws RoomNotFoundException, RoomAlreadyBookedException, CustomerNotFoundException, DatabaseManagerException, ReservationAlreadyPresentException {
+			throws RoomNotFoundException, RoomAlreadyBookedException, CustomerNotFoundException,
+			DatabaseManagerException, ReservationAlreadyPresentException {
 		try {
 			beginTransaction();
 
@@ -226,14 +210,15 @@ public class DatabaseManager {
 			} catch (NoResultException nr) {
 				throw new RoomNotFoundException();
 			}
-			
+
 			// check if room is reservable
-			List<Room> reservableRooms = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
-					.setParameter("hotelId", hotelId).setParameter("startPeriod", reservation.getCheckInDate())
+			List<Room> reservableRooms = entityManager
+					.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class).setParameter("hotelId", hotelId)
+					.setParameter("startPeriod", reservation.getCheckInDate())
 					.setParameter("endPeriod", reservation.getCheckOutDate()).getResultList();
 			if (!reservableRooms.contains(room))
 				throw new RoomAlreadyBookedException();
-			
+
 			Customer customer;
 			try {
 				// read the customer
@@ -242,7 +227,7 @@ public class DatabaseManager {
 			} catch (NoResultException nr) {
 				throw new CustomerNotFoundException();
 			}
-		
+
 			// add reservation
 			reservation.setRoom(room);
 			reservation.setCustomer(customer);
@@ -298,25 +283,73 @@ public class DatabaseManager {
 		}
 	}
 
-	/**
-	 * Update a reservation
-	 * 
-	 * @param oldReservation
-	 * @param newReservation is the new reservation
-	 * @throws DatabaseManagerException in case of errors
-	 */
-	public void updateReservation(Reservation oldReservation, Reservation newReservation)
-			throws DatabaseManagerException {
+	public void updateReservation(long oldHotelId, int oldRoomNumber, Date oldCheckInDate, long newHotelId,
+			int newRoomNumber, String newUsername, Reservation newReservation)
+			throws ReservationNotFoundException, RoomNotFoundException, CustomerNotFoundException,
+			ReservationAlreadyPresentException, RoomAlreadyBookedException, DatabaseManagerException {
+		Reservation oldReservation = null;
 		try {
 			beginTransaction();
-			Room oldRoom = entityManager.find(Room.class, oldReservation.getRoom().getId());
-			oldRoom.removeReservation(oldReservation);
 
+			// retrieve the reservation to update
+			try {
+				oldReservation = entityManager
+						.createNamedQuery("Reservation.getByHoteAndRoomAndCheckInDate", Reservation.class)
+						.setParameter("hotelId", oldHotelId).setParameter("roomNumber", oldRoomNumber)
+						.setParameter("checkInDate", oldCheckInDate).getSingleResult();
+			} catch (NoResultException nr) {
+				throw new ReservationNotFoundException();
+			}
+
+			if (newReservation.getCheckOutDate() == null)
+				newReservation.setCheckOutDate(oldReservation.getCheckOutDate());
+
+			if (newReservation.getCheckOutDate().before(newReservation.getCheckInDate()))
+				throw new ParseException("Check-out date must be greater than or equal to check-in date");
+
+			// retrieve the new room
+			Room newRoom;
+			try {
+				newRoom = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class)
+						.setParameter("hotelId", newHotelId).setParameter("roomNumber", newRoomNumber)
+						.getSingleResult();
+			} catch (NoResultException nr) {
+				throw new RoomNotFoundException();
+			}
+
+			// retrieve the new customer
+			Customer newCustomer;
+			if (newUsername == null)
+				newCustomer = oldReservation.getCustomer();
+			else {
+				try {
+					newCustomer = entityManager.createNamedQuery("Customer.findByUsername", Customer.class)
+							.setParameter("username", newUsername).getSingleResult();
+				} catch (NoResultException nr) {
+					throw new CustomerNotFoundException(newUsername);
+				}
+			}
+
+			newReservation.setRoom(newRoom);
+			newReservation.setCustomer(newCustomer);
+
+			if (newReservation.equals(oldReservation))
+				throw new ReservationAlreadyPresentException();
+
+			List<Room> reservableRooms = entityManager
+					.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
+					.setParameter("hotelId", newHotelId).setParameter("startPeriod", newReservation.getCheckInDate())
+					.setParameter("endPeriod", newReservation.getCheckOutDate()).getResultList();
+
+			if (!newRoom.equals(oldReservation.getRoom()) && !reservableRooms.contains(newRoom))
+				throw new RoomAlreadyBookedException();
+
+			oldReservation.getRoom().removeReservation(oldReservation);
 			entityManager.flush();
-
-			Room newRoom = entityManager.find(Room.class, newReservation.getRoom().getId());
 			newRoom.addReservation(newReservation);
-
+		} catch (ReservationNotFoundException | RoomNotFoundException | CustomerNotFoundException
+				| ReservationAlreadyPresentException | RoomAlreadyBookedException e) {
+			throw e;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
 		} finally {
@@ -325,24 +358,7 @@ public class DatabaseManager {
 
 				// used to simulate the key-value down
 				if (keyValue.isAvailable) {
-
-					keyValue.deleteBooking(Long.toString(oldReservation.getId()));
-
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							Booking booking = new Booking(newReservation.getCustomer().getName(),
-									newReservation.getCustomer().getSurname(),
-									Integer.toString(newReservation.getRoom().getNumber()));
-							try {
-								keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
-							} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
-								String error = "Error in writing reservation for " + booking.getName() + " "
-										+ booking.getSurname() + " in room " + booking.getRoomNumber() + "\n";
-								writeErrorLog("[ERR_UPDATE]: " + error + "\n");
-							}
-						}
-					}).start();
+					updateKeyValue(oldReservation, newReservation);
 				} else {
 					writeErrorLog("[UPDATE]: " + new Booking(newReservation.getCustomer().getName(),
 							newReservation.getCustomer().getSurname(),
@@ -356,17 +372,46 @@ public class DatabaseManager {
 		}
 	}
 
+	public void updateKeyValue(Reservation oldReservation, Reservation newReservation) {
+		if (oldReservation != null) {
+			try {
+				keyValue.deleteBooking(Long.toString(oldReservation.getId()));
+			} catch (KeyValueDatabaseManagerException e) {
+				String error = "Error in deleting reservation with id " + oldReservation.getId() + "\n";
+				writeErrorLog("[ERR_DELETE]: " + error + "\n");
+			}
+		}
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(newReservation.getCustomer().getName());
+				System.out.println(newReservation.getCustomer().getSurname());
+				System.out.println(Integer.toString(newReservation.getRoom().getNumber()));
+				Booking booking = new Booking(newReservation.getCustomer().getName(),
+						newReservation.getCustomer().getSurname(),
+						Integer.toString(newReservation.getRoom().getNumber()));
+				try {
+					keyValue.insertBooking(Long.toString(newReservation.getId()), booking);
+				} catch (KeyValueDatabaseManagerException | BookingAlreadyPresentException e) {
+					String error = "Error in writing reservation for " + booking.getName() + " " + booking.getSurname()
+							+ " in room " + booking.getRoomNumber() + "\n";
+					writeErrorLog("[ERR_UPDATE]: " + error + "\n");
+				}
+			}
+		}).start();
+	}
+
 	public Reservation deleteReservation(long hotelId, int roomNumber, Date checkIn)
 			throws DatabaseManagerException, ReservationNotFoundException {
 		try {
 			Reservation reservation;
 			beginTransaction();
 			try {
-				reservation = entityManager.createNamedQuery("Reservation.getByHoteAndRoomAndCheckInDate", Reservation.class)
-						.setParameter("hotelId", hotelId)
-						.setParameter("roomNumber", roomNumber)
-						.setParameter("checkInDate", checkIn)
-						.getSingleResult();
+				reservation = entityManager
+						.createNamedQuery("Reservation.getByHoteAndRoomAndCheckInDate", Reservation.class)
+						.setParameter("hotelId", hotelId).setParameter("roomNumber", roomNumber)
+						.setParameter("checkInDate", checkIn).getSingleResult();
 			} catch (NoResultException nr) {
 				throw new ReservationNotFoundException();
 			}
@@ -378,7 +423,7 @@ public class DatabaseManager {
 				keyValue.deleteBooking(Long.toString(reservation.getId()));
 				writeErrorLog("[DELETE]: " + Long.toString(reservation.getId()) + "\n");
 			}
-			
+
 			return reservation;
 		} catch (ReservationNotFoundException e) {
 			throw e;
@@ -389,7 +434,7 @@ public class DatabaseManager {
 			close();
 		}
 	}
-	
+
 	/**
 	 * Delete a reservation
 	 * 
@@ -460,15 +505,13 @@ public class DatabaseManager {
 			close();
 		}
 	}
-	
+
 	public List<Reservation> retrieveUpcomingReservations(long hotelId, Date date) throws DatabaseManagerException {
 		try {
 			beginTransaction();
 			List<Reservation> upcomingReservations = entityManager
-					.createNamedQuery("Reservation.getByHotel", Reservation.class)
-					.setParameter("hotelId", hotelId)
-					.setParameter("from", date, TemporalType.DATE)
-					.getResultList();
+					.createNamedQuery("Reservation.getByHotel", Reservation.class).setParameter("hotelId", hotelId)
+					.setParameter("from", date, TemporalType.DATE).getResultList();
 			return upcomingReservations;
 		} catch (Exception ex) {
 			throw new DatabaseManagerException(ex.getMessage());
@@ -560,7 +603,7 @@ public class DatabaseManager {
 			throws DatabaseManagerException {
 		try {
 			beginTransaction();
-			
+
 			Hotel hotel = entityManager.find(Hotel.class, hotelId);
 			if (hotel == null)
 				throw new HotelNotFoundException(hotelId.toString());
@@ -618,16 +661,14 @@ public class DatabaseManager {
 			close();
 		}
 	}
-	
+
 	public Room updateRoomAvailability(long hotelId, int roomNumber, boolean availability)
 			throws RoomNotFoundException, DatabaseManagerException {
 		Room room = null;
 		try {
 			beginTransaction();
 			room = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class)
-					.setParameter("hotelId", hotelId)
-					.setParameter("roomNumber", roomNumber)
-					.getSingleResult();
+					.setParameter("hotelId", hotelId).setParameter("roomNumber", roomNumber).getSingleResult();
 			room.setAvailable(availability);
 			return room;
 		} catch (NoResultException nr) {
@@ -823,9 +864,7 @@ public class DatabaseManager {
 		try {
 			beginTransaction();
 			Room room = entityManager.createNamedQuery("Room.findByHotelAndNumber", Room.class)
-					.setParameter("hotelId", hotelId)
-					.setParameter("roomNumber", roomNumber)
-					.getSingleResult();
+					.setParameter("hotelId", hotelId).setParameter("roomNumber", roomNumber).getSingleResult();
 			return room;
 		} catch (NoResultException nr) {
 			throw new RoomNotFoundException();
@@ -1101,7 +1140,7 @@ public class DatabaseManager {
 			manager.addReceptionist(new Receptionist("r7", "pwd", "Benedetta", "Uffizi", hotelFirenze));
 			manager.addReceptionist(new Receptionist("r8", "pwd", "Lorena", "Duomo", hotelPisa));
 			manager.addReceptionist(new Receptionist("r9", "pwd", "Federico", "Lungarno", hotelPisa));
- 
+
 			manager.addRoom(new Room(101, 2, hotelRoma));
 			manager.addRoom(new Room(102, 3, hotelRoma));
 			manager.addRoom(new Room(103, 2, hotelRoma));
@@ -1152,9 +1191,9 @@ public class DatabaseManager {
 
 			calendar.set(2019, Calendar.JANUARY, 16, 1, 0, 0);
 			checkOut = calendar.getTime();
-			
+
 			manager.insertReservation(5, 101, "max", new Reservation(null, checkIn, checkOut, null));
-			
+
 			calendar.set(2019, Calendar.FEBRUARY, 26, 1, 0, 0);
 			checkIn = calendar.getTime();
 
@@ -1176,7 +1215,7 @@ public class DatabaseManager {
 
 			calendar.set(2020, Calendar.FEBRUARY, 13, 1, 0, 0);
 			checkOut = calendar.getTime();
-			
+
 			manager.insertReservation(2, 101, "john", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0);
@@ -1272,7 +1311,7 @@ public class DatabaseManager {
 
 			calendar.set(2019, Calendar.AUGUST, 14, 1, 0, 0);
 			checkOut = calendar.getTime();
-			
+
 			manager.insertReservation(1, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
 			calendar.set(2019, Calendar.AUGUST, 23, 1, 0, 0);
@@ -1280,9 +1319,9 @@ public class DatabaseManager {
 
 			calendar.set(2019, Calendar.SEPTEMBER, 2, 1, 0, 0);
 			checkOut = calendar.getTime();
-			
+
 			manager.insertReservation(1, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
-			
+
 			calendar.set(2020, Calendar.SEPTEMBER, 2, 1, 0, 0);
 			checkIn = calendar.getTime();
 
