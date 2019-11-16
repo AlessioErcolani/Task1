@@ -14,11 +14,11 @@ import javax.persistence.*;
 			}
 		))
 @NamedQuery(
-		name="Reservation.getByHoteAndRoomAndCheckInDate",
-		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.room.number = :roomNumber AND r.checkInDate = :checkInDate")
+		name="Reservation.getByHotelAndRoomAndCheckInDate",
+		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.room.number = :roomNumber AND r.checkInDate = :checkInDate") 
 @NamedQuery(
 		name="Reservation.getByCustomer",
-		query="SELECT r FROM Reservation r WHERE r.customer.id = :customerId AND r.checkInDate >= current_time")
+		query="SELECT r FROM Reservation r WHERE r.customer.id = :customerId AND r.checkInDate >= current_time") 
 @NamedQuery(
 		name="Reservation.getByHotel",
 		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.checkInDate >= :from")

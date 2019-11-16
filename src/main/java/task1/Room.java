@@ -14,7 +14,7 @@ import javax.persistence.*;
 	   ))
 @NamedQuery(
 		name="Room.findByHotel",
-		query="SELECT r FROM Room r WHERE r.hotel.id = :hotelId")
+		query="SELECT r FROM Room r WHERE r.hotel.id = :hotelId") 
 @NamedQuery(
 		name="Room.findByHotelAndNumber",
 		query="SELECT r FROM Room r WHERE r.hotel.id = :hotelId AND r.number = :roomNumber")
@@ -23,16 +23,16 @@ import javax.persistence.*;
 		query=""
 				+ "SELECT r "
 				+ "FROM Room r "
-				+ "WHERE r.hotel.id = :hotelId AND r.available = true AND r.number NOT IN "
+				+ "WHERE r.hotel.id = :hotelId AND r.available = true AND r.id NOT IN "
 				+ "("
-				+ "		SELECT res.room.number "
+				+ "		SELECT res.room.id "
 				+ "		FROM Reservation res "
 				+ "		WHERE res.room.hotel.id = :hotelId "
-				+ "			AND ((:startPeriod < res.checkInDate AND :endPeriod > res.checkOutDate) "
-				+ "			OR (:startPeriod < res.checkInDate AND :endPeriod > res.checkInDate) "
-				+ "			OR (:startPeriod < res.checkOutDate AND :endPeriod > res.checkOutDate) "
-				+ "			OR (:startPeriod > res.checkInDate AND :endPeriod < res.checkOutDate)) "
-				+ ")")
+				+ "			AND (((:startPeriod <= res.checkInDate) AND (:endPeriod >= res.checkOutDate)) "
+				+ "			OR ((:startPeriod <= res.checkInDate) AND (:endPeriod >= res.checkInDate)) "
+				+ "			OR ((:startPeriod < res.checkOutDate) AND (:endPeriod >= res.checkOutDate)) "
+				+ "			OR ((:startPeriod > res.checkInDate) AND (:endPeriod < res.checkOutDate))) "
+				+ ")") 		
 @NamedQuery(
 		name="Room.getUnreservableRoomsGivenPeriod",
 		query=""
@@ -42,17 +42,17 @@ import javax.persistence.*;
 				+ "( "
 				+ "		(r.available = false) "
 				+ "		OR "
-				+ "		(r.number IN "
-				+ "			(SELECT res.room.number "
+				+ "		(r.id IN "
+				+ "			(SELECT res.room.id "
 				+ "			FROM Reservation res "
 				+ "			  	WHERE res.room.hotel.id = :hotelId "
-				+ "					AND ((:startPeriod < res.checkInDate AND :endPeriod > res.checkOutDate) " 
-				+ "					OR (:startPeriod < res.checkInDate AND :endPeriod > res.checkInDate) "  
-				+ "					OR (:startPeriod < res.checkOutDate AND :endPeriod > res.checkOutDate) " 
+				+ "					AND ((:startPeriod <= res.checkInDate AND :endPeriod >= res.checkOutDate) " 
+				+ "					OR (:startPeriod <= res.checkInDate AND :endPeriod > res.checkInDate) "  
+				+ "					OR (:startPeriod < res.checkOutDate AND :endPeriod >= res.checkOutDate) " 
 				+ "					OR (:startPeriod > res.checkInDate AND :endPeriod < res.checkOutDate)) "
 				+ " 		)"	
 				+ "		)"
-				+ ")")
+				+ ")") 
 public class Room {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

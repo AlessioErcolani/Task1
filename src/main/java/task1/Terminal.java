@@ -3,12 +3,12 @@ package task1;
 import java.text.SimpleDateFormat;
 import java.time.Year;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TimeZone;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -163,7 +163,6 @@ public class Terminal {
 			exit();
 			break;
 		}
-
 	}
 
 	//------------------------------------------------------------------------\\
@@ -311,10 +310,15 @@ public class Terminal {
 			if (day > 31) 
 				throw new Exception();
 			
+			/*
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(year, month-1, day, 1, 0, 0);
-			
 			return calendar.getTime();
+			*/
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			//sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
+			return sdf.parse(string);
+			
 		} catch (Exception e) {
 			throw new java.text.ParseException("unable to parse", 0);
 		}

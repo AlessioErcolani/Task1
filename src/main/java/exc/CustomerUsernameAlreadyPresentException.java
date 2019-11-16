@@ -3,21 +3,23 @@ package exc;
 public class CustomerUsernameAlreadyPresentException extends Exception {
 
 	public CustomerUsernameAlreadyPresentException() {
+		super();
 	}
 
-	public CustomerUsernameAlreadyPresentException(String arg0) {
-		super(arg0);
+	public CustomerUsernameAlreadyPresentException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public CustomerUsernameAlreadyPresentException(Throwable arg0) {
-		super(arg0);
+	public CustomerUsernameAlreadyPresentException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
-	public CustomerUsernameAlreadyPresentException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public CustomerUsernameAlreadyPresentException(String message) {
+		super(message);
 	}
 
-	public CustomerUsernameAlreadyPresentException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
-		super(arg0, arg1, arg2, arg3);
+	public CustomerUsernameAlreadyPresentException(Throwable cause) {
+		super(cause);
 	}
 }

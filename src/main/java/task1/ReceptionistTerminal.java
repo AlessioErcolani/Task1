@@ -19,9 +19,19 @@ public class ReceptionistTerminal extends Terminal {
 
 	private Receptionist receptionist;
 
-	private final static List<String> commands = Arrays.asList("show-hotels", "show-rooms", "add-reservation",
-			"show-reservations", "update-reservation", "delete-reservation", "set-room", "register", "check-in",
-			"check-out", "sim-key-value", "help", "logout");
+	private final static List<String> commands = Arrays.asList(	"show-hotels", 
+																"show-rooms", 
+																"add-reservation",
+																"show-reservations", 
+																"update-reservation", 
+																"delete-reservation", 
+																"set-room", 
+																"register", 
+																"check-in",
+																"check-out", 
+																"sim-key-value", 
+																"help", 
+																"logout");
 
 	private final static Map<String, Options> optionsMap;
 
@@ -31,8 +41,8 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("show-hotels", new Options());
 		map.put("show-rooms", getOptionsForShowRooms());
 		map.put("add-reservation", getOptionsForAddReservation());
-		map.put("update-reservation", getOptionsForUpdateReservation());
 		map.put("show-reservations", getOptionsForShowReservations());
+		map.put("update-reservation", getOptionsForUpdateReservation());
 		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
@@ -46,7 +56,7 @@ public class ReceptionistTerminal extends Terminal {
 	}
 
 	// ------------------------------------------------------------------------\\
-	// Constructors \\
+	// Constructors															   \\
 	// ------------------------------------------------------------------------\\
 
 	public ReceptionistTerminal(Receptionist receptionist, Scanner scanner) {
@@ -123,7 +133,7 @@ public class ReceptionistTerminal extends Terminal {
 	}
 
 	// ------------------------------------------------------------------------\\
-	// Commands implementation \\
+	// Commands implementation 												   \\
 	// ------------------------------------------------------------------------\\
 
 	private void showHotels() {
@@ -140,9 +150,7 @@ public class ReceptionistTerminal extends Terminal {
 
 			long hotelId = cmd.hasOption("hotel") ? ((Number) cmd.getParsedOptionValue("hotel")).longValue()
 					: receptionist.getHotel().getId();
-
-			Date from;
-			Date to;
+			Date from, to;
 
 			if (cmd.hasOption("from") && cmd.hasOption("to")) {
 				from = parseDate(cmd.getOptionValue("from"));
@@ -181,7 +189,6 @@ public class ReceptionistTerminal extends Terminal {
 				System.out.println("Bookable rooms in hotel '" + hotel.getAddress() + "' from " + dateToString(from)
 						+ " to " + dateToString(to));
 			printRooms(rooms);
-
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 			formatter.printHelp("show-rooms", getOptionsMap().get("show-rooms"), true);
@@ -211,9 +218,8 @@ public class ReceptionistTerminal extends Terminal {
 			if (to.before(from))
 				throw new ParseException("Check-out date must be greater than or equal to check-in date");
 
-			Reservation reservation = new Reservation(null, from, to, null);
-			Application.hotelDatabaseManager.insertReservation(hotelId, roomNumber, username, reservation);
-			
+			Reservation reservation = new Reservation(from, to);
+			reservation = Application.hotelDatabaseManager.insertReservation(hotelId, roomNumber, username, reservation);	
 			System.out.println("Reservation added successfully");
 			printReservations(Arrays.asList(reservation));
 		} catch (ParseException e) {
@@ -253,7 +259,6 @@ public class ReceptionistTerminal extends Terminal {
             
             System.out.println("Reservations from " + dateToString(date) + " in hotel '" + hotel.getAddress() + "'");
 			printReservations(reservations);
-
 		} catch (org.apache.commons.cli.ParseException e) {
 			System.out.println(e.getMessage());
 			formatter.printHelp("show-reservations", getOptionsMap().get("show-reservations"), true);
@@ -266,87 +271,6 @@ public class ReceptionistTerminal extends Terminal {
 		}
 	}
 	
-	/*private void updateReservation(String[] options) {
-		try {
-        	CommandLine cmd = parser.parse(getOptionsMap().get("update-reservation"), options);
-        	
-        	// get values of mandatory options
-        	long oldHotelId = ((Number) cmd.getParsedOptionValue("currenthotel")).longValue();
-        	int oldRoomNumber = ((Number) cmd.getParsedOptionValue("currentroom")).intValue();
-        	Date oldCheckIn = parseDate(cmd.getOptionValue("currentcheckin"));
-        	
-        	// check if at least one optional option is present
-        	if (	!cmd.hasOption("hotel")
-        			&& !cmd.hasOption("room")
-        			&& !cmd.hasOption("customer")
-        			&& !cmd.hasOption("from")
-        			&& !cmd.hasOption("to"))
-        		throw new ParseException("Provide at least one new value to update the reservation");
-        	
-        	// get reservation to modify
-        	Reservation oldReservation = Application.hotelDatabaseManager.readReservation(oldHotelId, oldRoomNumber, oldCheckIn);
-        	
-        	// get values of optional parameters
-        	long newHotelId = cmd.hasOption("hotel") ? 
-        			((Number) cmd.getParsedOptionValue("hotel")).longValue() : 
-        			oldReservation.getRoom().getHotel().getId();
-        	int newRoomNumber = cmd.hasOption("room") ?
-        			((Number) cmd.getParsedOptionValue("room")).intValue() : 
-            		oldReservation.getRoom().getNumber();
-        	String newUsername = cmd.hasOption("customer") ?
-        			cmd.getOptionValue("customer") : 
-            		oldReservation.getCustomer().getUsername();
-        	Date newCheckIn = cmd.hasOption("from") ?
-        			parseDate(cmd.getOptionValue("from")) : 
-            		oldReservation.getCheckInDate();
-        	Date newCheckOut = cmd.hasOption("to") ?
-        			parseDate(cmd.getOptionValue("to")) : 
-                	oldReservation.getCheckOutDate();
-        	
-        	if (newCheckOut.before(newCheckIn))
-        		throw new ParseException("Check-out date must be greater than or equal to check-in date");
-        	
-        	// check if specified customer's username and room really exist
-        	Room newRoom = Application.hotelDatabaseManager.retrieveRoom(newHotelId, newRoomNumber);
-        	Customer newCustomer = Application.hotelDatabaseManager.readCustomer(newUsername);
-        	
-        	Reservation newReservation = new Reservation(newRoom, newCheckIn, newCheckOut, newCustomer);
-        	
-        	// check is the user has actually inserted some modification to the reservation
-        	if (newReservation.equals(oldReservation))
-        		throw new ReservationAlreadyPresentException();
-        	
-        	// check if the new room is actually reservable
-        	List<Room> reservableRooms = Application.hotelDatabaseManager
-        			.getReservableRooms(newRoom.getHotel(), newCheckIn, newCheckOut);
-        	if (!reservableRooms.contains(newRoom))
-        		throw new RoomAlreadyBookedException();
-        	
-        	Application.hotelDatabaseManager.updateReservation(oldReservation, newReservation);
-        	
-        	System.out.println("Reservation updated successfully");
-        	printReservations(Arrays.asList(newReservation));
-        	
-        } catch (ParseException e) {
-        	System.out.println(e.getMessage());
-            formatter.printHelp("update-reservation", getOptionsMap().get("update-reservation"), true);
-        } catch (java.text.ParseException e) {
-        	System.out.println("Date format: yyyy-mm-dd");
-		} catch (ReservationNotFoundException e) {
-			System.out.println("Reservation not found");
-		} catch (CustomerNotFoundException e) {
-			System.out.println("Customer '" + e.getMessage() + "' not found");
-		} catch (RoomNotFoundException e) {
-			System.out.println("The specified room does not exist");
-		} catch (ReservationAlreadyPresentException e) {
-			System.out.println("You did not provided any modification to the reservation");
-		} catch (RoomAlreadyBookedException e) {
-			System.out.println("The specified room is not bookable in that period");
-		} catch (Exception e) {
-			System.out.println("Something went wrong");
-		}
-	}*/
-
 	private void updateReservation(String[] options) {
 		try {
         	CommandLine cmd = parser.parse(getOptionsMap().get("update-reservation"), options);
@@ -370,15 +294,10 @@ public class ReceptionistTerminal extends Terminal {
         	String newUsername = cmd.hasOption("customer") ? cmd.getOptionValue("customer") : null;
         	Date newCheckIn = cmd.hasOption("from") ? parseDate(cmd.getOptionValue("from")) : oldCheckIn;
         	Date newCheckOut = cmd.hasOption("to") ? parseDate(cmd.getOptionValue("to")) : null;
-        	
-        	Reservation newReservation = new Reservation(newCheckIn, newCheckOut);
-        	
-        	Application.hotelDatabaseManager.updateReservation(oldHotelId, oldRoomNumber, oldCheckIn, newHotelId, newRoomNumber, newUsername, newReservation);
-        	
-        	newReservation = Application.hotelDatabaseManager.readReservation(newHotelId, newRoomNumber, newCheckIn);
-        	
+        		
+        	Reservation reservation = Application.hotelDatabaseManager.updateReservation(oldHotelId, oldRoomNumber, oldCheckIn, newHotelId, newRoomNumber, newUsername, newCheckIn, newCheckOut);     
         	System.out.println("Reservation updated successfully");
-        	printReservations(Arrays.asList(newReservation));      	
+        	printReservations(Arrays.asList(reservation));      	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("update-reservation", getOptionsMap().get("update-reservation"), true);
@@ -407,19 +326,14 @@ public class ReceptionistTerminal extends Terminal {
         	int roomNumber = ((Number) cmd.getParsedOptionValue("room")).intValue();
         	Date checkIn = parseDate(cmd.getOptionValue("date"));
         	
-        	Application.hotelDatabaseManager.retrieveRoom(hotelId, roomNumber);
         	Reservation reservation = Application.hotelDatabaseManager.deleteReservation(hotelId, roomNumber, checkIn);
-        	
         	System.out.println("Reservation deleted successfully");
         	printReservations(Arrays.asList(reservation));
-        	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("delete-reservation", getOptionsMap().get("delete-reservation"), true);
         } catch (java.text.ParseException e) {
         	System.out.println("Date format: yyyy-mm-dd");
-		} catch (RoomNotFoundException e) {
-			System.out.println("Room not found");
 		} catch (ReservationNotFoundException e) {
 			System.out.println("The specified reservation does not exist");
 		} catch (Exception e) {
@@ -442,8 +356,7 @@ public class ReceptionistTerminal extends Terminal {
         		updatedRoom = Application.hotelDatabaseManager.updateRoomAvailability(hotelId, roomNumber, false);
         	
         	System.out.println("Room updated successfully");
-        	printRooms(Arrays.asList(updatedRoom));
-        	
+        	printRooms(Arrays.asList(updatedRoom));     	
         } catch (ParseException e) {
         	System.out.println(e.getMessage());
             formatter.printHelp("set-room", getOptionsMap().get("set-room"), true);
@@ -498,8 +411,7 @@ public class ReceptionistTerminal extends Terminal {
 	        	Customer customer = reservation.getCustomer();
 	        	
 	        	System.out.println("Customer: " + customer.getName() + " " + customer.getSurname());
-	        	System.out.println("Room: " + reservation.getRoom().getNumber());
-    	        	
+	        	System.out.println("Room: " + reservation.getRoom().getNumber()); 	        	
         	} 
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
@@ -522,13 +434,11 @@ public class ReceptionistTerminal extends Terminal {
 
 			try {
 				Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
-				System.out.println("Check-out customer " + booking.getSurname());
-				System.out.println("Check-out room " + booking.getRoomNumber());
+				System.out.println("Check-out for customer " + booking.getSurname() + " in room " + booking.getRoomNumber());
 				Application.hotelDatabaseManager.keyValue.deleteBooking(id);
 			} catch (BookingNotFoundException e) {
-				System.out.println("Check-out executed");
+				System.out.println("Check-out yet executed");
 			}
-
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 			formatter.printHelp("check-out", getOptionsMap().get("check-out"), true);
@@ -543,7 +453,7 @@ public class ReceptionistTerminal extends Terminal {
 	}
 
 	// ------------------------------------------------------------------------\\
-	// Simulation \\
+	// Simulation 															   \\
 	// ------------------------------------------------------------------------\\
 
 	private void simulateKeyValue(String[] options) {
@@ -559,7 +469,7 @@ public class ReceptionistTerminal extends Terminal {
 
 			Application.hotelDatabaseManager.keyValue.isAvailable = enabled;
 
-			System.out.println("The key-database is now " + (enabled ? "up" : "down"));
+			System.out.println("The key-value database is now " + (enabled ? "up" : "down"));
 
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
@@ -568,7 +478,7 @@ public class ReceptionistTerminal extends Terminal {
 	}
 
 	// ------------------------------------------------------------------------\\
-	// Options definition \\
+	// Options definition 													   \\
 	// ------------------------------------------------------------------------\\
 
 	private static Options getOptionsForShowRooms() {
