@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -344,8 +343,8 @@ public class DatabaseManager {
 			if (newCheckOut == null)
 				newCheckOut = reservation.getCheckOutDate();
 
-			if (newCheckOut.before(new java.sql.Date(newCheckIn.getTime())))
-				throw new ParseException("Check-out date must be greater than or equal to check-in date");
+			if (newCheckOut.before(newCheckIn) || newCheckOut.equals(newCheckIn))
+				throw new ParseException("Check-out date must be greater than check-in date");
 
 			if (newUsername == null)
 				newUsername = reservation.getCustomer().getUsername();
@@ -536,7 +535,6 @@ public class DatabaseManager {
 			List<Room> rooms = entityManager.createNamedQuery("Room.getReservableRoomsGivenPeriod", Room.class)
 					.setParameter("hotelId", hotelId).setParameter("startPeriod", startPeriod, TemporalType.DATE)
 					.setParameter("endPeriod", endPeriod, TemporalType.DATE).getResultList();
-			System.out.println(endPeriod);
 			return rooms;
 		} catch (HotelNotFoundException e) {
 			throw e;
@@ -1108,208 +1106,95 @@ public class DatabaseManager {
 			manager.insertRoom(new Room(401, 5, hotelBologna));
 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			// sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
 
-			/*
-			 * Calendar calendar = Calendar.getInstance(); calendar.set(2019, 11 - 1, 15, 1,
-			 * 0, 0); Date checkIn = calendar.getTime(); calendar.set(2019, 11 - 1, 19, 1,
-			 * 0, 0); Date checkOut = calendar.getTime();
-			 */
 			Date checkIn = sdf.parse("2019-11-15");
 			Date checkOut = sdf.parse("2019-11-19");
 			manager.insertReservation(3, 401, "piergiorgio", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2018, 11 - 1, 15, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2018, 11 - 1, 19, 1, 0, 0); checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2018-11-15");
 			checkOut = sdf.parse("2018-11-19");
 			manager.insertReservation(3, 401, "piergiorgio", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.JANUARY, 15, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.JANUARY, 16, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-01-15");
 			checkOut = sdf.parse("2019-01-16");
 			manager.insertReservation(5, 101, "max", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.FEBRUARY, 26, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.MARCH, 1, 1, 0, 0); checkOut
-			 * = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-02-26");
 			checkOut = sdf.parse("2019-03-01");
 			manager.insertReservation(5, 101, "ellie", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.FEBRUARY, 26, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2020, Calendar.MARCH, 1, 1, 0, 0); checkOut
-			 * = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-02-26");
 			checkOut = sdf.parse("2020-03-01");
 			manager.insertReservation(2, 101, "ellie", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.FEBRUARY, 12, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2020, Calendar.FEBRUARY, 13, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-02-12");
 			checkOut = sdf.parse("2020-02-13");
 			manager.insertReservation(2, 101, "john", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-12-20");
 			checkOut = sdf.parse("2019-12-23");
 			manager.insertReservation(2, 101, "john", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.DECEMBER, 20, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.DECEMBER, 23, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-12-20");
 			checkOut = sdf.parse("2019-12-23");
 			manager.insertReservation(5, 202, "kevin", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.SEPTEMBER, 28, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2020, Calendar.OCTOBER, 2, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-09-28");
 			checkOut = sdf.parse("2020-10-02");
 			manager.insertReservation(5, 202, "ellie", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.OCTOBER, 1, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.OCTOBER, 2, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-10-01");
 			checkOut = sdf.parse("2019-10-02");
 			manager.insertReservation(2, 101, "james", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.OCTOBER, 14, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.OCTOBER, 17, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-10-14");
 			checkOut = sdf.parse("2019-10-17");
 			manager.insertReservation(5, 202, "james", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.JUNE, 4, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2020, Calendar.JUNE, 7, 1, 0, 0); checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-06-04");
 			checkOut = sdf.parse("2020-06-07");
 			manager.insertReservation(5, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.JULY, 4, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2020, Calendar.JULY, 7, 1, 0, 0); checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-07-04");
 			checkOut = sdf.parse("2020-07-07");
 			manager.insertReservation(5, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.JULY, 11, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2020, Calendar.JULY, 21, 1, 0, 0); checkOut =
-			 * calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-07-11");
 			checkOut = sdf.parse("2020-07-21");
 			manager.insertReservation(5, 202, "julia", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.JULY, 23, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2020, Calendar.JULY, 27, 1, 0, 0); checkOut =
-			 * calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-07-23");
 			checkOut = sdf.parse("2020-07-27");
 			manager.insertReservation(2, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.JULY, 24, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2020, Calendar.JULY, 27, 1, 0, 0); checkOut =
-			 * calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-07-24");
 			checkOut = sdf.parse("2020-07-27");
 			manager.insertReservation(4, 102, "kevin", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.JANUARY, 11, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2020, Calendar.JANUARY, 14, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-01-11");
 			checkOut = sdf.parse("2020-01-14");
 			manager.insertReservation(4, 102, "julia", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.AUGUST, 11, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.AUGUST, 14, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-08-11");
 			checkOut = sdf.parse("2019-08-14");
 			manager.insertReservation(1, 101, "julia", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.AUGUST, 23, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2019, Calendar.SEPTEMBER, 2, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-08-23");
 			checkOut = sdf.parse("2019-09-02");
 			manager.insertReservation(1, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.SEPTEMBER, 2, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2020, Calendar.SEPTEMBER, 3, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-09-02");
 			checkOut = sdf.parse("2020-09-03");
 			manager.insertReservation(1, 101, "kevin", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2020, Calendar.SEPTEMBER, 7, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2020, Calendar.SEPTEMBER, 9, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2020-09-07");
 			checkOut = sdf.parse("2020-09-09");
 			manager.insertReservation(3, 301, "alessio", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2018, Calendar.OCTOBER, 25, 1, 0, 0); checkIn =
-			 * calendar.getTime(); calendar.set(2018, Calendar.NOVEMBER, 1, 1, 0, 0);
-			 * checkOut = calendar.getTime();
-			 */
 			checkIn = sdf.parse("2018-10-25");
 			checkOut = sdf.parse("2018-11-01");
 			manager.insertReservation(3, 301, "alessio", new Reservation(null, checkIn, checkOut, null));
 
-			/*
-			 * calendar.set(2019, Calendar.JUNE, 7, 1, 0, 0); checkIn = calendar.getTime();
-			 * calendar.set(2019, Calendar.JUNE, 10, 1, 0, 0); checkOut =
-			 * calendar.getTime();
-			 */
 			checkIn = sdf.parse("2019-06-07");
 			checkOut = sdf.parse("2019-06-10");
 			manager.insertReservation(3, 301, "alessio", new Reservation(null, checkIn, checkOut, null));

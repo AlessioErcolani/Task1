@@ -1,6 +1,7 @@
 package task1;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -157,17 +158,27 @@ public class ReceptionistTerminal extends Terminal {
 				to = parseDate(cmd.getOptionValue("to"));
 			} else if (cmd.hasOption("from") && !cmd.hasOption("to")) {
 				from = parseDate(cmd.getOptionValue("from"));
+				
 				to = parseDate(cmd.getOptionValue("from"));
+				Calendar calendar = Calendar.getInstance(); 
+				calendar.setTime(to); 
+				calendar.add(Calendar.DATE, 1);
+				to = calendar.getTime();
 			} else if (!cmd.hasOption("from") && cmd.hasOption("to")) {
 				from = new Date();
 				to = parseDate(cmd.getOptionValue("to"));
 			} else {
 				from = new Date();
+				
 				to = new Date();
+				Calendar calendar = Calendar.getInstance(); 
+				calendar.setTime(to); 
+				calendar.add(Calendar.DATE, 1);
+				to = calendar.getTime();
 			}
 
-			if (to.before(from))
-				throw new ParseException("Check-out date must be greater than or equal to check-in date");
+			if (to.before(from) || to.equals(from))
+				throw new ParseException("Check-out date must be greater than check-in date");
 
 			List<Room> rooms = null;
 
@@ -215,8 +226,8 @@ public class ReceptionistTerminal extends Terminal {
 			else
 				to = parseDate(cmd.getOptionValue("from"));
 
-			if (to.before(from))
-				throw new ParseException("Check-out date must be greater than or equal to check-in date");
+			if (to.before(from) || to.equals(from))
+				throw new ParseException("Check-out date must be greater than check-in date");
 
 			Reservation reservation = new Reservation(from, to);
 			reservation = Application.hotelDatabaseManager.insertReservation(hotelId, roomNumber, username, reservation);	
@@ -503,7 +514,7 @@ public class ReceptionistTerminal extends Terminal {
 
 		Option from = new Option("f", "from", true, "check-in date (format: yyyy-mm-dd) (default: today)");
 		from.setRequired(false);
-		Option to = new Option("t", "to", true, "check-out date: if not specified is equal to the check-in date");
+		Option to = new Option("t", "to", true, "check-out date: if not specified is equal to the day after the check-in date");
 		to.setRequired(false);
 
 		options.addOption(hotel);
@@ -579,7 +590,7 @@ public class ReceptionistTerminal extends Terminal {
 		customer.setRequired(true);
 		Option from = new Option("f", "from", true, "check-in date");
 		from.setRequired(true);
-		Option to = new Option("t", "to", true, "check-out date: if not specified is equal to the check-in date");
+		Option to = new Option("t", "to", true, "check-out date: if not specified is equal to the day after the check-in date");
 		to.setRequired(false);
 
 		options.addOption(hotel);

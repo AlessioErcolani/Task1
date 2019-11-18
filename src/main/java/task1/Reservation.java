@@ -161,6 +161,4 @@ public class Reservation {
 		}
 		return true;
 	}
-
-	
 }

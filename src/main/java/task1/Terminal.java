@@ -310,15 +310,8 @@ public class Terminal {
 			if (day > 31) 
 				throw new Exception();
 			
-			/*
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(year, month-1, day, 1, 0, 0);
-			return calendar.getTime();
-			*/
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			//sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
 			return sdf.parse(string);
-			
 		} catch (Exception e) {
 			throw new java.text.ParseException("unable to parse", 0);
 		}
@@ -351,5 +344,4 @@ public class Terminal {
         
         return options;
 	}
-
 }

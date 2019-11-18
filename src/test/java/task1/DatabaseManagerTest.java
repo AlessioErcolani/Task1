@@ -320,13 +320,6 @@ public class DatabaseManagerTest {
 			fail("Read customer: failed.");
 		}
 
-		/*
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(2020, 11 - 1, 6, 1, 0, 0);
-		Date checkInDate1 = calendar.getTime();
-		calendar.set(2020, 11 - 1, 11, 1, 0, 0);
-		Date checkOutDate1 = calendar.getTime();
-		*/
 		Date checkInDate1 = null, checkOutDate1 = null;
 		try {
 			checkInDate1 = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-06");
@@ -426,12 +419,7 @@ public class DatabaseManagerTest {
 		} catch (DatabaseManagerException e) {
 			fail("Test read updated reservation: failed.");
 		}
-		/*
-		calendar.set(2020, 11 - 1, 8);
-		Date checkInDate2 = calendar.getTime();
-		calendar.set(2020, 11 - 1, 14);
-		Date checkOutDate2 = calendar.getTime();
-		*/
+
 		Date checkInDate2 = null, checkOutDate2 = null;
 		try {
 			checkInDate2 = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-08");
@@ -656,13 +644,6 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		/*
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(2019, 11 - 1, 16, 1, 0, 0);
-		Date startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 17, 1, 0, 0);
-		Date endPeriod = calendar.getTime();
-		*/
 		Date startPeriod = null, endPeriod = null;
 		try {
 			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-16");
@@ -697,12 +678,6 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		/*
-		calendar.set(2019, 11 - 1, 18, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 24, 1, 0, 0);
-		endPeriod = calendar.getTime();
-		*/
 		try {
 			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-18");
 			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-24");
@@ -734,12 +709,6 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		/*
-		calendar.set(2019, 11 - 1, 11, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 16, 1, 0, 0);
-		endPeriod = calendar.getTime();
-		*/
 		try {
 			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-11");
 			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-16");
@@ -771,12 +740,6 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		/*
-		calendar.set(2019, 11 - 1, 14, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 20, 1, 0, 0);
-		endPeriod = calendar.getTime();
-		*/
 		try {
 			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-14");
 			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-20");
@@ -808,12 +771,6 @@ public class DatabaseManagerTest {
 		// - room must not be in the list of reservable rooms for the period
 		// - bookedRoom must not be in the list of unreservable rooms for the period
 		// - room must be in the list of unreservable rooms for the period
-		/*
-		calendar.set(2019, 11 - 1, 6, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 10, 1, 0, 0);
-		endPeriod = calendar.getTime();
-		*/
 		try {
 			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-06");
 			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-10");
@@ -844,12 +801,6 @@ public class DatabaseManagerTest {
 		// - room must not be in the list of reservable rooms for the period
 		// - bookedRoom must not be in the list of unreservable rooms for the period
 		// - room must be in the list of unreservable rooms for the period
-		/*
-		calendar.set(2019, 11 - 1, 21, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 23, 1, 0, 0);
-		endPeriod = calendar.getTime();
-		*/
 		try {
 			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-21");
 			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-23");
