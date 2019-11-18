@@ -29,7 +29,7 @@ import javax.persistence.*;
 				+ "		FROM Reservation res "
 				+ "		WHERE res.room.hotel.id = :hotelId "
 				+ "			AND (((:startPeriod <= res.checkInDate) AND (:endPeriod >= res.checkOutDate)) "
-				+ "			OR ((:startPeriod <= res.checkInDate) AND (:endPeriod >= res.checkInDate)) "
+				+ "			OR ((:startPeriod <= res.checkInDate) AND (:endPeriod > res.checkInDate)) "
 				+ "			OR ((:startPeriod < res.checkOutDate) AND (:endPeriod >= res.checkOutDate)) "
 				+ "			OR ((:startPeriod > res.checkInDate) AND (:endPeriod < res.checkOutDate))) "
 				+ ")") 		
