@@ -17,7 +17,6 @@ public class DatabaseManagerTest {
 	public static void setup() throws DatabaseManagerException {
 		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 		manager = new DatabaseManager("hotel_chain");
-		// DatabaseManager.populateDatabase(manager);
 	}
 
 	@AfterClass

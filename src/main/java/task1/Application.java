@@ -9,7 +9,7 @@ public class Application {
 	public static DatabaseManager hotelDatabaseManager;
 
 	public static void main(String[] args) {		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 		
 		try {
 			Application.hotelDatabaseManager = new DatabaseManager("hotel_chain");
@@ -17,7 +17,7 @@ public class Application {
 			System.out.println(e.getMessage());
 		}
 		// System.out.println("Populating database...");
-		DatabaseManager.populateDatabase(hotelDatabaseManager);
+		// DatabaseManager.populateDatabase(hotelDatabaseManager);
 		// System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
 		
 		System.out.println("\nType commands to use the application");
