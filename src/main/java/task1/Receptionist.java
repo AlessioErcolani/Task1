@@ -10,9 +10,6 @@ import javax.persistence.*;
 @NamedQuery(
 		name="Receptionist.findByUsername",
 		query="SELECT r FROM Receptionist r WHERE r.username = :username")
-@NamedQuery(
-		name="Receptionist.deleteReceptionist",
-		query="DELETE FROM Receptionist r WHERE r.id = :id")
 public class Receptionist extends User {
 	@ManyToOne
 	@JoinColumn(name = "hotel_id", referencedColumnName = "id")

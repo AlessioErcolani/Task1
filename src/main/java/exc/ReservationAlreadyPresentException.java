@@ -6,19 +6,20 @@ public class ReservationAlreadyPresentException extends Exception {
 		super();
 	}
 
-	public ReservationAlreadyPresentException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
-		super(arg0, arg1, arg2, arg3);
+	public ReservationAlreadyPresentException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public ReservationAlreadyPresentException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public ReservationAlreadyPresentException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
-	public ReservationAlreadyPresentException(String arg0) {
-		super(arg0);
+	public ReservationAlreadyPresentException(String message) {
+		super(message);
 	}
 
-	public ReservationAlreadyPresentException(Throwable arg0) {
-		super(arg0);
+	public ReservationAlreadyPresentException(Throwable cause) {
+		super(cause);
 	}
 }

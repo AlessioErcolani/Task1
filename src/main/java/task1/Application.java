@@ -2,17 +2,23 @@ package task1;
 
 import java.util.logging.Level;
 
+import exc.DatabaseManagerException;
+
 public class Application {
 	
 	public static DatabaseManager hotelDatabaseManager;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
+		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
 		
-		java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-		
-		Application.hotelDatabaseManager = new DatabaseManager("hotel_chain");
+		try {
+			Application.hotelDatabaseManager = new DatabaseManager("hotel_chain");
+		} catch (DatabaseManagerException e) {
+			System.out.println(e.getMessage());
+		}
 		// System.out.println("Populating database...");
-		// DatabaseManager.populateDatabase(hotelDatabaseManager);
+		DatabaseManager.populateDatabase(hotelDatabaseManager);
+		// System.out.println(Application.hotelDatabaseManager.keyValue.toStringKeyValue());
 		
 		System.out.println("\nType commands to use the application");
 		
@@ -77,6 +83,51 @@ public class Application {
 
 /*Terminal.testCommandLines = new String[] {
 "login --receptionist -u r2 -p pwd",
+<<<<<<< HEAD
+=======
+"sim-key-value --disable",
+"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+"update-reservation --currenthotel 3 --currentroom 201 --currentcheckin 2020-01-12 -c alessio",	
+"check-in --id 25",
+"delete-reservation -d 2020-01-12 -h 3 -r 201",
+"sim-key-value --enable",
+"logout",
+"exit"
+};*/
+
+
+/*Terminal.testCommandLines = new String[] {
+"login --receptionist -u r2 -p pwd",
+"show-reservations -f 2000-01-01",
+"check-in --id 1",
+"add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
+"show-reservations -f 2000-01-01",
+"check-in --id 1",
+"delete-reservation -d 2020-01-12 -h 3 -r 201",
+"show-reservations -f 2000-01-01",
+"check-in --id 1",
+"logout",
+"exit"
+};*/
+
+/*Terminal.testCommandLines = new String[] {
+"login --receptionist -u r2 -p pwd",
+"show-reservations -f 2000-01-01",
+"add-reservation -c chiara -h 3 -r 201 -f 2019-11-07",
+"show-reservations -f 2000-01-01",
+"check-in --id 3",
+"check-out --id 3",
+"check-in --id 3",
+"check-out --id 3",
+"delete-reservation -h 3 -r 201 -d 2019-11-07",
+"show-reservations -f 2000-01-01",
+"logout",
+"exit"
+};*/
+
+/*Terminal.testCommandLines = new String[] {
+"login --receptionist -u r2 -p pwd",
+>>>>>>> refs/heads/transactions
 "show-reservations",
 "add-reservation -c chiara -f 2020-01-12 -t 2020-01-15 -h 3 -r 201",
 "show-reservations",

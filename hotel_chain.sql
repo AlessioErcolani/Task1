@@ -2,7 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `hotel_chain` /*!40100 DEFAULT CHARACTER SET utf8
 USE `hotel_chain`;
 -- MySQL dump 10.13  Distrib 8.0.17, for Win64 (x86_64)
 --
--- Host: localhost    Database: hotel_chain
+-- Host: 127.0.0.1    Database: hotel_chain
 -- ------------------------------------------------------
 -- Server version	8.0.17
 
@@ -32,7 +32,7 @@ CREATE TABLE `customer` (
   `username` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_irnrrncatp2fvw52vp45j7rlw` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,7 +57,7 @@ CREATE TABLE `hotel` (
   `address` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_mq91c5gn4g1l11nmk4hba7nu6` (`address`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -88,7 +88,7 @@ CREATE TABLE `receptionist` (
   UNIQUE KEY `UK_cxeagq67ogkb9j9yig7we5mpf` (`username`),
   KEY `FKslpqyef17533ky5ty3kebotj3` (`hotel_id`),
   CONSTRAINT `FKslpqyef17533ky5ty3kebotj3` FOREIGN KEY (`hotel_id`) REFERENCES `hotel` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,7 +119,7 @@ CREATE TABLE `reservation` (
   KEY `FK41v6ueo0hiran65w8y1cta2c2` (`customer_id`),
   CONSTRAINT `FK41v6ueo0hiran65w8y1cta2c2` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`),
   CONSTRAINT `FKm8xumi0g23038cw32oiva2ymw` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,7 +128,7 @@ CREATE TABLE `reservation` (
 
 LOCK TABLES `reservation` WRITE;
 /*!40000 ALTER TABLE `reservation` DISABLE KEYS */;
-INSERT INTO `reservation` VALUES (1,'2019-11-15','2019-11-19',19,19),(2,'2018-11-15','2018-11-19',19,19),(3,'2019-01-15','2019-01-16',14,15),(4,'2019-02-26','2019-03-01',11,15),(5,'2020-02-26','2020-03-01',11,4),(6,'2020-02-12','2020-02-13',16,4),(7,'2019-12-20','2019-12-23',16,4),(8,'2019-12-20','2019-12-23',18,17),(9,'2020-09-27','2020-10-01',11,17),(10,'2019-09-30','2019-10-01',8,4),(11,'2019-10-13','2019-10-16',8,17),(12,'2020-06-03','2020-06-06',18,15),(13,'2020-07-03','2020-07-06',15,15),(14,'2020-07-10','2020-07-20',15,17),(15,'2020-07-22','2020-07-26',15,4),(16,'2020-07-23','2020-07-26',18,12),(17,'2020-01-11','2020-01-14',15,12),(18,'2019-08-10','2019-08-13',15,1),(19,'2019-08-22','2019-09-01',18,1),(20,'2020-09-01','2020-09-02',18,1),(21,'2020-09-06','2020-09-08',2,9),(22,'2018-10-24','2018-11-01',2,9),(23,'2019-06-06','2019-06-09',2,9);
+INSERT INTO `reservation` VALUES (1,'2019-11-15','2019-11-19',19,19),(2,'2018-11-15','2018-11-19',19,19),(3,'2019-01-15','2019-01-16',14,15),(4,'2019-02-26','2019-03-01',11,15),(5,'2020-02-26','2020-03-01',11,4),(6,'2020-02-12','2020-02-13',16,4),(7,'2019-12-20','2019-12-23',16,4),(8,'2019-12-20','2019-12-23',18,17),(9,'2020-09-28','2020-10-02',11,17),(10,'2019-10-01','2019-10-02',8,4),(11,'2019-10-14','2019-10-17',8,17),(12,'2020-06-04','2020-06-07',18,15),(13,'2020-07-04','2020-07-07',15,15),(14,'2020-07-11','2020-07-21',15,17),(15,'2020-07-23','2020-07-27',15,4),(16,'2020-07-24','2020-07-27',18,12),(17,'2020-01-11','2020-01-14',15,12),(18,'2019-08-11','2019-08-14',15,1),(19,'2019-08-23','2019-09-02',18,1),(20,'2020-09-02','2020-09-03',18,1),(21,'2020-09-07','2020-09-09',2,9),(22,'2018-10-25','2018-11-01',2,9),(23,'2019-06-07','2019-06-10',2,9);
 /*!40000 ALTER TABLE `reservation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -148,7 +148,7 @@ CREATE TABLE `room` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_hotel_number` (`hotel_id`,`number`),
   CONSTRAINT `FKdosq3ww4h9m2osim6o0lugng8` FOREIGN KEY (`hotel_id`) REFERENCES `hotel` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -170,4 +170,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-09 15:33:59
+-- Dump completed on 2019-11-18 12:16:31

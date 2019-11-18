@@ -1,22 +1,20 @@
 package task1;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.*;
 
 @Entity(name = "Hotel")
 @Table(name = "hotel")
-@NamedQuery(
-		name="Hotel.findAll",
-		query="SELECT h FROM Hotel h")
-@NamedQuery(
-		name="Hotel.findByAddress",
-		query="SELECT h FROM Hotel h WHERE h.address = :address")
+@NamedQuery(name = "Hotel.findAll", query = "SELECT h FROM Hotel h")
+@NamedQuery(name = "Hotel.findByAddress", query = "SELECT h FROM Hotel h WHERE h.address = :address")
 public class Hotel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
-	
+
 	@Column(unique = true)
 	private String address;
 
@@ -29,7 +27,7 @@ public class Hotel {
 	public Hotel(String address) {
 		this.address = address;
 	}
-	
+
 	public Hotel() {
 
 	}

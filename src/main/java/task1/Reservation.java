@@ -14,11 +14,11 @@ import javax.persistence.*;
 			}
 		))
 @NamedQuery(
-		name="Reservation.getByHoteAndRoomAndCheckInDate",
-		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.room.number = :roomNumber AND r.checkInDate = :checkInDate")
+		name="Reservation.getByHotelAndRoomAndCheckInDate",
+		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.room.number = :roomNumber AND r.checkInDate = :checkInDate") 
 @NamedQuery(
 		name="Reservation.getByCustomer",
-		query="SELECT r FROM Reservation r WHERE r.customer.id = :customerId AND r.checkInDate >= current_time")
+		query="SELECT r FROM Reservation r WHERE r.customer.id = :customerId AND r.checkInDate >= current_time") 
 @NamedQuery(
 		name="Reservation.getByHotel",
 		query="SELECT r FROM Reservation r WHERE r.room.hotel.id = :hotelId AND r.checkInDate >= :from")
@@ -43,6 +43,11 @@ public class Reservation {
 	@Temporal(TemporalType.DATE)
 	private Date checkOutDate;
 
+	public Reservation(Date checkInDate, Date checkOutDate) {
+		this.checkInDate = checkInDate;
+		this.checkOutDate = checkOutDate;
+	}
+	
 	public Reservation(Room room, Date checkInDate, Date checkOutDate) {
 		this.room = room;
 		this.checkInDate = checkInDate;
@@ -156,6 +161,4 @@ public class Reservation {
 		}
 		return true;
 	}
-
-	
 }
