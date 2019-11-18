@@ -1,6 +1,9 @@
 package task1;
 
 import static org.junit.Assert.*;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import org.junit.*;
@@ -27,7 +30,7 @@ public class DatabaseManagerTest {
 		// add new customer
 		Customer customer = new Customer("username", "pwd", "name", "surname");
 		try {
-			manager.addCustomer(customer);
+			manager.insertCustomer(customer);
 		} catch (CustomerUsernameAlreadyPresentException e) {
 			fail("Test add new customer: failed because username already present.");
 		} catch (DatabaseManagerException e) {
@@ -37,7 +40,7 @@ public class DatabaseManagerTest {
 		// read the inserted customer
 		Customer readCustomer = null;
 		try {
-			readCustomer = manager.readCustomer("username");
+			readCustomer = manager.retrieveCustomer("username");
 		} catch (CustomerNotFoundException e) {
 			fail("Test read customer: failed because customer not found.");
 		} catch (DatabaseManagerException e) {
@@ -49,7 +52,7 @@ public class DatabaseManagerTest {
 		Customer customerCopy = new Customer("username", "newPwd", "newName", "newSurname");
 		boolean exception = false;
 		try {
-			manager.addCustomer(customerCopy);
+			manager.insertCustomer(customerCopy);
 		} catch (CustomerUsernameAlreadyPresentException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -69,13 +72,15 @@ public class DatabaseManagerTest {
 		// delete the customer
 		try {
 			manager.deleteCustomer(readCustomer);
+		} catch (CustomerNotFoundException e) {
+			fail("Delete customer: failed because customer not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Test delete customer: failed.");
 		}
 
 		exception = false;
 		try {
-			readCustomer = manager.readCustomer("username");
+			readCustomer = manager.retrieveCustomer("username");
 		} catch (CustomerNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -91,7 +96,7 @@ public class DatabaseManagerTest {
 		// add new hotel
 		Hotel hotel = new Hotel(address);
 		try {
-			manager.addHotel(hotel);
+			manager.insertHotel(hotel);
 		} catch (HotelAlreadyPresentException e) {
 			fail("Test add new hotel: failed because hotel already present.");
 		} catch (DatabaseManagerException e) {
@@ -101,7 +106,7 @@ public class DatabaseManagerTest {
 		// read hotel
 		Hotel readHotel = null;
 		try {
-			readHotel = manager.readHotel(address);
+			readHotel = manager.retrieveHotel(address);
 		} catch (HotelNotFoundException e) {
 			fail("Test read hotel: failed.");
 		} catch (DatabaseManagerException e) {
@@ -112,7 +117,7 @@ public class DatabaseManagerTest {
 		// try to add again the hotel
 		boolean exception = false;
 		try {
-			manager.addHotel(hotel);
+			manager.insertHotel(hotel);
 		} catch (HotelAlreadyPresentException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -123,7 +128,7 @@ public class DatabaseManagerTest {
 		// add a room to the hotel
 		Room room = new Room(101, 5, hotel);
 		try {
-			manager.addRoom(room);
+			manager.insertRoom(room);
 		} catch (RoomAlreadyPresentException e) {
 			fail("Test add room: failed because room already present.");
 		} catch (DatabaseManagerException e) {
@@ -133,7 +138,7 @@ public class DatabaseManagerTest {
 		// read room
 		Room readRoom = null;
 		try {
-			readRoom = manager.readRoom(hotel.getId(), 101);
+			readRoom = manager.retrieveRoom(hotel.getId(), 101);
 		} catch (RoomNotFoundException e) {
 			fail("Test read room: failed.");
 		} catch (DatabaseManagerException e) {
@@ -144,7 +149,7 @@ public class DatabaseManagerTest {
 		// try to add again the room
 		exception = false;
 		try {
-			manager.addRoom(new Room(101, 5, hotel));
+			manager.insertRoom(new Room(101, 5, hotel));
 		} catch (RoomAlreadyPresentException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -156,14 +161,16 @@ public class DatabaseManagerTest {
 		exception = false;
 		try {
 			manager.deleteRoom(readRoom);
+		} catch (RoomNotFoundException e) {
+			fail("Test delete room: failed because room not found.");
 		} catch (DatabaseManagerException e) {
-			fail("Test delete hotel: failed.");
+			fail("Test delete room: failed.");
 		}
 
 		// add again the room
 		room = new Room(101, 5, hotel);
 		try {
-			manager.addRoom(room);
+			manager.insertRoom(room);
 		} catch (RoomAlreadyPresentException e) {
 			fail("Test add room: failed because room already present.");
 		} catch (DatabaseManagerException e) {
@@ -174,6 +181,8 @@ public class DatabaseManagerTest {
 		exception = false;
 		try {
 			manager.deleteHotel(readHotel);
+		} catch (HotelNotFoundException e) {
+			fail("Test delete hotel: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Test delete hotel: failed.");
 		}
@@ -181,7 +190,7 @@ public class DatabaseManagerTest {
 		// try to read the deleted hotel
 		exception = false;
 		try {
-			readHotel = manager.readHotel(address);
+			readHotel = manager.retrieveHotel(address);
 		} catch (HotelNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -192,7 +201,7 @@ public class DatabaseManagerTest {
 		// try to read the room deleted together with the hotel
 		exception = false;
 		try {
-			readRoom = manager.readRoom(hotel.getId(), 101);
+			readRoom = manager.retrieveRoom(hotel.getId(), 101);
 		} catch (RoomNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -208,14 +217,14 @@ public class DatabaseManagerTest {
 		Hotel hotel = new Hotel(address);
 		// add hotel
 		try {
-			manager.addHotel(hotel);
+			manager.insertHotel(hotel);
 		} catch (DatabaseManagerException | HotelAlreadyPresentException e) {
 			fail("Add hotel: failed.");
 		}
 
 		Receptionist receptionist = new Receptionist("username", "pwd", "name", "surname", hotel);
 		try {
-			manager.addReceptionist(receptionist);
+			manager.insertReceptionist(receptionist);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
 			fail("Test add new receptionist: failed because username already present!");
 		} catch (DatabaseManagerException e) {
@@ -226,7 +235,7 @@ public class DatabaseManagerTest {
 		Receptionist ReceptionistCopy = new Receptionist("username", "newPwd", "newName", "newSurname", hotel);
 		boolean exception = false;
 		try {
-			manager.addReceptionist(ReceptionistCopy);
+			manager.insertReceptionist(ReceptionistCopy);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -247,14 +256,16 @@ public class DatabaseManagerTest {
 		exception = false;
 		try {
 			manager.deleteReceptionist(readReceptionist);
-		} catch (DatabaseManagerException e) {
+		} catch (ReceptionistNotFoundException e) {
 			exception = true;
+		} catch (DatabaseManagerException e) {
+			fail("Test delete reservation: failed.");
 		}
 		assertFalse("Test delete receptionist.", exception);
 
 		// add again receptionist
 		try {
-			manager.addReceptionist(receptionist);
+			manager.insertReceptionist(receptionist);
 		} catch (ReceptionistUsernameAlreadyPresentException e) {
 			fail("Test add new receptionist: failed because username already present!");
 		} catch (DatabaseManagerException e) {
@@ -264,6 +275,8 @@ public class DatabaseManagerTest {
 		// delete an hotel
 		try {
 			manager.deleteHotel(hotel);
+		} catch (HotelNotFoundException e) {
+			fail("Test delete hotel: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Delete hotel: failed.");
 		}
@@ -271,7 +284,7 @@ public class DatabaseManagerTest {
 		// try to read the receptionist (must be deleted with the hotel)
 		exception = false;
 		try {
-			manager.readReceptionist("username");
+			manager.retrieveReceptionist("username");
 		} catch (ReceptionistNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -284,45 +297,74 @@ public class DatabaseManagerTest {
 	@Test
 	public void testAddUpdateAndDeleteReservation() {
 		Hotel hotel = null;
+		// read the hotel
 		try {
-			hotel = manager.readHotel("Via Bologna 28, Bologna");
+			hotel = manager.retrieveHotel("Via Bologna 28, Bologna");
 		} catch (HotelNotFoundException | DatabaseManagerException e) {
 			fail("Read hotel: failed.");
 		}
-		Room room = new Room(105, 5, hotel);
+
+		// add a new room
+		Room room1 = new Room(105, 5, hotel);
 		try {
-			manager.addRoom(room);
+			manager.insertRoom(room1);
 		} catch (DatabaseManagerException | RoomAlreadyPresentException e) {
 			fail("Read room: failed.");
 		}
-		Customer customer = new Customer("username", "password", "name", "surname");
+
+		// add a new customer
+		Customer customer1 = new Customer("username", "password", "name", "surname");
 		try {
-			manager.addCustomer(customer);
+			manager.insertCustomer(customer1);
 		} catch (DatabaseManagerException | CustomerUsernameAlreadyPresentException e) {
 			fail("Read customer: failed.");
 		}
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(2020, 11 - 1, 6, 1, 0, 0);
-		Date checkInDate = calendar.getTime();
-
-		calendar.set(2020, 11 - 1, 11, 1, 0, 0);
-		Date checkOutDate = calendar.getTime();
+		Date checkInDate1 = null, checkOutDate1 = null;
+		try {
+			checkInDate1 = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-06");
+			checkOutDate1 = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-11");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
 
 		// add a new reservation in the new room for the new customer
-		Reservation reservation = new Reservation(room, checkInDate, checkOutDate, customer);
 		try {
-			manager.addReservation(reservation);
-		} catch (ReservationAlreadyPresentException e) {
-			fail("Test add new reservation: failed because reservation already present.");
+			manager.insertReservation(hotel.getId(), 105, "username", new Reservation(checkInDate1, checkOutDate1));
+		} catch (RoomNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test add new reservation: failed.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
 		} catch (DatabaseManagerException e) {
 			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e) {
+			fail("Test add new reservation: failed because reservation already present.");
 		}
+		
+		boolean exception = false;
+		// try to add again the reservation
+		try {
+			manager.insertReservation(hotel.getId(), 105, "username",
+					new Reservation(null, checkInDate1, checkOutDate1, null));
+		} catch (RoomNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			exception = true;
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e) {
+			exception = true;
+		} catch (DatabaseManagerException e) {
+			fail("Test add new reservation: failed.");
+		} 
+		assertTrue("Test add again the reservation.", exception);
 
 		// read reservation
 		Reservation readReservation = null;
 		try {
-			readReservation = manager.readReservation(hotel.getId(), room.getNumber(), checkInDate);
+			readReservation = manager.retrieveReservation(hotel.getId(), 105, checkInDate1);
 		} catch (ReservationNotFoundException e) {
 			fail("Test read reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
@@ -332,72 +374,119 @@ public class DatabaseManagerTest {
 		// get all reservations of a customer
 		List<Reservation> upcomingReservations = null;
 		try {
-			upcomingReservations = manager.getUpcomingReservations(customer);
+			upcomingReservations = manager.retrieveUpcomingCustomerReservations(customer1);
 		} catch (DatabaseManagerException e) {
 			fail("Test get reservations of a customer: failed.");
 		}
+
 		// verify if the new reservation is correctly inserted
 		assertTrue("Test: reservation inserted", upcomingReservations.contains(readReservation));
 
-		calendar.set(2020, 11 - 1, 8);
-		Date newCheckInDate = calendar.getTime();
-		calendar.set(2020, 11 - 1, 14);
-		Date newCheckOutDate = calendar.getTime();
-		Room newRoom = new Room(106, 6, hotel);
+		// add another new room
+		Room room2 = new Room(106, 6, hotel);
 		try {
-			manager.addRoom(newRoom);
+			manager.insertRoom(room2);
 		} catch (DatabaseManagerException | RoomAlreadyPresentException e) {
 			fail("Read room: failed.");
 		}
-		Customer newCustomer = new Customer("newUsername", "password", "name", "surname");
+
+		// update reservation changing room
+		Reservation newReservation = new Reservation(checkInDate1, checkOutDate1);
+
 		try {
-			manager.addCustomer(newCustomer);
+			manager.updateReservation(hotel.getId(), 105, checkInDate1, hotel.getId(), 106, "username", checkInDate1, checkOutDate1);
+		} catch (org.apache.commons.cli.ParseException e) {
+			fail("Test update room in the reservation: failed because check-out date must be greater than check-in date.");
+		} catch (ReservationNotFoundException e) {
+			fail("Test update room in the reservation: failed because old reservation not found.");
+		} catch (RoomNotFoundException e) {
+			fail("Test update room in the reservation: failed because new room not found.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test update room in the reservation: failed because new customer not found.");
+		} catch (ReservationAlreadyPresentException e) {
+			fail("Test update room in the reservation: failed because new reservation already present.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test update room in the reservation: failed because new room already booked.");
+		} catch (DatabaseManagerException e) {
+			fail("Test update room in the reservation: failed.");
+		} 
+		
+		readReservation = null;
+		try {
+			readReservation = manager.retrieveReservation(hotel.getId(), 106, checkInDate1);
+		} catch (ReservationNotFoundException e) {
+			fail("Test read updated reservation: failed because reservation not found.");
+		} catch (DatabaseManagerException e) {
+			fail("Test read updated reservation: failed.");
+		}
+
+		Date checkInDate2 = null, checkOutDate2 = null;
+		try {
+			checkInDate2 = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-08");
+			checkOutDate2 = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-14");
+		} catch (ParseException e3) {
+			fail("Error in creating date");
+		}
+
+		// update reservation changing checkInDate and checkOutDate
+		newReservation = new Reservation(checkInDate2, checkOutDate2);
+		try {
+			manager.updateReservation(hotel.getId(), 106, checkInDate1, hotel.getId(), 106, "username", checkInDate2, checkOutDate2);
+		} catch (org.apache.commons.cli.ParseException e) {
+			fail("Test update room in the reservation: failed because check-out date must be greater than check-in date.");
+		} catch (ReservationNotFoundException e) {
+			fail("Test update room in the reservation: failed because old reservation not found.");
+		} catch (RoomNotFoundException e) {
+			fail("Test update room in the reservation: failed because new room not found.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test update room in the reservation: failed because new customer not found.");
+		} catch (ReservationAlreadyPresentException e) {
+			fail("Test update room in the reservation: failed because new reservation already present.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test update room in the reservation: failed because new room already booked.");
+		} catch (DatabaseManagerException e) {
+			fail("Test update room in the reservation: failed.");
+		}
+		
+		readReservation = null;
+		try {
+			readReservation = manager.retrieveReservation(hotel.getId(), 106, checkInDate2);
+		} catch (ReservationNotFoundException e) {
+			fail("Test read updated reservation: failed because reservation not found.");
+		} catch (DatabaseManagerException e) {
+			fail("Test read updated reservation: failed.");
+		}
+
+		Customer customer2 = new Customer("newUsername", "password", "name", "surname");
+		try {
+			manager.insertCustomer(customer2);
 		} catch (DatabaseManagerException | CustomerUsernameAlreadyPresentException e) {
 			fail("Read customer: failed.");
 		}
 
-		// update reservation changing room
-		Reservation newReservation = new Reservation(newRoom, checkInDate, checkOutDate, customer);
+		// update reservation changing customer
+		newReservation = new Reservation(checkInDate2, checkOutDate2);
 		try {
-			manager.updateReservation(readReservation, newReservation);
-		} catch (DatabaseManagerException e) {
+			manager.updateReservation(hotel.getId(), 106, checkInDate2, hotel.getId(), 106, "newUsername", checkInDate2, checkOutDate2);
+		} catch (org.apache.commons.cli.ParseException e) {
+			fail("Test update room in the reservation: failed because check-out date must be greater than check-in date.");
+		} catch (ReservationNotFoundException e) {
+			fail("Test update room in the reservation: failed because old reservation not found.");
+		} catch (RoomNotFoundException e) {
+			fail("Test update room in the reservation: failed because new room not found.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test update room in the reservation: failed because new customer not found.");
+		} catch (ReservationAlreadyPresentException e2) {
+			fail("Test update room in the reservation: failed because new reservation already present.");
+		} catch (RoomAlreadyBookedException e2) {
+			fail("Test update room in the reservation: failed because new room already booked.");
+		} catch (DatabaseManagerException e2) {
 			fail("Test update room in the reservation: failed.");
 		}
+		
 		readReservation = null;
 		try {
-			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), checkInDate);
-		} catch (ReservationNotFoundException e) {
-			fail("Test read updated reservation: failed because reservation not found.");
-		} catch (DatabaseManagerException e) {
-			fail("Test read updated reservation: failed.");
-		}
-
-		// update reservation changing checkInDate and checkOutDate
-		newReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate, customer);
-		try {
-			manager.updateReservation(readReservation, newReservation);
-		} catch (DatabaseManagerException e) {
-			fail("Test update dates in the reservation: failed.");
-		}
-		readReservation = null;
-		try {
-			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
-		} catch (ReservationNotFoundException e) {
-			fail("Test read updated reservation: failed because reservation not found.");
-		} catch (DatabaseManagerException e) {
-			fail("Test read updated reservation: failed.");
-		}
-
-		// update reservation changing customer
-		newReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate, newCustomer);
-		try {
-			manager.updateReservation(readReservation, newReservation);
-		} catch (DatabaseManagerException e) {
-			fail("Test update customer in the reservation: failed.");
-		}
-		readReservation = null;
-		try {
-			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
+			readReservation = manager.retrieveReservation(hotel.getId(), 106, checkInDate2);
 		} catch (ReservationNotFoundException e) {
 			fail("Test read updated reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
@@ -406,22 +495,25 @@ public class DatabaseManagerTest {
 
 		// get all reservations of the old customer
 		try {
-			upcomingReservations = manager.getUpcomingReservations(customer);
+			upcomingReservations = manager.retrieveUpcomingCustomerReservations(customer1);
 		} catch (DatabaseManagerException e) {
+			System.out.println(e);
 			fail("Test get reservations of the new customer: failed.");
 		}
 		assertFalse("Test: reservation deleted for the old customer.", upcomingReservations.contains(readReservation));
 
 		// delete the reservation
 		try {
-			manager.deleteReservation(readReservation);
+			manager.deleteReservation(hotel.getId(), 106, checkInDate2);
+		} catch (ReservationNotFoundException e) {
+			fail("Test delete reservation: failed because reservation not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Test delete reservation: failed.");
-		}
+		} 
 
 		// get all reservations of the customer
 		try {
-			upcomingReservations = manager.getUpcomingReservations(newCustomer);
+			upcomingReservations = manager.retrieveUpcomingCustomerReservations(customer2);
 		} catch (DatabaseManagerException e) {
 			fail("Test get reservations of the new customer: failed.");
 		}
@@ -429,27 +521,35 @@ public class DatabaseManagerTest {
 		assertFalse("Test: reservation deleted.", upcomingReservations.contains(newReservation));
 
 		// add again the reservation
-		newReservation = new Reservation(newRoom, newCheckInDate, newCheckOutDate, newCustomer);
 		try {
-			manager.addReservation(newReservation);
-		} catch (ReservationAlreadyPresentException e) {
-			fail("Test add again reservation: failed because reservation already present.");
-		} catch (DatabaseManagerException e) {
-			fail("Test add again reservation: failed.");
+			manager.insertReservation(hotel.getId(), 106, "newUsername",
+					new Reservation(null, checkInDate2, checkOutDate2, null));
+		} catch (RoomNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test add new reservation: failed.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e1) {
+			fail("Test add new reservation: failed because reservation already present.");
 		}
 
 		// delete room of the reservation
 		try {
-			manager.deleteRoom(newRoom);
+			manager.deleteRoom(room2);
+		} catch (RoomNotFoundException e) {
+			fail("Test delete room: failed because room not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Delete room: failed.");
 		}
 
 		// try to read the reservation (must be deleted together with the room)
 		readReservation = null;
-		boolean exception = false;
+		exception = false;
 		try {
-			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
+			readReservation = manager.retrieveReservation(hotel.getId(), 106, checkInDate2);
 		} catch (ReservationNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -458,18 +558,26 @@ public class DatabaseManagerTest {
 		assertTrue("Test read deleted reservation.", exception);
 
 		// add again the reservation
-		newReservation = new Reservation(room, newCheckInDate, newCheckOutDate, newCustomer);
 		try {
-			manager.addReservation(newReservation);
-		} catch (ReservationAlreadyPresentException e) {
-			fail("Test add again reservation: failed because reservation already present.");
-		} catch (DatabaseManagerException e) {
-			fail("Test add again reservation: failed.");
+			manager.insertReservation(hotel.getId(), 105, "newUsername",
+					new Reservation(null, checkInDate2, checkOutDate2, null));
+		} catch (RoomNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (RoomAlreadyBookedException e) {
+			fail("Test add new reservation: failed.");
+		} catch (CustomerNotFoundException e) {
+			fail("Test add new reservation: failed.");
+		} catch (DatabaseManagerException e1) {
+			fail("Test add new reservation: failed.");
+		} catch (ReservationAlreadyPresentException e1) {
+			fail("Test add new reservation: failed because reservation already present.");
 		}
 
 		// delete customer of the reservation
 		try {
-			manager.deleteCustomer(newCustomer);
+			manager.deleteCustomer(customer2);
+		} catch (CustomerNotFoundException e) {
+			fail("Delete customer: failed because customer not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Delete customer: failed.");
 		}
@@ -478,7 +586,7 @@ public class DatabaseManagerTest {
 		readReservation = null;
 		exception = false;
 		try {
-			readReservation = manager.readReservation(hotel.getId(), newRoom.getNumber(), newCheckInDate);
+			readReservation = manager.retrieveReservation(hotel.getId(), 105, checkInDate2);
 		} catch (ReservationNotFoundException e) {
 			exception = true;
 		} catch (DatabaseManagerException e) {
@@ -487,13 +595,17 @@ public class DatabaseManagerTest {
 		assertTrue("Test read deleted reservation.", exception);
 
 		try {
-			manager.deleteCustomer(customer);
+			manager.deleteCustomer(customer1);
+		} catch (CustomerNotFoundException e) {
+			fail("Delete customer: failed because customer not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Delete customer: failed.");
 		}
 
 		try {
-			manager.deleteRoom(room);
+			manager.deleteRoom(room1);
+		} catch (RoomNotFoundException e) {
+			fail("Test delete room: failed because room not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Delete room: failed.");
 		}
@@ -504,7 +616,7 @@ public class DatabaseManagerTest {
 	public void testGetReservableAndUnreservableSetAvailableAndUnavailableRoom() {
 		Hotel hotel = null;
 		try {
-			hotel = manager.readHotel("Via Bologna 28, Bologna");
+			hotel = manager.retrieveHotel("Via Bologna 28, Bologna");
 		} catch (HotelNotFoundException | DatabaseManagerException e) {
 			fail("Read hotel: failed.");
 		}
@@ -513,7 +625,7 @@ public class DatabaseManagerTest {
 		// 19-11-2019 (= checkOutDate)
 		Room bookedRoom = null;
 		try {
-			bookedRoom = manager.readRoom(hotel.getId(), 401);
+			bookedRoom = manager.retrieveRoom(hotel.getId(), 401);
 		} catch (DatabaseManagerException | RoomNotFoundException e) {
 			fail("Read room: failed.");
 		}
@@ -521,12 +633,10 @@ public class DatabaseManagerTest {
 		// unavailable room in the database
 		Room room = null;
 		try {
-			room = manager.readRoom(hotel.getId(), 302);
+			room = manager.retrieveRoom(hotel.getId(), 302);
 		} catch (DatabaseManagerException | RoomNotFoundException e) {
 			fail("Read room: failed.");
 		}
-
-		Calendar calendar = Calendar.getInstance();
 
 		// test with both startPeriod and endPeriod in the interval [checkInDate,
 		// checkOutDate]
@@ -534,21 +644,29 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		calendar.set(2019, 11 - 1, 16, 1, 0, 0);
-		Date startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 17, 1, 0, 0);
-		Date endPeriod = calendar.getTime();
+		Date startPeriod = null, endPeriod = null;
+		try {
+			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-16");
+			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-17");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
+		
 		List<Room> reservableRooms = null;
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
-		}
+		} 
 		assertFalse("Test booked room not in reservable rooms.", reservableRooms.contains(bookedRoom));
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		List<Room> unreservableRooms = null;
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed.");
 		}
@@ -560,19 +678,26 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		calendar.set(2019, 11 - 1, 18, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 24, 1, 0, 0);
-		endPeriod = calendar.getTime();
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-18");
+			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-24");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
+		
+		try {
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertFalse("Test booked room not in reservable rooms.", reservableRooms.contains(bookedRoom));
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed.");
 		}
@@ -584,19 +709,25 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		calendar.set(2019, 11 - 1, 11, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 16, 1, 0, 0);
-		endPeriod = calendar.getTime();
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-11");
+			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-16");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
+		try {
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertFalse("Test booked room not in reservable rooms.", reservableRooms.contains(bookedRoom));
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed.");
 		}
@@ -609,19 +740,26 @@ public class DatabaseManagerTest {
 		// period
 		// - bookedRoom and room must be in the list of unreservable rooms for the
 		// period
-		calendar.set(2019, 11 - 1, 14, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 20, 1, 0, 0);
-		endPeriod = calendar.getTime();
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-14");
+			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-20");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
+		
+		try {
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertFalse("Test booked room not in reservable rooms.", reservableRooms.contains(bookedRoom));
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			e.printStackTrace();
 		}
@@ -633,19 +771,25 @@ public class DatabaseManagerTest {
 		// - room must not be in the list of reservable rooms for the period
 		// - bookedRoom must not be in the list of unreservable rooms for the period
 		// - room must be in the list of unreservable rooms for the period
-		calendar.set(2019, 11 - 1, 6, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 10, 1, 0, 0);
-		endPeriod = calendar.getTime();
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-06");
+			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-10");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
+		try {
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertTrue("Test booked room in reservable rooms.", reservableRooms.contains(bookedRoom));
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed");
 		}
@@ -657,19 +801,25 @@ public class DatabaseManagerTest {
 		// - room must not be in the list of reservable rooms for the period
 		// - bookedRoom must not be in the list of unreservable rooms for the period
 		// - room must be in the list of unreservable rooms for the period
-		calendar.set(2019, 11 - 1, 21, 1, 0, 0);
-		startPeriod = calendar.getTime();
-		calendar.set(2019, 11 - 1, 23, 1, 0, 0);
-		endPeriod = calendar.getTime();
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			startPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-21");
+			endPeriod = new SimpleDateFormat("yyyy-MM-dd").parse("2019-11-23");
+		} catch (ParseException e) {
+			fail("Error in creating date");
+		}
+		try {
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertTrue("Test booked room in reservable rooms.", reservableRooms.contains(bookedRoom));
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed");
 		}
@@ -680,18 +830,24 @@ public class DatabaseManagerTest {
 		// - room must be in the list of reservable rooms for the period
 		// - room must not be in the list of unreservable rooms for the period
 		try {
-			room = manager.setRoomAvailable(room);
+			room = manager.updateRoomAvailability(hotel.getId(), room.getNumber(), true);
+		} catch (RoomNotFoundException e) {
+			fail("Test set room available: failed because room not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Test set room available: failed");
 		}
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertTrue("Test available room in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed");
 		}
@@ -699,75 +855,82 @@ public class DatabaseManagerTest {
 
 		// coming back to the original situation
 		try {
-			room = manager.setRoomUnavailable(room);
+			room = manager.updateRoomAvailability(hotel.getId(), room.getNumber(), false);
+		} catch (RoomNotFoundException e) {
+			fail("Test set room unavailable: failed because room not found.");
 		} catch (DatabaseManagerException e) {
-			fail("Test set room unavailable: failed");
+			fail("Test set room unavailable: failed.");
 		}
+		
 		try {
-			reservableRooms = manager.getReservableRooms(hotel, startPeriod, endPeriod);
+			reservableRooms = manager.retrieveReservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read reservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read reservable rooms: failed");
 		}
 		assertFalse("Test unavailable room not in reservable rooms.", reservableRooms.contains(room));
 		try {
-			unreservableRooms = manager.getUnreservableRooms(hotel, startPeriod, endPeriod);
+			unreservableRooms = manager.retrieveUnreservableRooms(hotel.getId(), startPeriod, endPeriod);
+		} catch (HotelNotFoundException e) {
+			fail("Read unreservable rooms: failed because hotel not found.");
 		} catch (DatabaseManagerException e) {
 			fail("Read unreservable rooms: failed");
 		}
 		assertTrue("Test unavailable room in unreservable rooms.", unreservableRooms.contains(room));
 	}
-	
-	//------------------------------------------------------------------------\\
-	// Key Value                                                              \\
-	//------------------------------------------------------------------------\\
-	
-	@Test 
+
+	// ------------------------------------------------------------------------\\
+	// Key Value 															   \\
+	// ------------------------------------------------------------------------\\
+
+	@Test
 	public void insertReadBooking() {
-		
+
 		String startTest = manager.keyValue.toStringKeyValue();
-		
-		Booking firstBooking = new Booking ("Alessio", "Ercolani", "44");
+
+		Booking firstBooking = new Booking("Alessio", "Ercolani", "44");
 		Booking secondBooking = new Booking("Marco", "Del Gamba", "66");
 		Booking thirdBooking = new Booking("Chiara", "Bonsignori", "23");
-		
+
 		int idBooking = 500;
-	
+
 		try {
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), firstBooking);
 			manager.keyValue.insertBooking(Integer.toString(idBooking++), secondBooking);
-			
+
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
-		}  catch (BookingAlreadyPresentException b) {
+		} catch (BookingAlreadyPresentException b) {
 			fail("Impossible duplication of id " + b.getMessage() + ": failed");
 		}
-	
+
 		boolean exception = false;
-			
+
 		try {
-			manager.keyValue.insertBooking(Integer.toString(500), thirdBooking);			
+			manager.keyValue.insertBooking(Integer.toString(500), thirdBooking);
 		} catch (DatabaseManagerException e) {
 			fail("Impossible to insert a new booking: failed");
-		}  catch (BookingAlreadyPresentException e) {
+		} catch (BookingAlreadyPresentException e) {
 			exception = true;
 		}
-		
+
 		assertTrue("Test insertReadBooking.", exception);
-		
+
 		Booking readBooking = null;
-		
+
 		try {
 			readBooking = manager.keyValue.getBooking(Integer.toString(500));
 		} catch (DatabaseManagerException e) {
-			fail("Impossible to read a booking: failed");			
+			fail("Impossible to read a booking: failed");
 		} catch (BookingNotFoundException bnf) {
 			fail("Impossible: the booking is on the database");
 		}
-		
+
 		assertEquals("Test insertReadBooking", firstBooking, readBooking);
-		
+
 		exception = false;
-		
+
 		try {
 			readBooking = manager.keyValue.getBooking(Integer.toString(-1));
 		} catch (DatabaseManagerException e) {
@@ -775,18 +938,18 @@ public class DatabaseManagerTest {
 		} catch (BookingNotFoundException bnf) {
 			exception = true;
 		}
-		
+
 		assertTrue("Test insertReadBooking.", exception);
 		try {
-			manager.keyValue.deleteBooking(Integer.toString(500));		
+			manager.keyValue.deleteBooking(Integer.toString(500));
 			manager.keyValue.deleteBooking(Integer.toString(501));
 		} catch (DatabaseManagerException e) {
-			
+
 			fail("Impossible to delete a booking: failed");
-		}		
-		
+		}
+
 		assertEquals("Test insertReadBooking", startTest, manager.keyValue.toStringKeyValue());
-		
+
 		try {
 			manager.keyValue.closeKeyValueDb();
 		} catch (DatabaseManagerException e) {

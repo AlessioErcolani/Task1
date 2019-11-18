@@ -176,9 +176,13 @@ public class KeyValueDatabaseManager {
 	 * @throws KeyValueDatabaseManagerException
 	 */
 	public void deleteBooking(String id) throws KeyValueDatabaseManagerException {
-		deleteFieldKeyValue(id, Type.NAME);
-		deleteFieldKeyValue(id, Type.SURNAME);
-		deleteFieldKeyValue(id, Type.ROOM_NUMBER);
+		try {
+			deleteFieldKeyValue(id, Type.NAME);
+			deleteFieldKeyValue(id, Type.SURNAME);
+			deleteFieldKeyValue(id, Type.ROOM_NUMBER);
+		} catch (Exception e) {
+			throw new KeyValueDatabaseManagerException();
+		}
 	}
 
 	/**
