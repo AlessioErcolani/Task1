@@ -41,6 +41,8 @@ public class Application {
 				cli = cli.switchTerminal();
 		}
 		
+		hotelDatabaseManager.exit();
+		
 		System.out.println("\nClosing application");
 
 	}
