@@ -28,6 +28,7 @@ public class ReceptionistTerminal extends Terminal {
 																"delete-reservation", 
 																"set-room", 
 																"register", 
+																"show-customers", 
 																"check-in",
 																"check-out", 
 																"sim-key-value", 
@@ -47,6 +48,7 @@ public class ReceptionistTerminal extends Terminal {
 		map.put("delete-reservation", getOptionsForDeleteReservation());
 		map.put("set-room", getOptionsForSetRoom());
 		map.put("register", getOptionsForRegister());
+		map.put("show-customers", getOptionsShowCustomers());
 		map.put("check-in", getOptionsForCheckIn());
 		map.put("check-out", getOptionsForCheckOut());
 		map.put("sim-key-value", getOptionsForSimulateKeyValue());
@@ -114,6 +116,9 @@ public class ReceptionistTerminal extends Terminal {
 			break;
 		case "register":
 			register(options);
+			break;
+		case "show-customers":
+			showCustomers(options);
 			break;
 		case "check-in":
 			checkIn(options);
@@ -400,6 +405,22 @@ public class ReceptionistTerminal extends Terminal {
 			System.out.println("Something went wrong");
 		}
 	}
+	
+	private void showCustomers(String[] options) {
+		try {
+        	CommandLine cmd = parser.parse(getOptionsMap().get("show-customers"), options);
+        	
+        	List<Customer> customers = Application.hotelDatabaseManager.retrieveCustomers();
+            
+			printCustomers(customers);
+			
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			formatter.printHelp("show-customers", getOptionsMap().get("show-customers"), true);
+		} catch (Exception e) {
+			System.out.println("Something went wrong");
+		}
+	}
 
 	private void checkIn(String[] options) {
 		try {
@@ -564,6 +585,12 @@ public class ReceptionistTerminal extends Terminal {
 		options.addOption(name);
 		options.addOption(surname);
 		options.addOption(username);
+
+		return options;
+	}
+	
+	private static Options getOptionsShowCustomers() {
+		Options options = new Options();
 
 		return options;
 	}

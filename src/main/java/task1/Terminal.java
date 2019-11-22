@@ -273,6 +273,25 @@ public class Terminal {
 		System.out.format("+------+------+----------+----------------------------+------------+------------+-------------------+%n");
 	}
 	
+	protected void printCustomers(List<Customer> customers) {
+		if (customers == null)
+			return;
+
+		String format = "| %-11s | %-11s | %-11s |%n";
+
+		System.out.format("+-------------+-------------+-------------+%n");
+		System.out.format("| Surname     | Name        | Username    |%n");
+		System.out.format("+-------------+-------------+-------------+%n");
+		for (Customer c : customers)
+			System.out.format(format,
+					c.getSurname(),
+					c.getName(),
+					c.getUsername());
+		/*for (Customer c : customers)
+    		System.out.println(c);*/
+		System.out.format("+-------------+-------------+-------------+%n");
+	}
+	
 	//------------------------------------------------------------------------\\
 	// Utilities                                                              \\
 	//------------------------------------------------------------------------\\

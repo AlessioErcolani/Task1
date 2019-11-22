@@ -59,7 +59,26 @@ public class DatabaseManager {
 		entityManager.close();
 	}
 
-	/* OK */
+	/**
+	 * Retrieve the list of all customers from the database
+	 * 
+	 * @return a list of customers, ordered by surname
+	 * @throws DatabaseManagerException in case of errors
+	 */
+	public List<Customer> retrieveCustomers() throws DatabaseManagerException {
+		try {
+			beginTransaction();
+			List<Customer> customers = entityManager.createNamedQuery("Customer.findAll", Customer.class)
+					.getResultList();
+			return customers;
+		} catch (Exception ex) {
+			throw new DatabaseManagerException(ex.getMessage());
+		} finally {
+			commitTransaction();
+			close();
+		}
+	}
+
 	/**
 	 * Insert a Customer in the database
 	 * 
@@ -89,7 +108,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Insert a Receptionist in the database
 	 * 
@@ -119,7 +137,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Insert a Hotel in the database
 	 * 
@@ -142,7 +159,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Insert a Room in the database
 	 * 
@@ -164,7 +180,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Insert a Reservation in the database
 	 * 
@@ -239,7 +254,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Update the key-value database
 	 * 
@@ -277,7 +291,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Write in the "errorLog.txt" file every time that it is not possible update
 	 * the key-value database
@@ -294,7 +307,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Update an existing reservation
 	 * 
@@ -422,7 +434,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Delete a reservation
 	 * 
@@ -465,7 +476,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Get the list of reservations for a customer
 	 * 
@@ -488,7 +498,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Retrieve reservations in a hotel starting from a given date
 	 * 
@@ -512,7 +521,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Retrieve the list of bookable rooms in an hotel in a given period of time
 	 * 
@@ -546,7 +554,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Retrieve the list of non-bookable rooms in a hotel in a given period
 	 * 
@@ -580,7 +587,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Set a room available or unavailable
 	 * 
@@ -611,7 +617,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Change the password of the customer
 	 * 
@@ -634,7 +639,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Checks for the authentication of a Customer through their username and
 	 * password
@@ -658,7 +662,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Checks for the authentication of a Receptionist through their username and
 	 * password
@@ -684,7 +687,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Retrieve the list of hotels
 	 * 
@@ -704,7 +706,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return an hotel given its address
 	 * 
@@ -730,7 +731,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return an hotel given its id
 	 * 
@@ -758,7 +758,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Retrieve the list of all the rooms in a hotel
 	 * 
@@ -780,7 +779,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return a room given an hotelId and the room number
 	 * 
@@ -807,7 +805,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return a customer given the username
 	 * 
@@ -834,7 +831,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return a receptionist given the username
 	 * 
@@ -862,7 +858,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Delete a Customer
 	 * 
@@ -887,7 +882,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Delete a Hotel
 	 * 
@@ -912,7 +906,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Delete a Room
 	 * 
@@ -937,7 +930,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Delete a Receptionist
 	 * 
@@ -963,7 +955,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return a reservation given the id
 	 * 
@@ -991,7 +982,6 @@ public class DatabaseManager {
 		}
 	}
 
-	/* OK */
 	/**
 	 * Return a reservation given the hotelId, the roomNumber and the date of
 	 * check-in

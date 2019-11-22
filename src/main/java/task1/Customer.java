@@ -13,6 +13,9 @@ import javax.persistence.*;
 @NamedQuery(
 		name="Customer.findByUsername",
 		query="SELECT c FROM Customer c WHERE c.username = :username")
+@NamedQuery(
+		name="Customer.findAll",
+		query="SELECT c FROM Customer c ORDER BY c.surname")
 public class Customer extends User {
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Reservation> reservations = new ArrayList<Reservation>();
