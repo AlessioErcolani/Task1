@@ -469,7 +469,7 @@ public class ReceptionistTerminal extends Terminal {
         			Booking booking = Application.hotelDatabaseManager.keyValue.getBooking(id);
         			System.out.println("Check-out for customer " + booking.getSurname() + " in room " + booking.getRoomNumber());
         		} catch (BookingNotFoundException e) {
-            		System.out.println("Check-out yet executed");
+            		System.out.println("Check-out already executed");
             	}	
         		    		
         		try {
